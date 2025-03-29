@@ -10,12 +10,12 @@
 #include <vector>
 #include <unordered_map>
 
-#include "API/API.h"
-#include "Algorithm/AStar.h"
-#include "Algorithm/FrontierBased.h"
-#include "Algorithm/Maze/Cell.h"
-#include "Algorithm/Maze/MouseLocal.h"
-#include "Algorithm/Maze/Movement.h"
+#include "../API.h"
+#include "Maze_Traversal/AStar.h"
+#include "Maze_Traversal/FrontierBased.h"
+#include "Maze_Traversal/Maze/Cell.h"
+#include "Maze_Traversal/Maze/MouseLocal.h"
+#include "Maze_Traversal/Maze/Movement.h"
 
 using std::vector;
 using std::unordered_map;

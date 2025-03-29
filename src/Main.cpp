@@ -1,4 +1,3 @@
-
 #include "Main.h"
 MouseLocal* mousePtr;
 API* apiPtr;

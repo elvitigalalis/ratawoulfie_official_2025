@@ -8,8 +8,8 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
-#include "../Constants.h"
-#include "../Logger.h"
+#include "../Constants/Constants.h"
+#include "../Constants/Logger.h"
 #include "Maze/Cell.h"
 #include "Maze/MouseLocal.h"
 #include "Maze/Movement.h"
