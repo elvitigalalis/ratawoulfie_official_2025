@@ -25,7 +25,7 @@ class Motor {
 	void setPosition(int pos);		   // Meters.
 
 	float getTargetThrottle() const;
-	float getRPM() const;
+	float getCurrentRPM() const;
 	int getTargetPosition() const;
 	int getCurrentPosition() const;
 
@@ -47,13 +47,15 @@ class Motor {
 	volatile float currentRPM;
 	volatile bool motorOn;
 
-	float Kp, kI, Kd;
+	float kP, kI, kD;
 	volatile float integral;
 	volatile float derivative, lastError;
 	absolute_time_t lastPIDTime;
 
 	volatile int32_t prevEncoderCount;
 	absolute_time_t prevEncoderTime;  // For RPM calcs.
+
+    float clamp(float value, float min, float max);
 
 	void setUp();
 	void initializePWM();
