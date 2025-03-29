@@ -1,5 +1,4 @@
 #include "API.h"
-#include "../Algorithm/Maze/MouseLocal.h"
 
 // Constructor
 API::API(MouseLocal* mouseLocal) : mouseLocal(mouseLocal) {}

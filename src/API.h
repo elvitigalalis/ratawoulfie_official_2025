@@ -5,7 +5,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
-// #include "../Algorithm/Maze/MouseLocal.h"
+#include "Maze_Traversal/Maze/MouseLocal.h"
 
 using std::cerr;
 using std::ostringstream;
