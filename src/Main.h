@@ -17,7 +17,7 @@
 #include "Maze_Traversal/Maze/Cell.h"
 #include "Maze_Traversal/Maze/MouseLocal.h"
 #include "Maze_Traversal/Maze/Movement.h"
-#include "Subsystems/Drive/Motor.h"
+#include "Subsystems/Drive/Drivetrain.h"
 #include "pico/stdlib.h"
 
 using std::to_string;

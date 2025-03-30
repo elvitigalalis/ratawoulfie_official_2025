@@ -1,7 +1,7 @@
 #include "API.h"
 
 // Constructor
-API::API(MouseLocal* mouseLocal) : mouseLocal(mouseLocal) {}
+API::API(MouseLocal* mouseLocal, Drivetrain* drivetrain) : mouseLocal(mouseLocal), drivetrain(drivetrain) {}
 
 // Internal helper methods for reading from simulator
 
@@ -54,8 +54,8 @@ bool API::getBooleanResponse(const string& commandUsed) {
  * @return True if acknowledgment received, false otherwise.
  */
 bool API::getAck(const string& commandUsed) {
-	string response = getResponse(commandUsed);
-	return response == "ack";
+	// string response = getResponse(commandUsed);
+	return true;
 }
 
 // Maze dimension queries
@@ -118,6 +118,7 @@ void API::moveForward() {
 	bool ack = getAck("moveForward");
 
 	if (ack) {
+        drivetrain->driveForwardDistance(1);
 		mouseLocal->moveForwardLocal();
 	} else {
 		cerr << mouseLocal->localMazeToString();
@@ -140,6 +141,7 @@ void API::moveForward(int steps) {
 
 	if (ack) {
 		for (int i = 0; i < steps; ++i) {
+            drivetrain->driveForwardDistance(1);
 			mouseLocal->moveForwardLocal();
 		}
 	} else {
@@ -157,9 +159,7 @@ void API::moveForwardHalf() {
 	bool ack = getAck("moveForwardHalf");
 
 	if (ack) {
-		// FIXME: Implement half movement logic if applicable
-		// For now, we assume a half step is equivalent to a full step
-		// mouseLocal->moveForwardLocal();
+		drivetrain->driveForwardDistance(0.5);
 	} else {
 		cerr << mouseLocal->localMazeToString();
 		throw std::runtime_error("Cannot move forward half");
@@ -174,6 +174,7 @@ void API::moveForwardHalf() {
 void API::turnRight() {
 	bool ack = getAck("turnRight");
 	if (ack) {
+        drivetrain->rotateBy(90);
 		mouseLocal->turnMouseLocal(0, 2);
 	} else {
 		cerr << mouseLocal->localMazeToString();
@@ -189,6 +190,7 @@ void API::turnRight() {
 void API::turnLeft() {
 	bool ack = getAck("turnLeft");
 	if (ack) {
+        drivetrain->rotateBy(-90);
 		mouseLocal->turnMouseLocal(2, 0);
 	} else {
 		cerr << mouseLocal->localMazeToString();
@@ -204,6 +206,7 @@ void API::turnLeft() {
 void API::turnRight45() {
 	bool ack = getAck("turnRight45");
 	if (ack) {
+        drivetrain->rotateBy(45);
 		mouseLocal->turnMouseLocal(0, 1);
 	} else {
 		cerr << mouseLocal->localMazeToString();
@@ -219,6 +222,7 @@ void API::turnRight45() {
 void API::turnLeft45() {
 	bool ack = getAck("turnLeft45");
 	if (ack) {
+        drivetrain->rotateBy(-45);
 		mouseLocal->turnMouseLocal(1, 0);
 	} else {
 		cerr << mouseLocal->localMazeToString();

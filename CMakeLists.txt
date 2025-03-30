@@ -61,7 +61,7 @@ add_executable(ratawoulfie_official_2025
 set_source_files_properties(src/Maze_Traversal/Maze/Cell.cpp PROPERTIES COMPILE_FLAGS "-fexceptions")
 set_source_files_properties(src/Maze_Traversal/Maze/MouseLocal.cpp PROPERTIES COMPILE_FLAGS "-fexceptions")
 set_source_files_properties(src/API.cpp PROPERTIES COMPILE_FLAGS "-fexceptions")
-
+set_source_files_properties(src/Main.cpp PROPERTIES COMPILE_FLAGS "-fexceptions")
 
 # Generate extra outputs (UF2, etc.) for the Pico
 pico_add_extra_outputs(ratawoulfie_official_2025)

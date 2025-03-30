@@ -5,6 +5,52 @@ API* apiPtr;
 AStar* aStarPtr;
 FrontierBased* frontierBasedPtr;
 
+int main() {
+	stdio_init_all();
+	sleep_ms(2000);	 // Wait for the serial console to open
+	Motor leftMotor(Constants::RobotConstants::leftMotorPin1, Constants::RobotConstants::leftMotorPin2,
+					Constants::RobotConstants::leftMotorEncoderPin1, Constants::RobotConstants::leftMotorEncoderPin2,
+					Constants::RobotConstants::eventsPerRev, Constants::RobotConstants::maxRPM, true);
+
+	Motor rightMotor(Constants::RobotConstants::rightMotorPin1, Constants::RobotConstants::rightMotorPin2,
+					 Constants::RobotConstants::rightMotorEncoderPin1, Constants::RobotConstants::rightMotorEncoderPin2,
+					 Constants::RobotConstants::eventsPerRev, Constants::RobotConstants::maxRPM);
+
+	leftMotor.setPIDVariables(Constants::RobotConstants::kP, Constants::RobotConstants::kI, Constants::RobotConstants::kD);
+	rightMotor.setPIDVariables(Constants::RobotConstants::kP, Constants::RobotConstants::kI, Constants::RobotConstants::kD);
+
+	DrivetrainConfiguration config;
+	config.maxRPM = 500.0f;
+	config.maxTurnRPM = 500.0f;
+	config.encoderCountsPerCell = 635;	// 180 / (32.5 mm (wheel diameter) * 3.14 (pi)) * 360 (encoder counts per rev). = 634.6609.
+	config.wallThreshold = 50;			// mm.
+	config.distancePID = {0.01f, 0.0f, 0.0f};
+	config.turnPID = {0.1f, 0.0f, 0.0f};
+	config.yawErrorThrewshold = 3;
+	config.distanceErrorThreshold = 5;
+
+	Drivetrain drivetrain(config, &leftMotor, &rightMotor);
+	MouseLocal mouseLocal;
+
+	API api(&mouseLocal, &drivetrain);
+
+	try {
+		for (int i = 0; i < 5; i++) {
+			api.moveForward();
+			sleep_ms(1000);
+		}
+		// int32_t leftRPM = leftMotor.getCurrentRPM();
+		// int32_t rightRPM = rightMotor.getCurrentRPM();
+		// int32_t leftPos = leftMotor.getCurrentPosition();
+		// int32_t rightPos = rightMotor.getCurrentPosition();
+		// printf("LRPM=%d RRPM=%d LP=%d RP=%d\n", leftRPM, rightRPM, leftPos, rightPos);
+
+	} catch (const std::runtime_error& e) {
+		std::cerr << "Error: " << e.what() << std::endl;
+	}
+
+	return 0;
+}
 // int main() {
 // 	stdio_init_all();
 
@@ -95,43 +141,43 @@ FrontierBased* frontierBasedPtr;
 // 	return 0;  // Not really reached
 // }
 
-int main() {
-	stdio_init_all();
-	sleep_ms(2000);	 // Wait for the serial console to open
-	Motor leftMotor(Constants::RobotConstants::leftMotorPin1, Constants::RobotConstants::leftMotorPin2,
-					Constants::RobotConstants::leftMotorEncoderPin1, Constants::RobotConstants::leftMotorEncoderPin2,
-					Constants::RobotConstants::eventsPerRev, Constants::RobotConstants::maxRPM, true);
+// int main() {
+// 	stdio_init_all();
+// 	sleep_ms(2000);	 // Wait for the serial console to open
+// 	Motor leftMotor(Constants::RobotConstants::leftMotorPin1, Constants::RobotConstants::leftMotorPin2,
+// 					Constants::RobotConstants::leftMotorEncoderPin1, Constants::RobotConstants::leftMotorEncoderPin2,
+// 					Constants::RobotConstants::eventsPerRev, Constants::RobotConstants::maxRPM, true);
 
-	Motor rightMotor(Constants::RobotConstants::rightMotorPin1, Constants::RobotConstants::rightMotorPin2,
-					 Constants::RobotConstants::rightMotorEncoderPin1, Constants::RobotConstants::rightMotorEncoderPin2,
-					 Constants::RobotConstants::eventsPerRev, Constants::RobotConstants::maxRPM);
+// 	Motor rightMotor(Constants::RobotConstants::rightMotorPin1, Constants::RobotConstants::rightMotorPin2,
+// 					 Constants::RobotConstants::rightMotorEncoderPin1, Constants::RobotConstants::rightMotorEncoderPin2,
+// 					 Constants::RobotConstants::eventsPerRev, Constants::RobotConstants::maxRPM);
 
-	leftMotor.setPIDVariables(Constants::RobotConstants::kP, Constants::RobotConstants::kI, Constants::RobotConstants::kD);
-	rightMotor.setPIDVariables(Constants::RobotConstants::kP, Constants::RobotConstants::kI, Constants::RobotConstants::kD);
+// 	leftMotor.setPIDVariables(Constants::RobotConstants::kP, Constants::RobotConstants::kI, Constants::RobotConstants::kD);
+// 	rightMotor.setPIDVariables(Constants::RobotConstants::kP, Constants::RobotConstants::kI, Constants::RobotConstants::kD);
 
-	leftMotor.setThrottle(0.3);
-	rightMotor.setThrottle(0.3);
+// 	leftMotor.setThrottle(0.3);
+// 	rightMotor.setThrottle(0.3);
 
-	leftMotor.updatePWM();
-	rightMotor.updatePWM();
+// 	leftMotor.updatePWM();
+// 	rightMotor.updatePWM();
 
-	while (true) {
-		leftMotor.updateEncoder();
-		rightMotor.updateEncoder();
+// 	while (true) {
+// 		leftMotor.updateEncoder();
+// 		rightMotor.updateEncoder();
 
-		int32_t leftRPM = leftMotor.getCurrentRPM();
-		int32_t rightRPM = rightMotor.getCurrentRPM();
-		int32_t leftPos = leftMotor.getCurrentPosition();
-		int32_t rightPos = rightMotor.getCurrentPosition();
-		printf("LRPM=%d RRPM=%d LP=%d RP=%d\n", leftRPM, rightRPM, leftPos, rightPos);
-		// bool stateA = gpio_get(pinA);
-		// bool stateB = gpio_get(pinB);
-		// bool stateA2 = gpio_get(pinA2);
-		// bool stateB2 = gpio_get(pinB2);
-		// printf("A=%d B=%d C=%d D=%d\n", stateA, stateB, stateA2, stateB2);
-		sleep_ms(100);
-	}
-}
+// 		int32_t leftRPM = leftMotor.getCurrentRPM();
+// 		int32_t rightRPM = rightMotor.getCurrentRPM();
+// 		int32_t leftPos = leftMotor.getCurrentPosition();
+// 		int32_t rightPos = rightMotor.getCurrentPosition();
+// 		printf("LRPM=%d RRPM=%d LP=%d RP=%d\n", leftRPM, rightRPM, leftPos, rightPos);
+// 		// bool stateA = gpio_get(pinA);
+// 		// bool stateB = gpio_get(pinB);
+// 		// bool stateA2 = gpio_get(pinA2);
+// 		// bool stateB2 = gpio_get(pinB2);
+// 		// printf("A=%d B=%d C=%d D=%d\n", stateA, stateB, stateA2, stateB2);
+// 		sleep_ms(100);
+// 	}
+// }
 
 // mousePtr = new MouseLocal();
 // apiPtr = new API(mousePtr);

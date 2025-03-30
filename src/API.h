@@ -6,6 +6,7 @@
 #include <stdexcept>
 #include <string>
 #include "Maze_Traversal/Maze/MouseLocal.h"
+#include "Subsystems/Drive/Drivetrain.h"
 
 using std::cerr;
 using std::ostringstream;
@@ -13,6 +14,7 @@ using std::string;
 
 // Forward declaration of MouseLocal to avoid circular dependencies
 class MouseLocal;
+class Drivetrain;
 
 /**
  * @brief The API class provides methods to interact with the maze simulator
@@ -25,7 +27,7 @@ class API {
      *
      * @param mouseLocal Pointer to a MouseLocal instance.
      */
-	API(MouseLocal* mouseLocal);
+	API(MouseLocal* mouseLocal, Drivetrain* drivetrain);
 
 	/*
      ----------------------------------------------------------------
@@ -278,6 +280,7 @@ class API {
     */
 
 	MouseLocal* mouseLocal; /**< Pointer to the MouseLocal instance to update local state. */
+    Drivetrain* drivetrain; /**< Pointer to the Drivetrain instance to control the robot. */
 };
 
 #endif	// API_H
