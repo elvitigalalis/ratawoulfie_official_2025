@@ -10,6 +10,17 @@ using std::string;
 using std::vector;
 namespace Constants {
 
+namespace RobotConstants {
+extern const int leftMotorPin1, leftMotorPin2, leftEncoderPin1, leftEncoderPin2;
+extern const int rightMotorPin1, rightMotorPin2, rightEncoderPin1, rightEncoderPin2;
+
+extern const float eventsPerRev;  // Amount of encoder ticks per revolution.
+extern const float maxRPM;
+
+extern const float kP, kI, kD;
+
+}  // namespace RobotConstants
+
 namespace MouseConstants {
 extern const string mouseName;
 extern const vector<array<int, 2>> possibleMouseDirections;
@@ -18,10 +29,8 @@ extern const array<int, 2> startingMouseDirection;
 }  // namespace MouseConstants
 
 namespace MazeConstants {
-extern const int numRows;
-extern const int numCols;
-extern const int goalX;
-extern const int goalY;
+extern const int numRows, numCols;
+extern const int goalX, goalY;
 
 vector<array<int, 2>> getGoalCells();
 

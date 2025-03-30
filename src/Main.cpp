@@ -1,39 +1,79 @@
 #include "Main.h"
+
 MouseLocal* mousePtr;
 API* apiPtr;
 AStar* aStarPtr;
 FrontierBased* frontierBasedPtr;
 
 int main() {
-	mousePtr = new MouseLocal();
-	apiPtr = new API(mousePtr);
-	aStarPtr = new AStar();
-	frontierBasedPtr = new FrontierBased();
+	stdio_init_all();
 
-	vector<Cell*> startCells = vector<Cell*>{&mousePtr->getMousePosition()};
-	vector<Cell*> goalCells = mousePtr->getGoalCells();
+	Motor leftMotor(Constants::RobotConstants::leftMotorPin1, Constants::RobotConstants::leftMotorPin2, Constants::RobotConstants::leftEncoderPin1,
+					Constants::RobotConstants::leftEncoderPin2, Constants::RobotConstants::eventsPerRev, Constants::RobotConstants::maxRPM);
 
-	// Explore maze using frontier-based search.
-	setUp(startCells, goalCells);
-	frontierBasedPtr->explore(*mousePtr, *apiPtr, false);
-	sleepFor(1000);
+	Motor rightMotor(Constants::RobotConstants::rightMotorPin1, Constants::RobotConstants::rightMotorPin2,
+					 Constants::RobotConstants::rightEncoderPin1, Constants::RobotConstants::rightEncoderPin2,
+					 Constants::RobotConstants::eventsPerRev, Constants::RobotConstants::maxRPM);
 
-	// Travel to start cell using A*.
-	setUp(startCells);
-	traversePathIteratively(mousePtr, startCells, false, true, false);
-	sleepFor(1000);
+	leftMotor.setPIDVariables(Constants::RobotConstants::kP, Constants::RobotConstants::kI, Constants::RobotConstants::kD);
+	rightMotor.setPIDVariables(Constants::RobotConstants::kP, Constants::RobotConstants::kI, Constants::RobotConstants::kD);
 
-	// Travel to goal cells using A*.
-	setUp(goalCells);
-	traversePathIteratively(mousePtr, goalCells, true, true, false);
-	sleepFor(1000);
+	float testThrottles[] = {0.0f, 0.2f,  0.4f,	 0.6f,		  0.8f,	 1.0f,	0.8f, 0.6f,	 0.4f,	0.2f,
+							 0.0f, -0.2f, -0.4f, -0.6f - 0.8, -1.0f, -0.8f, -0.6, -0.4f, -0.2f, 0.0f};
 
-	delete frontierBasedPtr;
-	delete aStarPtr;
-	delete apiPtr;
-	delete mousePtr;
+	sleep_ms(5000);
+	printf("Starting test sequence!\n");
+
+	while (true) {
+		for (int i = 0; i < sizeof(testThrottles); i++) {
+			float throttle = testThrottles[i];
+
+			leftMotor.setThrottle(throttle);
+			rightMotor.setThrottle(throttle);
+
+			printf("Setting throttle: %f\n", throttle);
+
+			absolute_time_t startTime = get_absolute_time();
+			while (absolute_time_diff_us(startTime, get_absolute_time()) < 2000000) {
+				leftMotor.updatePWM();
+				rightMotor.updatePWM();
+
+				printf("Left RPM: %f, Right RPM: %f\n", leftMotor.getCurrentRPM(), rightMotor.getCurrentRPM());
+				sleep_ms(100);
+			}
+		}
+	}
 	return 0;
 }
+// mousePtr = new MouseLocal();
+// apiPtr = new API(mousePtr);
+// aStarPtr = new AStar();
+// frontierBasedPtr = new FrontierBased();
+
+// vector<Cell*> startCells = vector<Cell*>{&mousePtr->getMousePosition()};
+// vector<Cell*> goalCells = mousePtr->getGoalCells();
+
+// // Explore maze using frontier-based search.
+// setUp(startCells, goalCells);
+// frontierBasedPtr->explore(*mousePtr, *apiPtr, false);
+// sleepFor(1000);
+
+// // Travel to start cell using A*.
+// setUp(startCells);
+// traversePathIteratively(mousePtr, startCells, false, true, false);
+// sleepFor(1000);
+
+// // Travel to goal cells using A*.
+// setUp(goalCells);
+// traversePathIteratively(mousePtr, goalCells, true, true, false);
+// sleepFor(1000);
+
+// delete frontierBasedPtr;
+// delete aStarPtr;
+// delete apiPtr;
+// delete mousePtr;
+// return 0;
+// }
 
 void setUp(const vector<Cell*>& goalCells) {
 	setUp(vector<Cell*>{&mousePtr->getMousePosition()}, goalCells);

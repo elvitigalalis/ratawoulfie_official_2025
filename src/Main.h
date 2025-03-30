@@ -7,19 +7,22 @@
 #include <sstream>
 #include <string>
 #include <thread>
-#include <vector>
 #include <unordered_map>
+#include <vector>
 
+#include <stdio.h>
 #include "../API.h"
 #include "Maze_Traversal/AStar.h"
 #include "Maze_Traversal/FrontierBased.h"
 #include "Maze_Traversal/Maze/Cell.h"
 #include "Maze_Traversal/Maze/MouseLocal.h"
 #include "Maze_Traversal/Maze/Movement.h"
+#include "Motor.h"
+#include "pico/stdlib.h"
 
-using std::vector;
-using std::unordered_map;
 using std::to_string;
+using std::unordered_map;
+using std::vector;
 
 class Cell;
 class MouseLocal;
@@ -69,8 +72,7 @@ string diagonalizeAndRun(Cell& currCell, const string& path);
  * @return true If traversal was successful.
  * @return false If traversal failed.
  */
-bool traversePathIteratively(MouseLocal* mouse, Cell& goalCell, bool diagonalsAllowed, bool allExplored,
-							 bool avoidGoalCells);
+bool traversePathIteratively(MouseLocal* mouse, Cell& goalCell, bool diagonalsAllowed, bool allExplored, bool avoidGoalCells);
 
 /**
  * @brief Traverses multiple goal cells iteratively.
@@ -83,7 +85,6 @@ bool traversePathIteratively(MouseLocal* mouse, Cell& goalCell, bool diagonalsAl
  * @return true If traversal was successful for all goals.
  * @return false If traversal failed for any goal.
  */
-bool traversePathIteratively(MouseLocal* mouse, vector<Cell*>& goalCells, bool diagonalsAllowed, bool allExplored,
-							 bool avoidGoalCells);
+bool traversePathIteratively(MouseLocal* mouse, vector<Cell*>& goalCells, bool diagonalsAllowed, bool allExplored, bool avoidGoalCells);
 
 #endif	// MAIN_H

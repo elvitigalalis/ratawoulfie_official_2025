@@ -94,20 +94,70 @@ int Motor::getCurrentPosition() const {
 }
 
 void Motor::updateEncoder() {
-    int32_t currentCount = readEncoderCount();
-    absolute_time_t currentTime = get_absolute_time();
+	int32_t currentCount = readEncoderCount();
+	absolute_time_t currentTime = get_absolute_time();
 
-	// Δt calculations.
+	// Δt calculations (for Encoder cycles).
 	float deltaTime = absolute_time_diff_us(prevEncoderTime, currentTime) / 1e6f;  // Converts µs to s.
 	if (deltaTime <= 0) {
-        deltaTime = 1e-6f;
-    }
+		deltaTime = 1e-6f;
+	}
 
 	// Δ(Encoder counts) calculations.
 	int32_t deltaCount = currentCount - prevEncoderCount;
-    float effectiveCounts = eventsPerRev / 4.0f; // To account for quadrature. Essentially # of counts per quadrature.
+	float effectiveCounts = eventsPerRev / 4.0f;  // To account for quadrature. Essentially # of counts per quadrature.
 
-    currentRPM = (deltaCount / effectiveCounts) * (60.0f / deltaTime);
+	currentRPM = (deltaCount / effectiveCounts) * (60.0f / deltaTime);
+
+	prevEncoderCount = currentCount;
+	prevEncoderTime = currentTime;
+	currentPosition = currentCount;	 // FIXME: Convert this to meters!
+}
+
+void Motor::updatePWM() {
+	if (!motorOn)
+		return;
+
+	updateEncoder();
+
+	// Δt calculations (for PWM cycles)
+	absolute_time_t currentPIDTime = get_absolute_time();
+	float timeDelta = absolute_time_diff_us(lastPIDTime, currentPIDTime) / 60000000.0f;
+	lastPIDTime = currentPIDTime;
+
+	float desiredRPM = targetThrottle * maxRPM;	 // Throttle -> RPM calc.
+
+	// PID calcs.
+	float error = std::fabs(desiredRPM) - std::fabs(currentRPM);  // Uses float absolute value.
+
+	integral += error * timeDelta;
+	integral = clamp(integral, 0.0f, 100.0f);  // Max integral = 100.0.
+
+	derivative = (error - lastError) / (timeDelta > 0 ? timeDelta : 1);	 // 0/negative -> divide by arbitrary number to keep calculation valid.
+	lastError = error;
+
+	// Feedforward calculations:
+	/* y = mx + b
+     *  b constant (537.0f) = baseline PWM level required to overcome static friction / system losses.
+                            "min power needed to start moving the motor"
+        m constant (0.8f) = scaling factor; maps desiredRPM to another PWM value. Higher the RPM, 
+                            the more additional power you need, so this is proportional.
+     */
+
+	// Run motor at diff speeds (with no PID) -> test PWM values needed to maintain steady RPM -> make a regression until feedforward term predicts PWM needed.
+	// Look at motor characteristics too + friction, load, battery, voltage, and H-Bridge characteristics
+    // Then fine-tune using the kP term first, then add the integral and derivative terms for any residual errors.
+	float feedForward = 537.0f + 0.8f * std::fabs(desiredRPM);
+
+	float PIDOutput = kP * error + kI * integral + kD * derivative + feedForward;
+	PIDOutput = clamp(PIDOutput, 0.0f, 999.0f);	 // Because there are only 1000 different possible "levels" of motor power.
+
+	pwm_set_chan_level(pwm_slice, (desiredRPM >= 0 ? channelForward : channelReverse), (uint16_t)PIDOutput);
+	pwm_set_chan_level(pwm_slice, (desiredRPM >= 0 ? channelReverse : channelForward), 0);
+}
+
+int32_t Motor::readEncoderCount() {
+	return 100;
 }
 
 float Motor::clamp(float value, float min, float max) {
