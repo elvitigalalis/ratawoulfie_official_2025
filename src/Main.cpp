@@ -99,6 +99,7 @@ FrontierBased* frontierBasedPtr;
 
 int main() {
 	stdio_init_all();
+    sleep_ms(2000);  // Wait for the serial console to open
 	Motor leftMotor(Constants::RobotConstants::leftMotorPin1, Constants::RobotConstants::leftMotorPin2,
 					Constants::RobotConstants::leftMotorEncoderPin1, Constants::RobotConstants::leftMotorEncoderPin2,
 					Constants::RobotConstants::eventsPerRev, Constants::RobotConstants::maxRPM);
@@ -114,19 +115,6 @@ int main() {
 	const uint pinA2 = Constants::RobotConstants::leftMotorEncoderPin1;	 // example
 	const uint pinB2 = Constants::RobotConstants::leftMotorEncoderPin2;	 // example
 
-	gpio_init(pinA);
-	gpio_init(pinB);
-	gpio_set_dir(pinA, GPIO_IN);
-	gpio_set_dir(pinB, GPIO_IN);
-	gpio_pull_up(pinA);
-	gpio_pull_up(pinB);
-	gpio_init(pinA2);
-	gpio_init(pinB2);
-	gpio_set_dir(pinA2, GPIO_IN);
-	gpio_set_dir(pinB2, GPIO_IN);
-	gpio_pull_up(pinA2);
-	gpio_pull_up(pinB2);
-
 	// leftMotor.setThrottle(0.2);
 	// rightMotor.setThrottle(0.2);
 
@@ -139,11 +127,11 @@ int main() {
 		double leftPos = leftMotor.getCurrentPosition();
 		double rightPos = rightMotor.getCurrentPosition();
 		printf("LRPM=%d RRPM=%d LP=%d RP=%d\n", leftRPM, rightRPM, leftPos, rightPos);
-		// bool stateA = gpio_get(pinA);
-		// bool stateB = gpio_get(pinB);
-		// bool stateA2 = gpio_get(pinA2);
-		// bool stateB2 = gpio_get(pinB2);
-		// printf("A=%d B=%d C=%d D=%d\n", stateA, stateB, stateA2, stateB2);
+		bool stateA = gpio_get(pinA);
+		bool stateB = gpio_get(pinB);
+		bool stateA2 = gpio_get(pinA2);
+		bool stateB2 = gpio_get(pinB2);
+		printf("A=%d B=%d C=%d D=%d\n", stateA, stateB, stateA2, stateB2);
 		sleep_ms(100);
 	}
 }

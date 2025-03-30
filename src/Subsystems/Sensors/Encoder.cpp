@@ -1,32 +1,32 @@
 #include "Encoder.h"
+#include <algorithm>
+#include <cmath>
 
-Encoder::Encoder(uint encoderPin1, uint encoderPin2, float eventsPerRev, uint smoothingWindow) {
-	// Set up encoder variables.
-	this->encoderPin1 = encoderPin1;
-	this->encoderPin2 = encoderPin2;
-	this->eventsPerRev = eventsPerRev;
-	this->smoothingWindow = smoothingWindow;
-	oldEncoderCount = 0;
-	currentRPM = 0.0f;
-	bufferIndex = sampleCount = 0;
-	lastEncoderUpdateTime = get_absolute_time();
-	deltaTimesBuffer = new float[smoothingWindow];
-	std::fill(deltaTimesBuffer, deltaTimesBuffer + smoothingWindow, 0.0f);	// Initializes a block of "memory;" as in everything is 0.0f.
+Encoder::Encoder(uint encoderPin1, uint encoderPin2, float eventsPerRev, uint smoothingWindow)
+	: encoderPin1(encoderPin1),
+	  encoderPin2(encoderPin2),
+	  eventsPerRev(eventsPerRev),
+	  smoothingWindow(smoothingWindow),
+	  pioInstance(pio0),
+	  currentCount(0),
+	  oldEncoderCount(0),
+	  currentRPM(0.0f),
+	  bufferIndex(0),
+	  sampleCount(0) {
 
-	// Set up encoder GPIO pins.
-	gpio_init(encoderPin1);
-	gpio_init(encoderPin2);
-	gpio_set_dir(encoderPin1, GPIO_IN);
-	gpio_set_dir(encoderPin2, GPIO_IN);
-	gpio_pull_up(encoderPin1);
-	gpio_pull_up(encoderPin2);
+	assert(encoderPin2 == encoderPin1 + 1);
+	// Initialize smoothing buffer
+	deltaTimesBuffer = new float[smoothingWindow]();
 
-	// Set up PIO program.
-	pioInstance = pio0;
+	// Setup PIO
 	stateMachine = pio_claim_unused_sm(pioInstance, true);
-
+	pio_add_program(pioInstance, &quadrature_encoder_program);
 	// uint offset = pio_add_program(pioInstance, &quadrature_encoder_program);
 	quadrature_encoder_program_init(pioInstance, stateMachine, encoderPin1, 0);
+
+	// Initial reading
+	oldEncoderCount = getCount();
+	lastUpdateTime = get_absolute_time();
 }
 
 Encoder::~Encoder() {
@@ -35,51 +35,38 @@ Encoder::~Encoder() {
 }
 
 void Encoder::update() {
-	absolute_time_t currentTime = get_absolute_time();
+	absolute_time_t now = get_absolute_time();
+	float deltaTime = std::max(absolute_time_diff_us(lastUpdateTime, now) / 1e6f, 0.001f);
+	lastUpdateTime = now;
 
-	float deltaTime = absolute_time_diff_us(lastEncoderUpdateTime, currentTime) / 1e6f;
-	if (deltaTime <= 0) {
-		deltaTime = 1e-6f;
-	}
-	lastEncoderUpdateTime = currentTime;
+	currentCount = getCount();
+	int32_t deltaCount = currentCount - oldEncoderCount;
+	oldEncoderCount = currentCount;
 
-	int32_t newEncoderCount = readEncoderCount();
-	int32_t deltaCount = newEncoderCount - oldEncoderCount;
-	oldEncoderCount = newEncoderCount;
-
-	float effectiveCounts = eventsPerRev / 4.0f;
-	float instantaneousRPM = (deltaCount / effectiveCounts) * (60.0f / deltaTime);
-
-	float averageDelta = getAverageDeltaTime(deltaTime);
-	if (averageDelta > 0) {
-		currentRPM = (deltaCount / effectiveCounts) * (60.0f / averageDelta);
+	// Calculate RPM with noise filtering
+	if (abs(deltaCount) > 2) {	// Deadband for small movements
+		float averageDelta = getAverageDeltaTime(deltaTime);
+		float countsPerRev = eventsPerRev / 4.0f;
+		currentRPM = (deltaCount / countsPerRev) * (60.0f / averageDelta);
 	} else {
-		currentRPM = instantaneousRPM;
+		currentRPM = 0.0f;
 	}
-
-	// printf("[ENC] newCount=%ld, delta=%ld, currentRPM=%.2f\n", newEncoderCount, deltaCount, currentRPM);
 }
 
-int32_t Encoder::getCount() {
-	return oldEncoderCount;
+int32_t Encoder::getCount() const {
+	return quadrature_encoder_get_count(pioInstance, stateMachine);
 }
 
-float Encoder::getRPM() {
+float Encoder::getRPM() const {
 	return currentRPM;
 }
 
 void Encoder::reset() {
 	oldEncoderCount = 0;
 	currentRPM = 0.0f;
-	lastEncoderUpdateTime = get_absolute_time();
-	bufferIndex = 0;
-	sampleCount = 0;
+	lastUpdateTime = get_absolute_time();
+	bufferIndex = sampleCount = 0;
 	std::fill(deltaTimesBuffer, deltaTimesBuffer + smoothingWindow, 0.0f);
-}
-
-int32_t Encoder::readEncoderCount() {
-	int32_t absoluteCount = quadrature_encoder_get_count(pioInstance, stateMachine);
-	return absoluteCount;
 }
 
 // FIXME: Make more efficient (O(n) to O(1))

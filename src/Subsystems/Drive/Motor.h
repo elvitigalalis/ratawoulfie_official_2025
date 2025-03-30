@@ -27,9 +27,9 @@ class Motor {
 	void setPosition(int pos);		   // Meters.
 
 	float getTargetThrottle() const;
-	float getCurrentRPM() const;
+	float getCurrentRPM();
 	int getTargetPosition() const;
-	int getCurrentPosition() const;
+	int getCurrentPosition();
 
 	void updateEncoder();
 	void updatePWM();

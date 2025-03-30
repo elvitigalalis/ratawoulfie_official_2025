@@ -70,7 +70,7 @@ float Motor::getTargetThrottle() const {
 	return targetThrottle;
 }
 
-float Motor::getCurrentRPM() const {
+float Motor::getCurrentRPM() {
 	return encoder.getRPM();
 }
 
@@ -78,7 +78,7 @@ int Motor::getTargetPosition() const {
 	return targetPosition;
 }
 
-int Motor::getCurrentPosition() const {
+int Motor::getCurrentPosition() {
 	return encoder.getCount();
 }
 
@@ -94,8 +94,11 @@ void Motor::updatePWM() {
 
 	// Δt calculations (for PWM cycles)
 	absolute_time_t currentPIDTime = get_absolute_time();
-	float timeDelta = absolute_time_diff_us(lastPIDTime, currentPIDTime) / 60000000.0f;
+	float timeDelta = absolute_time_diff_us(lastPIDTime, currentPIDTime) / 1e6f;
 	lastPIDTime = currentPIDTime;
+
+	if (timeDelta <= 0)
+		timeDelta = 0.001f;	 // Avoid divide by zero.
 
 	float desiredRPM = targetThrottle * maxRPM;	 // Throttle -> RPM calc.
 	if (std::fabs(desiredRPM) < 1e-6) {
@@ -105,14 +108,12 @@ void Motor::updatePWM() {
 	}
 
 	// PID calcs.
-	float error = std::fabs(desiredRPM) - std::fabs(encoder.getRPM());	// Uses float absolute value.
+	float currentRPM = encoder.getRPM();
+	float error = std::fabs(desiredRPM) - std::fabs(currentRPM);  // Uses float absolute value.
 
-	integral += error * timeDelta;
-	integral = clamp(integral, 0.0f, 100.0f);  // Max integral = 100.0.
-
-	derivative = (error - lastError) / (timeDelta > 0 ? timeDelta : 1);	 // 0/negative -> divide by arbitrary number to keep calculation valid.
+	integral = clamp(integral + error * timeDelta, -100.0f, 100.0f);
+	derivative = (error - lastError) / timeDelta;
 	lastError = error;
-
 	// Feedforward calculations:
 	/* y = mx + b
      *  b constant (537.0f) = baseline PWM level required to overcome static friction / system losses.
