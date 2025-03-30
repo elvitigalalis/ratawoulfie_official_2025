@@ -7,7 +7,7 @@ FrontierBased* frontierBasedPtr;
 
 int main() {
 	stdio_init_all();
-	sleep_ms(2000);	 // Wait for the serial console to open
+	sleep_ms(5000);	 // Wait for the serial console to open
 	Motor leftMotor(Constants::RobotConstants::leftMotorPin1, Constants::RobotConstants::leftMotorPin2,
 					Constants::RobotConstants::leftMotorEncoderPin1, Constants::RobotConstants::leftMotorEncoderPin2,
 					Constants::RobotConstants::eventsPerRev, Constants::RobotConstants::maxRPM, true);
@@ -19,15 +19,7 @@ int main() {
 	leftMotor.setPIDVariables(Constants::RobotConstants::kP, Constants::RobotConstants::kI, Constants::RobotConstants::kD);
 	rightMotor.setPIDVariables(Constants::RobotConstants::kP, Constants::RobotConstants::kI, Constants::RobotConstants::kD);
 
-	DrivetrainConfiguration config;
-	config.maxRPM = 500.0f;
-	config.maxTurnRPM = 500.0f;
-	config.encoderCountsPerCell = 635;	// 180 / (32.5 mm (wheel diameter) * 3.14 (pi)) * 360 (encoder counts per rev). = 634.6609.
-	config.wallThreshold = 50;			// mm.
-	config.distancePID = {0.01f, 0.0f, 0.0f};
-	config.turnPID = {0.1f, 0.0f, 0.0f};
-	config.yawErrorThrewshold = 3;
-	config.distanceErrorThreshold = 5;
+	DrivetrainConfiguration config = Constants::RobotConstants::config;
 
 	Drivetrain drivetrain(config, &leftMotor, &rightMotor);
 	MouseLocal mouseLocal;

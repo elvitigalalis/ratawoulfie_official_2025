@@ -60,6 +60,10 @@ int32_t Encoder::getCount() const {
 	return (isReversed ? -quadrature_encoder_get_count(pioInstance, stateMachine) : quadrature_encoder_get_count(pioInstance, stateMachine));
 }
 
+float Encoder::getPosition() const {
+	return getCount() / 3376.24604581f;
+}  // 1 ft = 3376.24604581 encoder counts (1/0.1066273*360).
+
 float Encoder::getRPM() const {
 	return currentRPM;
 }

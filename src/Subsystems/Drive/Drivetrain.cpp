@@ -71,9 +71,10 @@ void Drivetrain::driveForwardDistance(int cellCount) {
 		int32_t leftPos = leftMotor->getCurrentPosition();
 		int32_t rightPos = rightMotor->getCurrentPosition();
 		printf("LRPM=%d RRPM=%d LP=%d RP=%d\n", leftRPM, rightRPM, leftPos, rightPos);
-        
+
 		float dt = elapsedTimeSeconds();
-		int error = targetPos - (currPos + getAverageEncoderCount());
+		int error = targetPos - getAverageEncoderCount();
+		printf("Error: %i\n", (int32_t)error);
 		distanceIntegral += error * dt;
 		distanceDerivative = (error - distanceLastError) / dt;
 		distanceLastError = error;
@@ -85,7 +86,9 @@ void Drivetrain::driveForwardDistance(int cellCount) {
 		rightMotor->setThrottle(adjustedRPM / rightMotor->getMaxRPM());
 
 		if (fabs(error) < config.distanceErrorThreshold) {
+			printf("Reached target position: %i\n", (int32_t)targetPos);
 			stop();
+            sleep_ms(2000); // FIXME: Remove this
 		}
 	}
 }

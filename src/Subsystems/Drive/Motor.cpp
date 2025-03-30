@@ -58,7 +58,7 @@ void Motor::setPIDVariables(float kP, float kI, float kD) {
 
 void Motor::start() {
 	motorOn = true;
-    updatePWM();
+	updatePWM();
 }
 
 void Motor::stop() {
@@ -99,7 +99,7 @@ Encoder* Motor::getEncoder() {
 }
 
 float Motor::getMaxRPM() const {
-    return maxRPM;
+	return maxRPM;
 }
 
 void Motor::updateEncoder() {

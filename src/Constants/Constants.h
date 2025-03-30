@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 
+#include "../Subsystems/Drive/Drivetrain.h"
+
 using std::array;
 using std::string;
 using std::vector;
@@ -18,6 +20,8 @@ extern const float eventsPerRev;  // Amount of encoder ticks per revolution.
 extern const float maxRPM;
 
 extern const float kP, kI, kD;
+
+extern DrivetrainConfiguration config;
 
 }  // namespace RobotConstants
 
