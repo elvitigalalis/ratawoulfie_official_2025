@@ -39,15 +39,17 @@ Encoder::~Encoder() {
 void Encoder::update() {
 	absolute_time_t now = get_absolute_time();
 	float deltaTime = std::max(absolute_time_diff_us(lastUpdateTime, now) / 1e6f, 0.001f);
+	// printf("Delta Time: %f\n", deltaTime);
 	lastUpdateTime = now;
 
 	currentCount = getCount();
 	// printf("Current Count: %d\n", currentCount);
 	int32_t deltaCount = currentCount - oldEncoderCount;
+	// printf("Delta Count: %d\n", deltaCount);
 	oldEncoderCount = currentCount;
 
 	// Calculate RPM with noise filtering
-	if (abs(deltaCount) > 2) {	// Deadband for small movements
+	if (abs(deltaCount) > 0) {	// Deadband for small movements
 		float averageDelta = getAverageDeltaTime(deltaTime);
 		float countsPerRev = eventsPerRev / 4.0f;
 		currentRPM = (deltaCount / countsPerRev) * (60.0f / averageDelta);

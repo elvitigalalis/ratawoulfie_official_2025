@@ -74,7 +74,7 @@ void Drivetrain::driveForwardDistance(int cellCount) {
 
 		float dt = elapsedTimeSeconds();
 		int error = targetPos - getAverageEncoderCount();
-		printf("Error: %i\n", (int32_t)error);
+		// printf("Error: %i\n", (int32_t)error);
 		distanceIntegral += error * dt;
 		distanceDerivative = (error - distanceLastError) / dt;
 		distanceLastError = error;
@@ -88,7 +88,7 @@ void Drivetrain::driveForwardDistance(int cellCount) {
 		if (fabs(error) < config.distanceErrorThreshold) {
 			printf("Reached target position: %i\n", (int32_t)targetPos);
 			stop();
-            sleep_ms(2000); // FIXME: Remove this
+			sleep_ms(2000);	 // FIXME: Remove this
 		}
 	}
 }
