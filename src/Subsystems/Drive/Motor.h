@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <algorithm>
 #include <cmath>
+#include "../Sensors/Encoder.h"
 #include "hardware/gpio.h"
 #include "hardware/irq.h"
 #include "hardware/pwm.h"
@@ -44,8 +45,7 @@ class Motor {
 
 	volatile float targetThrottle;	// [-1 (max reverse speed), 0 (off), 1 (max forward speed)].
 
-	volatile int targetPosition, currentPosition;
-	volatile float currentRPM;
+	volatile int targetPosition;
 	volatile bool motorOn;
 
 	float kP, kI, kD;
@@ -53,14 +53,11 @@ class Motor {
 	volatile float derivative, lastError;
 	absolute_time_t lastPIDTime;
 
-	volatile int32_t prevEncoderCount;
-	absolute_time_t prevEncoderTime;  // For RPM calcs.
+	Encoder encoder;
 
 	float clamp(float value, float min, float max);
 
 	void setUp();
 	void initializePWM();
-
-	int32_t readEncoderCount();
 };
 #endif

@@ -5,9 +5,100 @@ API* apiPtr;
 AStar* aStarPtr;
 FrontierBased* frontierBasedPtr;
 
+// int main() {
+// 	stdio_init_all();
+
+// 	Motor leftMotor(Constants::RobotConstants::leftMotorPin1, Constants::RobotConstants::leftMotorPin2,
+// 					Constants::RobotConstants::leftMotorEncoderPin1, Constants::RobotConstants::leftMotorEncoderPin2,
+// 					Constants::RobotConstants::eventsPerRev, Constants::RobotConstants::maxRPM);
+
+// 	Motor rightMotor(Constants::RobotConstants::rightMotorPin1, Constants::RobotConstants::rightMotorPin2,
+// 					 Constants::RobotConstants::rightMotorEncoderPin1, Constants::RobotConstants::rightMotorEncoderPin2,
+// 					 Constants::RobotConstants::eventsPerRev, Constants::RobotConstants::maxRPM);
+
+// 	leftMotor.setPIDVariables(Constants::RobotConstants::kP, Constants::RobotConstants::kI, Constants::RobotConstants::kD);
+// 	rightMotor.setPIDVariables(Constants::RobotConstants::kP, Constants::RobotConstants::kI, Constants::RobotConstants::kD);
+
+// 	float testThrottles[] = {0.0f, 0.0f, 0.0};
+
+// 	sleep_ms(5000);
+// 	printf("Starting test sequence!\n");
+
+// 	while (true) {
+// 		// printf("L motor pin %d is on PWM slice: %d, channel: %d\n", Constants::RobotConstants::leftMotorPin1,
+// 		// 	   pwm_gpio_to_slice_num(Constants::RobotConstants::leftMotorPin1), pwm_gpio_to_channel(Constants::RobotConstants::leftMotorPin1));
+// 		// printf("L motor pin %d is on PWM slice: %d, channel: %d\n", Constants::RobotConstants::leftMotorPin2,
+// 		// 	   pwm_gpio_to_slice_num(Constants::RobotConstants::leftMotorPin2), pwm_gpio_to_channel(Constants::RobotConstants::leftMotorPin2));
+// 		for (size_t i = 0; i < sizeof(testThrottles) / sizeof(testThrottles[0]); i++) {
+// 			float throttle = testThrottles[i];
+// 			leftMotor.setThrottle(throttle);
+// 			rightMotor.setThrottle(throttle);
+
+// 			// printf("Setting throttle: %f\n\n", throttle);
+
+// 			absolute_time_t startTime = get_absolute_time();
+// 			while (absolute_time_diff_us(startTime, get_absolute_time()) < 2000000) {
+// 				leftMotor.updatePWM();
+// 				rightMotor.updatePWM();
+
+// 				printf("-------\n");
+// 				printf("Left RPM: %f\nRight RPM: %f\nat Throttle: %f\n", leftMotor.getCurrentRPM(), rightMotor.getCurrentRPM(), throttle);
+// 				sleep_ms(2000);
+// 			}
+// 		}
+// 	}
+// 	return 0;
+// }
+
+// int main() {
+// 	// Initialize stdio for serial printing
+// 	stdio_init_all();
+// 	printf("Motor + Encoder Test: twist wheels by hand to observe count/RPM\n");
+
+// 	// Wait a moment for the serial console to open
+// 	sleep_ms(2000);
+
+// 	// Here, use the same pins/arguments you normally do for your Motor constructor.
+// 	// e.g., if your real motor is Motor(19, 18, 21, 20, 400.0f, 400.0f)
+// 	// (replace them below with your actual motorPin1, motorPin2, etc.)
+// 	Motor testMotor(19,		 // motorPin1
+// 					18,		 // motorPin2
+// 					21,		 // encoderPin1
+// 					20,		 // encoderPin2
+// 					400.0f,	 // eventsPerRev
+// 					400.0f	 // maxRPM
+// 	);
+
+// 	// Normally you might call:
+// 	// testMotor.setPIDVariables(1.0f, 0.0f, 0.0f);
+// 	// testMotor.setThrottle(0.2f);
+// 	// but we comment these out for the test, so the motor does NOT drive:
+// 	// testMotor.setPIDVariables(...);
+// 	// testMotor.setThrottle(...);
+// 	// testMotor.start();
+
+// 	while (true) {
+// 		// We'll just read the encoder data and print it every 500ms
+// 		// This calls Motor::updateEncoder(), which calls your embedded Encoder code
+// 		// and updates currentPosition / currentRPM
+// 		testMotor.updateEncoder();
+
+// 		// Retrieve the new position and RPM
+// 		int currentPos = testMotor.getCurrentPosition();
+// 		float currentRpm = testMotor.getCurrentRPM();
+
+// 		// Print them out so we can see how it changes when we twist the wheels
+// 		printf("Encoder Count = %d, RPM = %.2f\n", currentPos, currentRpm);
+
+// 		// Sleep for half a second, then loop again
+// 		sleep_ms(500);
+// 	}
+
+// 	return 0;  // Not really reached
+// }
+
 int main() {
 	stdio_init_all();
-
 	Motor leftMotor(Constants::RobotConstants::leftMotorPin1, Constants::RobotConstants::leftMotorPin2,
 					Constants::RobotConstants::leftMotorEncoderPin1, Constants::RobotConstants::leftMotorEncoderPin2,
 					Constants::RobotConstants::eventsPerRev, Constants::RobotConstants::maxRPM);
@@ -18,36 +109,44 @@ int main() {
 
 	leftMotor.setPIDVariables(Constants::RobotConstants::kP, Constants::RobotConstants::kI, Constants::RobotConstants::kD);
 	rightMotor.setPIDVariables(Constants::RobotConstants::kP, Constants::RobotConstants::kI, Constants::RobotConstants::kD);
+	const uint pinA = Constants::RobotConstants::rightMotorEncoderPin1;	 // example
+	const uint pinB = Constants::RobotConstants::rightMotorEncoderPin2; // example
+	const uint pinA2 = Constants::RobotConstants::leftMotorEncoderPin1;	 // example
+	const uint pinB2 = Constants::RobotConstants::leftMotorEncoderPin2;	 // example
 
-	float testThrottles[] = {0.5f, 0.0f, -1.0f};
+	gpio_init(pinA);
+	gpio_init(pinB);
+	gpio_set_dir(pinA, GPIO_IN);
+	gpio_set_dir(pinB, GPIO_IN);
+	gpio_pull_up(pinA);
+	gpio_pull_up(pinB);
+	gpio_init(pinA2);
+	gpio_init(pinB2);
+	gpio_set_dir(pinA2, GPIO_IN);
+	gpio_set_dir(pinB2, GPIO_IN);
+	gpio_pull_up(pinA2);
+	gpio_pull_up(pinB2);
 
-	sleep_ms(5000);
-	printf("Starting test sequence!\n");
+    leftMotor.setThrottle(0.2);
+    rightMotor.setThrottle(0.2);
+    leftMotor.updatePWM();
+    rightMotor.updatePWM();
 
 	while (true) {
-		printf("L motor pin %d is on PWM slice: %d, channel: %d\n", Constants::RobotConstants::leftMotorPin1,
-			   pwm_gpio_to_slice_num(Constants::RobotConstants::leftMotorPin1), pwm_gpio_to_channel(Constants::RobotConstants::leftMotorPin1));
-		printf("L motor pin %d is on PWM slice: %d, channel: %d\n", Constants::RobotConstants::leftMotorPin2,
-			   pwm_gpio_to_slice_num(Constants::RobotConstants::leftMotorPin2), pwm_gpio_to_channel(Constants::RobotConstants::leftMotorPin2));
-		for (size_t i = 0; i < sizeof(testThrottles) / sizeof(testThrottles[0]); i++) {
-			float throttle = testThrottles[i];
-			leftMotor.setThrottle(throttle);
-			rightMotor.setThrottle(throttle);
-
-			printf("Setting throttle: %f\n", throttle);
-
-			absolute_time_t startTime = get_absolute_time();
-			while (absolute_time_diff_us(startTime, get_absolute_time()) < 2000000) {
-				leftMotor.updatePWM();
-				rightMotor.updatePWM();
-
-				printf("Left RPM: %f, Right RPM: %f\n", leftMotor.getCurrentRPM(), rightMotor.getCurrentRPM());
-				sleep_ms(1000);
-			}
-		}
+        double leftRPM = leftMotor.getCurrentRPM();
+        double rightRPM = rightMotor.getCurrentRPM();
+        double leftPos = leftMotor.getCurrentPosition();
+        double rightPos = rightMotor.getCurrentPosition();
+        printf("LRPM=%d RRPM=%d LP=%d RP=%d\n", leftRPM, rightRPM, leftPos, rightPos);
+		// bool stateA = gpio_get(pinA);
+		// bool stateB = gpio_get(pinB);
+		// bool stateA2 = gpio_get(pinA2);
+		// bool stateB2 = gpio_get(pinB2);
+		// printf("A=%d B=%d C=%d D=%d\n", stateA, stateB, stateA2, stateB2);
+		sleep_ms(100);
 	}
-	return 0;
 }
+
 // mousePtr = new MouseLocal();
 // apiPtr = new API(mousePtr);
 // aStarPtr = new AStar();

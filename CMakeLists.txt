@@ -31,21 +31,6 @@ endif()
 # Initialize the SDK
 pico_sdk_init()
 
-# Set the path to your .pio file and the output header file.
-set(QUADDEC_PIO_FILE "${CMAKE_CURRENT_SOURCE_DIR}/quaddec_encoder.pio")
-set(QUADDEC_PIO_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/quaddec_encoder.pio.h")
-
-# Add a custom command to generate the header file from the .pio file.
-add_custom_command(
-    OUTPUT ${QUADDEC_PIO_HEADER}
-    COMMAND pioasm ${QUADDEC_PIO_FILE} -o ${QUADDEC_PIO_HEADER}
-    DEPENDS ${QUADDEC_PIO_FILE}
-    COMMENT "Generating ${QUADDEC_PIO_HEADER} from ${QUADDEC_PIO_FILE}"
-)
-
-# Then, add a custom target that depends on the generated header.
-add_custom_target(quaddec_pio ALL DEPENDS ${QUADDEC_PIO_HEADER})
-
 # Set common compile options
 add_compile_options(-Wall
     -Wno-format          # Suppress format warnings (e.g., int vs int32_t differences)
@@ -72,8 +57,6 @@ add_executable(ratawoulfie_official_2025
     src/Subsystems/Sensors/Encoder.cpp
 )
 
-add_dependencies(ratawoulfie_official_2025 quaddec_pio)
-
 # Allows files to throw exceptions.
 set_source_files_properties(src/Maze_Traversal/Maze/Cell.cpp PROPERTIES COMPILE_FLAGS "-fexceptions")
 set_source_files_properties(src/Maze_Traversal/Maze/MouseLocal.cpp PROPERTIES COMPILE_FLAGS "-fexceptions")
@@ -84,7 +67,7 @@ set_source_files_properties(src/API.cpp PROPERTIES COMPILE_FLAGS "-fexceptions")
 pico_add_extra_outputs(ratawoulfie_official_2025)
 
 # Link with Pico's standard libraries and hardware-specific libraries
-target_link_libraries(ratawoulfie_official_2025 pico_stdlib hardware_gpio hardware_pwm hardware_irq)
+target_link_libraries(ratawoulfie_official_2025 pico_stdlib hardware_gpio hardware_pwm hardware_irq hardware_pio)
 
 # Enable USB stdio (disable UART)
 pico_enable_stdio_usb(ratawoulfie_official_2025 1)

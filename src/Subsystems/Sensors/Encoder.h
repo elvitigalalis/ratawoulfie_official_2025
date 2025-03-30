@@ -1,10 +1,11 @@
 #ifndef ENCODER_H
 #define ENCODER_H
 
+#include <stdio.h>
 #include <algorithm>
 #include <cstdint>
 #include <cstring>
-#include "../../../quaddec_encoder.pio.h"
+#include "../../../quadrature_encoder.pio.h"
 #include "pico/stdlib.h"
 
 class Encoder {
@@ -25,17 +26,15 @@ class Encoder {
 	uint encoderPin1;
 	uint encoderPin2;
 	float eventsPerRev;
+	uint smoothingWindow;  //  # of samples to average for encoder readings.
 
 	PIO pioInstance;
 	uint stateMachine;
-	uint pioOffset;
-	uint lastState;
 
-	int32_t currentEncoderCount;
 	float currentRPM;
+	int32_t oldEncoderCount;
 	absolute_time_t lastEncoderUpdateTime;
 
-	uint smoothingWindow;  //  # of samples to average for encoder readings.
 	float* deltaTimesBuffer;
 	uint bufferIndex;
 	uint sampleCount;

@@ -1,6 +1,7 @@
 #include "Motor.h"
 
-Motor::Motor(int motorPin1, int motorPin2, int encoderPin1, int encoderPin2, float eventsPerRev, float maxRPM) {
+Motor::Motor(int motorPin1, int motorPin2, int encoderPin1, int encoderPin2, float eventsPerRev, float maxRPM)
+	: encoder(encoderPin1, encoderPin2, eventsPerRev, 3U) {
 	// Sets variables for motor.
 	this->motorPin1 = motorPin1;
 	this->motorPin2 = motorPin2;
@@ -9,16 +10,11 @@ Motor::Motor(int motorPin1, int motorPin2, int encoderPin1, int encoderPin2, flo
 	this->eventsPerRev = eventsPerRev;
 	this->maxRPM = maxRPM;
 	targetThrottle = 0.0f;
-	targetPosition = currentPosition = 0;
-	currentRPM = 0;
+	targetPosition = 0;
 	motorOn = false;
 	kP = kI = kD = 0.0f;
 	integral = 0.0f;
 	derivative = lastError = 0.0f;
-
-	// Sets variables for encoder.
-	prevEncoderCount = 0;
-	prevEncoderTime = get_absolute_time();
 	lastPIDTime = get_absolute_time();
 
 	// Sets up motor.
@@ -29,13 +25,6 @@ Motor::Motor(int motorPin1, int motorPin2, int encoderPin1, int encoderPin2, flo
 void Motor::setUp() {
 	gpio_set_function(motorPin1, GPIO_FUNC_PWM);
 	gpio_set_function(motorPin2, GPIO_FUNC_PWM);
-
-	gpio_set_input_enabled(encoderPin1, true);
-	gpio_set_input_enabled(encoderPin2, true);
-	gpio_set_dir(encoderPin1, false);
-	gpio_set_dir(encoderPin2, false);  // Input (not output)
-	gpio_pull_up(encoderPin1);
-	gpio_pull_up(encoderPin2);	// Prevents voltage fluctuation for reading during state.
 }
 
 void Motor::initializePWM() {
@@ -82,7 +71,7 @@ float Motor::getTargetThrottle() const {
 }
 
 float Motor::getCurrentRPM() const {
-	return currentRPM;
+	return encoder.getRPM();
 }
 
 int Motor::getTargetPosition() const {
@@ -90,28 +79,11 @@ int Motor::getTargetPosition() const {
 }
 
 int Motor::getCurrentPosition() const {
-	return currentPosition;
+	return encoder.getCount();
 }
 
 void Motor::updateEncoder() {
-	int32_t currentCount = readEncoderCount();
-	absolute_time_t currentTime = get_absolute_time();
-
-	// Δt calculations (for Encoder cycles).
-	float deltaTime = absolute_time_diff_us(prevEncoderTime, currentTime) / 1e6f;  // Converts µs to s.
-	if (deltaTime <= 0) {
-		deltaTime = 1e-6f;
-	}
-
-	// Δ(Encoder counts) calculations.
-	int32_t deltaCount = currentCount - prevEncoderCount;
-	float effectiveCounts = eventsPerRev / 4.0f;  // To account for quadrature. Essentially # of counts per quadrature.
-
-	currentRPM = (deltaCount / effectiveCounts) * (60.0f / deltaTime);
-
-	prevEncoderCount = currentCount;
-	prevEncoderTime = currentTime;
-	currentPosition = currentCount;	 // FIXME: Convert this to meters!
+	encoder.update();
 }
 
 void Motor::updatePWM() {
@@ -127,13 +99,13 @@ void Motor::updatePWM() {
 
 	float desiredRPM = targetThrottle * maxRPM;	 // Throttle -> RPM calc.
 	if (std::fabs(desiredRPM) < 1e-6) {
-		printf("Zero RPM Requested\n");
+		// printf("Zero RPM Requested\n");
 		pwm_set_both_levels(pwm_slice, 0, 0);
 		return;
 	}
 
 	// PID calcs.
-	float error = std::fabs(desiredRPM) - std::fabs(currentRPM);  // Uses float absolute value.
+	float error = std::fabs(desiredRPM) - std::fabs(encoder.getRPM());	// Uses float absolute value.
 
 	integral += error * timeDelta;
 	integral = clamp(integral, 0.0f, 100.0f);  // Max integral = 100.0.
@@ -159,10 +131,6 @@ void Motor::updatePWM() {
 
 	pwm_set_chan_level(pwm_slice, (desiredRPM >= 0 ? channelForward : channelReverse), (uint16_t)PIDOutput);
 	pwm_set_chan_level(pwm_slice, (desiredRPM >= 0 ? channelReverse : channelForward), 0);
-}
-
-int32_t Motor::readEncoderCount() {
-	return 100;
 }
 
 float Motor::clamp(float value, float min, float max) {

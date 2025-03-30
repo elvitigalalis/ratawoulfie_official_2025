@@ -6,7 +6,7 @@ namespace RobotConstants {
 
 const int leftMotorPin1 = 19;
 const int leftMotorPin2 = leftMotorPin1 - 1;
-const int leftMotorEncoderPin1 = leftMotorPin2 + 1;
+const int leftMotorEncoderPin1 = leftMotorPin1 + 1;
 const int leftMotorEncoderPin2 = leftMotorEncoderPin1 + 1;
 
 const int rightMotorPin1 = 6;
