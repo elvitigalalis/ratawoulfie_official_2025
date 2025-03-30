@@ -15,11 +15,11 @@ const int rightMotorEncoderPin1 = rightMotorPin2 + 1;
 const int rightMotorEncoderPin2 = rightMotorEncoderPin1 + 1;
 
 const float eventsPerRev = 360.0f;	// Amount of encoder ticks per revolution.
-const float maxRPM = 400.0f;
+const float maxRPM = 1000.0f;
 
-const float kP = 10.0f;
-const float kI = 1.0f;
-const float kD = 0.5f;
+const float kP = 0.0f;
+const float kI = 0.0f;
+const float kD = 0.0f;
 }  // namespace RobotConstants
 
 namespace MouseConstants {

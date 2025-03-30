@@ -1,8 +1,9 @@
 #include "Encoder.h"
+#include <stdio.h>
 #include <algorithm>
 #include <cmath>
 
-Encoder::Encoder(uint encoderPin1, uint encoderPin2, float eventsPerRev, uint smoothingWindow)
+Encoder::Encoder(uint encoderPin1, uint encoderPin2, float eventsPerRev, uint smoothingWindow, bool isReversed)
 	: encoderPin1(encoderPin1),
 	  encoderPin2(encoderPin2),
 	  eventsPerRev(eventsPerRev),
@@ -12,7 +13,8 @@ Encoder::Encoder(uint encoderPin1, uint encoderPin2, float eventsPerRev, uint sm
 	  oldEncoderCount(0),
 	  currentRPM(0.0f),
 	  bufferIndex(0),
-	  sampleCount(0) {
+	  sampleCount(0),
+	  isReversed(isReversed) {
 
 	assert(encoderPin2 == encoderPin1 + 1);
 	// Initialize smoothing buffer
@@ -40,6 +42,7 @@ void Encoder::update() {
 	lastUpdateTime = now;
 
 	currentCount = getCount();
+	// printf("Current Count: %d\n", currentCount);
 	int32_t deltaCount = currentCount - oldEncoderCount;
 	oldEncoderCount = currentCount;
 
@@ -54,7 +57,7 @@ void Encoder::update() {
 }
 
 int32_t Encoder::getCount() const {
-	return quadrature_encoder_get_count(pioInstance, stateMachine);
+	return (isReversed ? -quadrature_encoder_get_count(pioInstance, stateMachine) : quadrature_encoder_get_count(pioInstance, stateMachine));
 }
 
 float Encoder::getRPM() const {

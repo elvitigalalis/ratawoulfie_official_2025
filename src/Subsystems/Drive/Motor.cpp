@@ -1,7 +1,16 @@
 #include "Motor.h"
 
-Motor::Motor(int motorPin1, int motorPin2, int encoderPin1, int encoderPin2, float eventsPerRev, float maxRPM)
-	: encoder(encoderPin1, encoderPin2, eventsPerRev, 3U) {
+Motor::Motor(int motorPin1, int motorPin2, int encoderPin1, int encoderPin2, float eventsPerRev, float maxRPM, bool isReversed)
+	// Constructor for the Motor class.
+	// Initializes the motor and encoder pins, sets up PWM, and initializes PID variables.
+	// Parameters:
+	// - motorPin1: GPIO pin for motor control (forward).
+	// - motorPin2: GPIO pin for motor control (reverse).
+	// - encoderPin1: GPIO pin for encoder (A).
+	// - encoderPin2: GPIO pin for encoder (B).
+	// - eventsPerRev: Number of encoder events per revolution.
+	// - maxRPM: Maximum RPM of the motor.
+	: encoder(encoderPin1, encoderPin2, eventsPerRev, 3U, isReversed) {
 	// Sets variables for motor.
 	this->motorPin1 = motorPin1;
 	this->motorPin2 = motorPin2;
@@ -9,6 +18,8 @@ Motor::Motor(int motorPin1, int motorPin2, int encoderPin1, int encoderPin2, flo
 	this->encoderPin2 = encoderPin2;
 	this->eventsPerRev = eventsPerRev;
 	this->maxRPM = maxRPM;
+	this->isReversed = isReversed;
+
 	targetThrottle = 0.0f;
 	targetPosition = 0;
 	motorOn = true;
@@ -78,7 +89,7 @@ int Motor::getTargetPosition() const {
 	return targetPosition;
 }
 
-int Motor::getCurrentPosition() {
+int32_t Motor::getCurrentPosition() {
 	return encoder.getCount();
 }
 

@@ -6,7 +6,7 @@
 
 class Encoder {
    public:
-	Encoder(uint encoderPin1, uint encoderPin2, float eventsPerRev, uint smoothingWindow = 10);
+	Encoder(uint encoderPin1, uint encoderPin2, float eventsPerRev, uint smoothingWindow = 10, bool isReversed = false);
 	~Encoder();
 
 	void update();
@@ -22,6 +22,7 @@ class Encoder {
 	const uint encoderPin2;
 	const float eventsPerRev;
 	const uint smoothingWindow;
+    const bool isReversed;
 
 	// PIO State (mutable for hardware access)
 	mutable PIO pioInstance;
