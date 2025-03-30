@@ -4,8 +4,8 @@
 #include <algorithm>
 #include <cstdint>
 #include <cstring>
+#include "../../../quaddec_encoder.pio.h"
 #include "pico/stdlib.h"
-#include "QuadratureEncoder.pio.h"
 
 class Encoder {
    public:
@@ -26,8 +26,10 @@ class Encoder {
 	uint encoderPin2;
 	float eventsPerRev;
 
-    PIO pio;
-    uint statemachine
+	PIO pioInstance;
+	uint stateMachine;
+	uint pioOffset;
+	uint lastState;
 
 	int32_t currentEncoderCount;
 	float currentRPM;
@@ -40,6 +42,7 @@ class Encoder {
 
 	int32_t readEncoderCount();
 
-	float getAverageDeltaTime(float newDelta); // Adds a new delta time to the buffer -> creates new average.
+	float getAverageDeltaTime(float newDelta);	// Adds a new delta time to the buffer -> creates new average.
 };
+// pioasm -o c-sdk quaddec_encoder.pio quaddec_encoder.pio.h
 #endif

@@ -1,18 +1,16 @@
 ; quaddec_encoder.pio
-; A simple quadrature encoder program.
-; This program reads two input pins, compares the current state with the previous state,
-; and when a change is detected, it pushes the new 2-bit state into the FIFO.
-; It assumes that the previous state is stored in register X (initialized externally).
+; A simple PIO program to read two quadrature encoder pins (assumed to be consecutive)
+; and push their 2-bit raw state to the FIFO. The rest of the decoding (count increments)
+; can be done in your C++ code.
 
-.program quaddec_encoder, volatile
+.program quaddec_encoder
 
-; Main loop: read current state from pins and compare.
 loop:
-    in      pins, 2          ; Shift in 2 bits from the encoder pins into OSR.
-    mov     y, osr           ; Copy OSR (current state) into register Y.
-    jmp     x==y do_nothing  ; If the new state equals the previous state (stored in X), do nothing.
-    push    noblock          ; Otherwise, push the new state to the FIFO.
-    mov     x, y           ; Update the previous state (X) with the current state.
-    jmp     loop             ; Loop back.
-do_nothing:
-    jmp     loop             ; Continue looping.
+    ; Shift 2 bits from the input pins into the Output Shift Register.
+    in     pins, 2
+
+    ; Push the new 2-bit state to the FIFO if space is available (non-blocking).
+    push   noblock
+
+    ; Jump back and repeat forever.
+    jmp    loop
