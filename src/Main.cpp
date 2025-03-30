@@ -8,26 +8,29 @@ FrontierBased* frontierBasedPtr;
 int main() {
 	stdio_init_all();
 
-	Motor leftMotor(Constants::RobotConstants::leftMotorPin1, Constants::RobotConstants::leftMotorPin2, Constants::RobotConstants::leftEncoderPin1,
-					Constants::RobotConstants::leftEncoderPin2, Constants::RobotConstants::eventsPerRev, Constants::RobotConstants::maxRPM);
+	Motor leftMotor(Constants::RobotConstants::leftMotorPin1, Constants::RobotConstants::leftMotorPin2,
+					Constants::RobotConstants::leftMotorEncoderPin1, Constants::RobotConstants::leftMotorEncoderPin2,
+					Constants::RobotConstants::eventsPerRev, Constants::RobotConstants::maxRPM);
 
 	Motor rightMotor(Constants::RobotConstants::rightMotorPin1, Constants::RobotConstants::rightMotorPin2,
-					 Constants::RobotConstants::rightEncoderPin1, Constants::RobotConstants::rightEncoderPin2,
+					 Constants::RobotConstants::rightMotorEncoderPin1, Constants::RobotConstants::rightMotorEncoderPin2,
 					 Constants::RobotConstants::eventsPerRev, Constants::RobotConstants::maxRPM);
 
 	leftMotor.setPIDVariables(Constants::RobotConstants::kP, Constants::RobotConstants::kI, Constants::RobotConstants::kD);
 	rightMotor.setPIDVariables(Constants::RobotConstants::kP, Constants::RobotConstants::kI, Constants::RobotConstants::kD);
 
-	float testThrottles[] = {0.0f, 0.2f,  0.4f,	 0.6f,		  0.8f,	 1.0f,	0.8f, 0.6f,	 0.4f,	0.2f,
-							 0.0f, -0.2f, -0.4f, -0.6f - 0.8, -1.0f, -0.8f, -0.6, -0.4f, -0.2f, 0.0f};
+	float testThrottles[] = {0.5f, 0.0f, -1.0f};
 
 	sleep_ms(5000);
 	printf("Starting test sequence!\n");
 
 	while (true) {
-		for (int i = 0; i < sizeof(testThrottles); i++) {
+		printf("L motor pin %d is on PWM slice: %d, channel: %d\n", Constants::RobotConstants::leftMotorPin1,
+			   pwm_gpio_to_slice_num(Constants::RobotConstants::leftMotorPin1), pwm_gpio_to_channel(Constants::RobotConstants::leftMotorPin1));
+		printf("L motor pin %d is on PWM slice: %d, channel: %d\n", Constants::RobotConstants::leftMotorPin2,
+			   pwm_gpio_to_slice_num(Constants::RobotConstants::leftMotorPin2), pwm_gpio_to_channel(Constants::RobotConstants::leftMotorPin2));
+		for (size_t i = 0; i < sizeof(testThrottles) / sizeof(testThrottles[0]); i++) {
 			float throttle = testThrottles[i];
-
 			leftMotor.setThrottle(throttle);
 			rightMotor.setThrottle(throttle);
 
@@ -39,7 +42,7 @@ int main() {
 				rightMotor.updatePWM();
 
 				printf("Left RPM: %f, Right RPM: %f\n", leftMotor.getCurrentRPM(), rightMotor.getCurrentRPM());
-				sleep_ms(100);
+				sleep_ms(1000);
 			}
 		}
 	}

@@ -11,8 +11,8 @@ using std::vector;
 namespace Constants {
 
 namespace RobotConstants {
-extern const int leftMotorPin1, leftMotorPin2, leftEncoderPin1, leftEncoderPin2;
-extern const int rightMotorPin1, rightMotorPin2, rightEncoderPin1, rightEncoderPin2;
+extern const int leftMotorPin1, leftMotorPin2, leftMotorEncoderPin1, leftMotorEncoderPin2;
+extern const int rightMotorPin1, rightMotorPin2, rightMotorEncoderPin1, rightMotorEncoderPin2;
 
 extern const float eventsPerRev;  // Amount of encoder ticks per revolution.
 extern const float maxRPM;

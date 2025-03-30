@@ -1,6 +1,7 @@
 #ifndef MOTOR_H
 #define MOTOR_H
 
+#include <stdio.h>
 #include <algorithm>
 #include <cmath>
 #include "hardware/gpio.h"
@@ -55,7 +56,7 @@ class Motor {
 	volatile int32_t prevEncoderCount;
 	absolute_time_t prevEncoderTime;  // For RPM calcs.
 
-    float clamp(float value, float min, float max);
+	float clamp(float value, float min, float max);
 
 	void setUp();
 	void initializePWM();

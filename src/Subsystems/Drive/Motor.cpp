@@ -126,6 +126,11 @@ void Motor::updatePWM() {
 	lastPIDTime = currentPIDTime;
 
 	float desiredRPM = targetThrottle * maxRPM;	 // Throttle -> RPM calc.
+	if (std::fabs(desiredRPM) < 1e-6) {
+		printf("Zero RPM Requested\n");
+		pwm_set_both_levels(pwm_slice, 0, 0);
+		return;
+	}
 
 	// PID calcs.
 	float error = std::fabs(desiredRPM) - std::fabs(currentRPM);  // Uses float absolute value.
@@ -146,7 +151,7 @@ void Motor::updatePWM() {
 
 	// Run motor at diff speeds (with no PID) -> test PWM values needed to maintain steady RPM -> make a regression until feedforward term predicts PWM needed.
 	// Look at motor characteristics too + friction, load, battery, voltage, and H-Bridge characteristics
-    // Then fine-tune using the kP term first, then add the integral and derivative terms for any residual errors.
+	// Then fine-tune using the kP term first, then add the integral and derivative terms for any residual errors.
 	float feedForward = 537.0f + 0.8f * std::fabs(desiredRPM);
 
 	float PIDOutput = kP * error + kI * integral + kD * derivative + feedForward;
