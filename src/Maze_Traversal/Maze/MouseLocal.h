@@ -21,6 +21,8 @@ using std::string;
 using std::stringstream;
 using std::vector;
 
+class API;
+
 /**
  * @brief The MouseLocal class represents the mouse's local state within the maze.
  *

@@ -10,7 +10,7 @@ const int leftMotorEncoder2 = leftMotorEncoder1 + 1;
 
 const int rightMotorPin1 = 18;
 const int rightMotorPin2 = rightMotorPin1 + 1;
-const int rightMotorEncoder1 = leftMotorPin2 + 1;
+const int rightMotorEncoder1 = rightotorPin2 + 1;
 const int rightMotorEncoder2 = rightMotorEncoder1 + 1;
 
 const float eventsPerRev = 360.0f;	// Amount of encoder ticks per revolution.
