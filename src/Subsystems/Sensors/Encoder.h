@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <cstring>
 #include "pico/stdlib.h"
+#include "QuadratureEncoder.pio.h"
 
 class Encoder {
    public:
@@ -25,12 +26,15 @@ class Encoder {
 	uint encoderPin2;
 	float eventsPerRev;
 
+    PIO pio;
+    uint statemachine
+
 	int32_t currentEncoderCount;
 	float currentRPM;
 	absolute_time_t lastEncoderUpdateTime;
 
 	uint smoothingWindow;  //  # of samples to average for encoder readings.
-	float* deltaBuffer;
+	float* deltaTimesBuffer;
 	uint bufferIndex;
 	uint sampleCount;
 
