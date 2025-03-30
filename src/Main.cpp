@@ -110,7 +110,7 @@ int main() {
 	leftMotor.setPIDVariables(Constants::RobotConstants::kP, Constants::RobotConstants::kI, Constants::RobotConstants::kD);
 	rightMotor.setPIDVariables(Constants::RobotConstants::kP, Constants::RobotConstants::kI, Constants::RobotConstants::kD);
 	const uint pinA = Constants::RobotConstants::rightMotorEncoderPin1;	 // example
-	const uint pinB = Constants::RobotConstants::rightMotorEncoderPin2; // example
+	const uint pinB = Constants::RobotConstants::rightMotorEncoderPin2;	 // example
 	const uint pinA2 = Constants::RobotConstants::leftMotorEncoderPin1;	 // example
 	const uint pinB2 = Constants::RobotConstants::leftMotorEncoderPin2;	 // example
 
@@ -127,17 +127,18 @@ int main() {
 	gpio_pull_up(pinA2);
 	gpio_pull_up(pinB2);
 
-    leftMotor.setThrottle(0.2);
-    rightMotor.setThrottle(0.2);
-    leftMotor.updatePWM();
-    rightMotor.updatePWM();
+	// leftMotor.setThrottle(0.2);
+	// rightMotor.setThrottle(0.2);
 
 	while (true) {
-        double leftRPM = leftMotor.getCurrentRPM();
-        double rightRPM = rightMotor.getCurrentRPM();
-        double leftPos = leftMotor.getCurrentPosition();
-        double rightPos = rightMotor.getCurrentPosition();
-        printf("LRPM=%d RRPM=%d LP=%d RP=%d\n", leftRPM, rightRPM, leftPos, rightPos);
+		leftMotor.updatePWM();
+		rightMotor.updatePWM();
+
+		double leftRPM = leftMotor.getCurrentRPM();
+		double rightRPM = rightMotor.getCurrentRPM();
+		double leftPos = leftMotor.getCurrentPosition();
+		double rightPos = rightMotor.getCurrentPosition();
+		printf("LRPM=%d RRPM=%d LP=%d RP=%d\n", leftRPM, rightRPM, leftPos, rightPos);
 		// bool stateA = gpio_get(pinA);
 		// bool stateB = gpio_get(pinB);
 		// bool stateA2 = gpio_get(pinA2);

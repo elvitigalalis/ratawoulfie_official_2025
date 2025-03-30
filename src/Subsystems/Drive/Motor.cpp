@@ -11,7 +11,7 @@ Motor::Motor(int motorPin1, int motorPin2, int encoderPin1, int encoderPin2, flo
 	this->maxRPM = maxRPM;
 	targetThrottle = 0.0f;
 	targetPosition = 0;
-	motorOn = false;
+	motorOn = true;
 	kP = kI = kD = 0.0f;
 	integral = 0.0f;
 	derivative = lastError = 0.0f;
