@@ -57,6 +57,9 @@ add_executable(ratawoulfie_official_2025
     src/Subsystems/Sensors/Encoder.cpp
 )
 
+# Allows Cell.cpp to throw exceptions.
+set_source_files_properties(src/Maze_Traversal/Maze/Cell.cpp PROPERTIES COMPILE_FLAGS "-fexceptions")
+
 # Generate extra outputs (UF2, etc.) for the Pico
 pico_add_extra_outputs(ratawoulfie_official_2025)
 

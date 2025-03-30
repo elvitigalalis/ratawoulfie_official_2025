@@ -11,8 +11,8 @@
 #include <string>
 #include <vector>
 #include "../../API.h"
-#include "../Constants/Constants.h"
-#include "../Constants/Logger.h"
+#include "../../Constants/Constants.h"
+#include "../../Constants/Logger.h"
 #include "Cell.h"
 #include "Movement.h"
 

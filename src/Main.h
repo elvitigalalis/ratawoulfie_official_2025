@@ -11,7 +11,7 @@
 #include <vector>
 
 #include <stdio.h>
-#include "../API.h"
+#include "API.h"
 #include "Maze_Traversal/AStar.h"
 #include "Maze_Traversal/FrontierBased.h"
 #include "Maze_Traversal/Maze/Cell.h"
