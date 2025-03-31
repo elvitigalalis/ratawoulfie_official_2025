@@ -6,12 +6,12 @@
 
 class Encoder {
    public:
-	Encoder(uint encoderPin1, uint encoderPin2, float eventsPerRev, uint smoothingWindow = 10, bool isReversed = false);
+	Encoder(uint encoderPin1, uint encoderPin2, float eventsPerRev, uint smoothingWindow = 100, bool isReversed = false);
 	~Encoder();
 
 	void update();
 	int32_t getCount() const;
-    float getPosition() const; // ft
+	float getPosition() const;	// ft
 	float getRPM() const;
 	void reset();
 
@@ -23,7 +23,7 @@ class Encoder {
 	const uint encoderPin2;
 	const float eventsPerRev;
 	const uint smoothingWindow;
-    const bool isReversed;
+	const bool isReversed;
 
 	// PIO State (mutable for hardware access)
 	mutable PIO pioInstance;

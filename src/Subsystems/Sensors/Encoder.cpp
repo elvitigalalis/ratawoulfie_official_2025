@@ -51,10 +51,12 @@ void Encoder::update() {
 	// Calculate RPM with noise filtering
 	if (abs(deltaCount) > 0) {	// Deadband for small movements
 		float averageDelta = getAverageDeltaTime(deltaTime);
-		float countsPerRev = eventsPerRev / 4.0f;
-		currentRPM = (deltaCount / countsPerRev) * (60.0f / averageDelta);
+		currentRPM = (deltaCount / eventsPerRev) * (60.0f / averageDelta);
 	} else {
-		currentRPM = 0.0f;
+		currentRPM *= 0.9f;
+        if (fabs(currentRPM) < 0.1f) {
+            currentRPM = 0.0f;
+        }
 	}
 }
 

@@ -27,9 +27,9 @@ int main() {
 	API api(&mouseLocal, &drivetrain);
 
 	try {
-		for (int i = 0; i < 5; i++) {
-			api.moveForward();
-			sleep_ms(1000);
+		for (int i = 1; i < 5; i++) {
+			api.moveForward(i);
+			sleep_ms(2000);
 		}
 		// int32_t leftRPM = leftMotor.getCurrentRPM();
 		// int32_t rightRPM = rightMotor.getCurrentRPM();

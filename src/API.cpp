@@ -118,7 +118,7 @@ void API::moveForward() {
 	bool ack = getAck("moveForward");
 
 	if (ack) {
-        drivetrain->driveForwardDistance(1);
+		drivetrain->driveForwardDistance(1);
 		mouseLocal->moveForwardLocal();
 	} else {
 		cerr << mouseLocal->localMazeToString();
@@ -140,8 +140,9 @@ void API::moveForward(int steps) {
 	bool ack = getAck(command);
 
 	if (ack) {
+		drivetrain->driveForwardDistance(steps);
+
 		for (int i = 0; i < steps; ++i) {
-            drivetrain->driveForwardDistance(1);
 			mouseLocal->moveForwardLocal();
 		}
 	} else {
@@ -174,7 +175,7 @@ void API::moveForwardHalf() {
 void API::turnRight() {
 	bool ack = getAck("turnRight");
 	if (ack) {
-        drivetrain->rotateBy(90);
+		drivetrain->rotateBy(90);
 		mouseLocal->turnMouseLocal(0, 2);
 	} else {
 		cerr << mouseLocal->localMazeToString();
@@ -190,7 +191,7 @@ void API::turnRight() {
 void API::turnLeft() {
 	bool ack = getAck("turnLeft");
 	if (ack) {
-        drivetrain->rotateBy(-90);
+		drivetrain->rotateBy(-90);
 		mouseLocal->turnMouseLocal(2, 0);
 	} else {
 		cerr << mouseLocal->localMazeToString();
@@ -206,7 +207,7 @@ void API::turnLeft() {
 void API::turnRight45() {
 	bool ack = getAck("turnRight45");
 	if (ack) {
-        drivetrain->rotateBy(45);
+		drivetrain->rotateBy(45);
 		mouseLocal->turnMouseLocal(0, 1);
 	} else {
 		cerr << mouseLocal->localMazeToString();
@@ -222,7 +223,7 @@ void API::turnRight45() {
 void API::turnLeft45() {
 	bool ack = getAck("turnLeft45");
 	if (ack) {
-        drivetrain->rotateBy(-45);
+		drivetrain->rotateBy(-45);
 		mouseLocal->turnMouseLocal(1, 0);
 	} else {
 		cerr << mouseLocal->localMazeToString();
