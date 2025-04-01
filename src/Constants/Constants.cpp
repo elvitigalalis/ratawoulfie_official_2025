@@ -17,14 +17,15 @@ const int rightMotorEncoderPin2 = rightMotorEncoderPin1 + 1;
 const float eventsPerRev = 360.0f;	// Amount of encoder ticks per revolution.
 const float maxRPM = 1000.0f;
 
+// FOR MOTORS (RPM TO PWM)
 const float kP = 0.0f;
 const float kI = 0.0f;
 const float kD = 0.0f;
 
 DrivetrainConfiguration config = [] {
 	DrivetrainConfiguration cfg;
-	cfg.maxRPM = 500.0f;
-	cfg.maxTurnRPM = 500.0f;
+	cfg.maxRPM = 200.0f;
+	cfg.maxTurnRPM = 200.0f;
 	cfg.encoderCountsPerCell = 635;	 // 180 / (32.5 mm (wheel diameter) * 3.14 (pi)) * 360 (encoder counts per rev). = 634.6609.
 	cfg.wallThreshold = 50;			 // mm.
 	cfg.distancePID = {0.01f, 0.0f, 0.0f};

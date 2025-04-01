@@ -125,6 +125,7 @@ void Motor::updatePWM() {
 		timeDelta = 0.001f;	 // Avoid divide by zero.
 
 	float desiredRPM = targetThrottle * maxRPM;	 // Throttle -> RPM calc.
+    // printf("Desired RPM: %f\n", desiredRPM);
 	if (std::fabs(desiredRPM) < 1e-6) {
 		// printf("Zero RPM Requested\n");
 		pwm_set_both_levels(pwm_slice, 0, 0);
@@ -153,7 +154,7 @@ void Motor::updatePWM() {
 
 	float PIDOutput = kP * error + kI * integral + kD * derivative + feedForward;
 	PIDOutput = clamp(PIDOutput, 0.0f, 999.0f);	 // Because there are only 1000 different possible "levels" of motor power.
-
+    printf("PIDOutput: %f\n", PIDOutput);
 	pwm_set_chan_level(pwm_slice, (desiredRPM >= 0 ? channelForward : channelReverse), (uint16_t)PIDOutput);
 	pwm_set_chan_level(pwm_slice, (desiredRPM >= 0 ? channelReverse : channelForward), 0);
 }

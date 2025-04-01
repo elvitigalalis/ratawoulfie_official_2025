@@ -47,7 +47,7 @@ void Encoder::update() {
 	if (newDeltaTime > 0.2) {
 		if (abs(deltaCount) > 5) {
 			oldEncoderCount = currentCount;
-            lastUpdateTime = now;
+			lastUpdateTime = now;
 
 			double currentRPM = (deltaCount / 360.0) * (60 / newDeltaTime);
 			setRPM(currentRPM);
@@ -55,6 +55,10 @@ void Encoder::update() {
 			int32_t RPM = getRPM();
 			int32_t Pos = getCount();
 			printf("RPM=%d P=%d\n", RPM, Pos);
+		}
+		setRPM(0.8f * getRPM());
+		if (getRPM() < 1) {
+			setRPM(0);
 		}
 	}
 }

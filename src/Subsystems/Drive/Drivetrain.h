@@ -60,9 +60,12 @@ class Drivetrain {
 	float turningIntegral;
 	float turningLastError;
 	float turningDerivative;
-	float distanceIntegral;
-	float distanceLastError;
-	float distanceDerivative;
+	float distanceIntegralL;
+	float distanceLastErrorL;
+	float distanceDerivativeL;
+	float distanceIntegralR;
+	float distanceLastErrorR;
+	float distanceDerivativeR;
 
 	absolute_time_t lastUpdateTime;
 	double oldEncoderCountL;
@@ -75,14 +78,14 @@ class Drivetrain {
 	// ToF distance calculations in mm.
 	int readToFLeft();
 	int readToFRight();
-    int readToFFront();
+	int readToFFront();
 
 	void executeTurningControl();
 	void executeDistanceControl(int targetCounts);
 
-    // IMU support
-    volatile uint8_t imuBuffer[19];
-    volatile int imuBufferIndex = 0;
+	// IMU support
+	volatile uint8_t imuBuffer[19];
+	volatile int imuBufferIndex = 0;
 	void initIMU();
 	int getCurrentYaw() const;
 	static void imuInterruptHandler();

@@ -16,8 +16,8 @@ int main() {
 					 Constants::RobotConstants::rightMotorEncoderPin1, Constants::RobotConstants::rightMotorEncoderPin2,
 					 Constants::RobotConstants::eventsPerRev, Constants::RobotConstants::maxRPM);
 
-	leftMotor.setPIDVariables(Constants::RobotConstants::kP, Constants::RobotConstants::kI, Constants::RobotConstants::kD);
-	rightMotor.setPIDVariables(Constants::RobotConstants::kP, Constants::RobotConstants::kI, Constants::RobotConstants::kD);
+	leftMotor.setPIDVariables(1, 0, 0);
+	rightMotor.setPIDVariables(0.5, 0, 0);
 
 	DrivetrainConfiguration config = Constants::RobotConstants::config;
 

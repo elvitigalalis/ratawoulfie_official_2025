@@ -11,8 +11,9 @@ Drivetrain::Drivetrain(const DrivetrainConfiguration& config, Motor* leftMotor, 
 	currentRPM = config.maxRPM;
 	currentYaw = desiredYaw = 0;
 	isMoving = isTurning = false;
-	turningIntegral = distanceIntegral = 0.0f;
-	distanceLastError = distanceDerivative = 0.0f;
+	distanceIntegralL = distanceLastErrorL = distanceDerivativeL = 0.0f;
+	distanceIntegralR = distanceLastErrorR = distanceDerivativeR = 0.0f;
+	turningIntegral = turningLastError = turningDerivative = 0.0f;
 
 	lastUpdateTime = get_absolute_time();
 	oldEncoderCountL = 0;
@@ -94,7 +95,7 @@ void Drivetrain::stop() {
 void Drivetrain::driveForwardDistance(int cellCount) {
 	float currPos = getAverageEncoderCount();
 	float targetPos = currPos + cellCount * config.encoderCountsPerCell;
-	distanceIntegral = distanceLastError = distanceDerivative = 0.0f;
+	distanceIntegralL = distanceLastErrorL = distanceDerivativeL = distanceIntegralR = distanceLastErrorR = distanceDerivativeR = 0.0f;
 	driveForward();
 
 	while (isMoving) {
@@ -105,19 +106,33 @@ void Drivetrain::driveForwardDistance(int cellCount) {
 		printf("LRPM=%d RRPM=%d LP=%d RP=%d\n", leftRPM, rightRPM, leftPos, rightPos);
 
 		float dt = absolute_time_diff_us(lastUpdateTime, get_absolute_time()) / 1000000.0f;
-		int error = targetPos - getAverageEncoderCount();
+		int errorL = targetPos - leftMotor->getEncoder()->getCount();
+		int errorR = targetPos - rightMotor->getEncoder()->getCount();
+
 		// printf("Error: %i\n", (int32_t)error);
-		distanceIntegral += error * dt;
-		distanceDerivative = (error - distanceLastError) / dt;
-		distanceLastError = error;
+		distanceIntegralL += errorL * dt;
+		distanceDerivativeL = (errorL - distanceLastErrorL) / dt;
+		distanceLastErrorL = errorL;
+		distanceIntegralR += errorR * dt;
+		if (distanceIntegralR > 100) {
+			distanceIntegralR = 100;
+		}
+		if (distanceIntegralR > 100) {
+			distanceIntegralR = 100;
+		}
+		distanceDerivativeR = (errorR - distanceLastErrorR) / dt;
+		distanceLastErrorR = errorR;
+		float controlSignalL =
+			config.distancePID.kP * errorL + config.distancePID.kI * distanceIntegralL + config.distancePID.kD * distanceDerivativeL;
+		float controlSignalR =
+			config.distancePID.kP * errorR + config.distancePID.kI * distanceIntegralR + config.distancePID.kD * distanceDerivativeR;
 
-		float controlSignal = config.distancePID.kP * error + config.distancePID.kI * distanceIntegral + config.distancePID.kD * distanceDerivative;
+		float adjustedRPML = std::min(currentRPM + controlSignalL, config.maxRPM);
+		float adjustedRPMR = std::min(currentRPM + controlSignalR, config.maxRPM);
+		leftMotor->setThrottle(adjustedRPML / leftMotor->getMaxRPM());
+		rightMotor->setThrottle(adjustedRPMR / rightMotor->getMaxRPM());
 
-		float adjustedRPM = std::min(currentRPM + controlSignal, config.maxRPM);
-		leftMotor->setThrottle(adjustedRPM / leftMotor->getMaxRPM());
-		rightMotor->setThrottle(adjustedRPM / rightMotor->getMaxRPM());
-
-		if (fabs(error) < config.distanceErrorThreshold) {
+		if (fabs(errorL) < config.distanceErrorThreshold && fabs(errorR) < config.distanceErrorThreshold) {
 			printf("Reached target position: %i\n", (int32_t)targetPos);
 			stop();
 			sleep_ms(2000);	 // FIXME: Remove this
@@ -136,7 +151,9 @@ void Drivetrain::rotateBy(int angleDegrees) {
 		executeTurningControl();
 	}
 	stop();
-	turningIntegral = 0.0f;
+	// turningIntegralR = turningIntegralL = 0.0f;
+	// turningLastErrorR = turningLastErrorL = 0.0f;
+	// turningDerivativeR = turningDerivativeL = 0.0f;
 }
 
 // void Drivetrain::getCurrentYaw() {
