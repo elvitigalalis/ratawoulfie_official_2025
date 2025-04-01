@@ -18,7 +18,7 @@ Drivetrain::Drivetrain(const DrivetrainConfiguration& config, Motor* leftMotor, 
 	lastUpdateTime = get_absolute_time();
 	oldEncoderCountL = 0;
 	oldEncoderCountR = 0;
-	initIMU();
+	// initIMU();
 }
 
 void Drivetrain::initIMU() {
@@ -143,7 +143,7 @@ void Drivetrain::driveForwardDistance(int cellCount) {
 
 void Drivetrain::rotateBy(int angleDegrees) {
 	stop();
-	updateIMU();
+	// updateIMU();
 	desiredYaw = positiveMod(currentYaw + angleDegrees, 360);
 	turningIntegral = turningLastError = turningDerivative = 0.0f;
 	isTurning = true;
