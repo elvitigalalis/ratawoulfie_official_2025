@@ -14,6 +14,7 @@ Encoder::Encoder(uint encoderPin1, uint encoderPin2, float eventsPerRev, uint sm
 	  currentRPM(0.0f),
 	  bufferIndex(0),
 	  sampleCount(0),
+
 	  isReversed(isReversed) {
 
 	assert(encoderPin2 == encoderPin1 + 1);
@@ -37,31 +38,15 @@ Encoder::~Encoder() {
 }
 
 void Encoder::update() {
-	absolute_time_t now = get_absolute_time();
-	float deltaTime = std::max(absolute_time_diff_us(lastUpdateTime, now) / 1e6f, 0.001f);
-	// printf("Delta Time: %f\n", deltaTime);
-	lastUpdateTime = now;
-
 	currentCount = getCount();
-	// printf("Current Count: %d\n", currentCount);
-	int32_t deltaCount = currentCount - oldEncoderCount;
-	// printf("Delta Count: %d\n", deltaCount);
-	oldEncoderCount = currentCount;
-
-	// Calculate RPM with noise filtering
-	if (abs(deltaCount) > 0) {	// Deadband for small movements
-		float averageDelta = getAverageDeltaTime(deltaTime);
-		currentRPM = (deltaCount / eventsPerRev) * (60.0f / averageDelta);
-	} else {
-		currentRPM *= 0.9f;
-        if (fabs(currentRPM) < 0.1f) {
-            currentRPM = 0.0f;
-        }
-	}
 }
 
 int32_t Encoder::getCount() const {
 	return (isReversed ? -quadrature_encoder_get_count(pioInstance, stateMachine) : quadrature_encoder_get_count(pioInstance, stateMachine));
+}
+
+void Encoder::setRPM(double RPM) {
+    currentRPM = RPM;
 }
 
 float Encoder::getPosition() const {

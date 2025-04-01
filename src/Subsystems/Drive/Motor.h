@@ -26,6 +26,7 @@ class Motor {
 
 	void setThrottle(float throttle);  // -1 (reverse) to 1 (forward).
 	void setPosition(int pos);		   // Meters.
+    void setRPM(double currentRPM);
 
 	float getTargetThrottle() const;
 	float getCurrentRPM();

@@ -64,8 +64,10 @@ class Drivetrain {
 	float distanceIntegral;
 	float distanceLastError;
 	float distanceDerivative;
-
-	std::chrono::steady_clock::time_point lastUpdateTime;
+    
+    absolute_time_t lastUpdateTime;
+    double oldEncoderCountL;
+    double oldEncoderCountR;
 
 	// Helper methods.
 	int positiveMod(int a, int b);

@@ -14,7 +14,9 @@ Drivetrain::Drivetrain(const DrivetrainConfiguration& config, Motor* leftMotor, 
 	turningIntegral = distanceIntegral = 0.0f;
 	distanceLastError = distanceDerivative = 0.0f;
 
-	lastUpdateTime = std::chrono::steady_clock::now();
+	lastUpdateTime = get_absolute_time();
+	oldEncoderCountL = 0;
+    oldEncoderCountR = 0;
 }
 
 int Drivetrain::positiveMod(int a, int b) {
@@ -25,13 +27,6 @@ int Drivetrain::getAverageEncoderCount() {
 	leftEncoder->update();
 	rightEncoder->update();
 	return (leftEncoder->getCount() + rightEncoder->getCount()) / 2;
-}
-
-float Drivetrain::elapsedTimeSeconds() {
-	auto now = std::chrono::steady_clock::now();
-	float dt = std::chrono::duration<float>(now - lastUpdateTime).count();
-	lastUpdateTime = now;
-	return dt;	// In seconds.
 }
 
 int Drivetrain::readToFLeft() {
@@ -66,33 +61,34 @@ void Drivetrain::driveForwardDistance(int cellCount) {
 	driveForward();
 
 	while (isMoving) {
-		int32_t leftRPM = leftMotor->getCurrentRPM();
-		int32_t rightRPM = rightMotor->getCurrentRPM();
-		int32_t leftPos = leftMotor->getCurrentPosition();
-		int32_t rightPos = rightMotor->getCurrentPosition();
-		printf("LRPM=%d RRPM=%d LP=%d RP=%d\n", leftRPM, rightRPM, leftPos, rightPos);
+		absolute_time_t now = get_absolute_time();
+		int deltaTime = absolute_time_diff_us(lastUpdateTime, now);
+		lastUpdateTime = now;
+		double newDeltaTime = deltaTime / 1000000.0;
 
-		float dt = elapsedTimeSeconds();
-		int error = targetPos - getAverageEncoderCount();
-		// printf("Error: %i\n", (int32_t)error);
-		distanceIntegral += error * dt;
-		distanceDerivative = (error - distanceLastError) / dt;
-		distanceLastError = error;
+		if (newDeltaTime > 0.5) {
+			int currentCountL = leftMotor->getEncoder()->getCount();
+			int currentCountR = leftMotor->getEncoder()->getCount();
 
-		float controlSignal = config.distancePID.kP * error + config.distancePID.kI * distanceIntegral + config.distancePID.kD * distanceDerivative;
+			int deltaCountL = currentCountL - oldEncoderCountL;
+            int deltaCountR = currentCountR - oldEncoderCountR;
+			oldEncoderCountL = currentCountL;
+			oldEncoderCountR = currentCountR;
 
-		float adjustedRPM = std::min(currentRPM + controlSignal, config.maxRPM);
-		leftMotor->setThrottle(adjustedRPM / leftMotor->getMaxRPM());
-		rightMotor->setThrottle(adjustedRPM / rightMotor->getMaxRPM());
+			double currentRPML = (deltaCountL / 360.0) * (60 / newDeltaTime);
+            double currentRPMR = (deltaCountR / 360.0) * (60 / newDeltaTime);
 
-		if (fabs(error) < config.distanceErrorThreshold) {
-			printf("Reached target position: %i\n", (int32_t)targetPos);
-			stop();
-			sleep_ms(2000);	 // FIXME: Remove this
+            leftMotor->setRPM(currentRPML);
+            rightMotor->setRPM(currentRPMR);
+            
+			int32_t leftRPM = leftMotor->getCurrentRPM();
+			int32_t rightRPM = rightMotor->getCurrentRPM();
+			int32_t leftPos = leftMotor->getCurrentPosition();
+			int32_t rightPos = rightMotor->getCurrentPosition();
+			printf("LRPM=%d RRPM=%d LP=%d RP=%d\n", leftRPM, rightRPM, leftPos, rightPos);
 		}
 	}
 }
-
 void Drivetrain::rotateBy(int angleDegrees) {
 	stop();
 	updateIMU();

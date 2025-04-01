@@ -13,6 +13,7 @@ class Encoder {
 	int32_t getCount() const;
 	float getPosition() const;	// ft
 	float getRPM() const;
+    void setRPM(double RPM);
 	void reset();
 
    private:

@@ -86,6 +86,10 @@ float Motor::getCurrentRPM() {
 	return encoder.getRPM();
 }
 
+void Motor::setRPM(double currentRPM) {
+    encoder.setRPM(currentRPM);
+}
+
 int Motor::getTargetPosition() const {
 	return targetPosition;
 }
