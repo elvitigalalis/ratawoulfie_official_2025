@@ -5,7 +5,6 @@
 #include <chrono>
 #include <cmath>
 #include "Motor.h"
-
 struct PIDController {
 	float kP;
 	float kI;
@@ -59,27 +58,34 @@ class Drivetrain {
 	volatile bool isMoving;
 
 	float turningIntegral;
-    float turningLastError;
-    float turningDerivative;
+	float turningLastError;
+	float turningDerivative;
 	float distanceIntegral;
 	float distanceLastError;
 	float distanceDerivative;
-    
-    absolute_time_t lastUpdateTime;
-    double oldEncoderCountL;
-    double oldEncoderCountR;
+
+	absolute_time_t lastUpdateTime;
+	double oldEncoderCountL;
+	double oldEncoderCountR;
 
 	// Helper methods.
 	int positiveMod(int a, int b);
 	int getAverageEncoderCount();
-	float elapsedTimeSeconds();
 
 	// ToF distance calculations in mm.
 	int readToFLeft();
 	int readToFRight();
-	void updateIMU();
+    int readToFFront();
 
 	void executeTurningControl();
 	void executeDistanceControl(int targetCounts);
+
+    // IMU support
+    volatile uint8_t imuBuffer[19];
+    volatile int imuBufferIndex = 0;
+	void initIMU();
+	int getCurrentYaw() const;
+	static void imuInterruptHandler();
+	void updateIMU();
 };
 #endif

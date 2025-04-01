@@ -38,7 +38,25 @@ Encoder::~Encoder() {
 }
 
 void Encoder::update() {
+	absolute_time_t now = get_absolute_time();
+	int deltaTime = absolute_time_diff_us(lastUpdateTime, now);
+	double newDeltaTime = deltaTime / 1000000.0;
 	currentCount = getCount();
+	double deltaCount = currentCount - oldEncoderCount;
+
+	if (newDeltaTime > 0.2) {
+		if (abs(deltaCount) > 5) {
+			oldEncoderCount = currentCount;
+            lastUpdateTime = now;
+
+			double currentRPM = (deltaCount / 360.0) * (60 / newDeltaTime);
+			setRPM(currentRPM);
+
+			int32_t RPM = getRPM();
+			int32_t Pos = getCount();
+			printf("RPM=%d P=%d\n", RPM, Pos);
+		}
+	}
 }
 
 int32_t Encoder::getCount() const {
@@ -46,7 +64,7 @@ int32_t Encoder::getCount() const {
 }
 
 void Encoder::setRPM(double RPM) {
-    currentRPM = RPM;
+	currentRPM = RPM;
 }
 
 float Encoder::getPosition() const {

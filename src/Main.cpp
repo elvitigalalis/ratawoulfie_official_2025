@@ -26,36 +26,33 @@ int main() {
 
 	API api(&mouseLocal, &drivetrain);
 
-	absolute_time_t lastUpdateTime = get_absolute_time();
-	int oldEncoderCount = 0;
-
 	try {
-		/*
 		for (int i = 1; i < 5; i++) {
 			api.moveForward(i);
 			sleep_ms(2000);
 		}
-			*/
-		while (1) {
-			absolute_time_t now = get_absolute_time();
-			int deltaTime = absolute_time_diff_us(lastUpdateTime, now);
-			// printf("Delta Time: %f\n", deltaTime);
-			lastUpdateTime = now;
-			int currentCount = leftMotor.getEncoder()->getCount();
+	
+        /*
+		// while (1) {
+		// 	absolute_time_t now = get_absolute_time();
+		// 	int deltaTime = absolute_time_diff_us(lastUpdateTime, now);
+		// 	// printf("Delta Time: %f\n", deltaTime);
+		// 	lastUpdateTime = now;
+		// 	int currentCount = leftMotor.getEncoder()->getCount();
 
-			// printf("Current Count: %d\n", currentCount);
-			int deltaCount = currentCount - oldEncoderCount;
-			// printf("Delta Count: %d\n", deltaCount);
-			oldEncoderCount = currentCount;
+		// 	// printf("Current Count: %d\n", currentCount);
+		// 	int deltaCount = currentCount - oldEncoderCount;
+		// 	// printf("Delta Count: %d\n", deltaCount);
+		// 	oldEncoderCount = currentCount;
 
-			// Calculate RPM with noise filtering
-			// float averageDelta = getAverageDeltaTime(deltaTime);
-			double averageDelta = deltaTime / 1000000.0;
-			double currentRPM = (deltaCount / 360.0) * (60.0 / averageDelta);
+		// 	// Calculate RPM with noise filtering
+		// 	// float averageDelta = getAverageDeltaTime(deltaTime);
+		// 	double averageDelta = deltaTime / 1000000.0;
+		// 	double currentRPM = (deltaCount / 360.0) * (60.0 / averageDelta);
 
-			printf("LRPM=%.6f\n", currentRPM);
-			sleep_ms(500);
-		}
+		// 	printf("LRPM=%.6f\n", currentRPM);
+		// 	sleep_ms(500);
+		// }
 
 		/*
 		leftMotor.setThrottle(1);

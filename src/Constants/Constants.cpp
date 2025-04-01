@@ -42,6 +42,8 @@ const array<int, 2> startingMousePosition = {0, 0};
 const array<int, 2> startingMouseDirection = {0, 1};
 }  // namespace MouseConstants
 
+namespace uartConstants {
+}
 namespace MazeConstants {
 const int numRows = 16;
 const int numCols = 16;
