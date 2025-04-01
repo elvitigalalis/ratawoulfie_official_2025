@@ -55,10 +55,11 @@ void Encoder::update() {
 			int32_t RPM = getRPM();
 			int32_t Pos = getCount();
 			printf("RPM=%d P=%d\n", RPM, Pos);
-		}
-		setRPM(0.8f * getRPM());
-		if (getRPM() < 1) {
-			setRPM(0);
+		} else {
+			setRPM(0.8f * getRPM());
+			if (getRPM() < 1) {
+				setRPM(0);
+			}
 		}
 	}
 }

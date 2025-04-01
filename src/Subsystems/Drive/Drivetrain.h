@@ -5,14 +5,20 @@
 #include <chrono>
 #include <cmath>
 #include "Motor.h"
+#include "hardware/irq.h"
+#include "hardware/uart.h"
+#include "pico/stdlib.h"
 
+#define UART_IMU uart0
 #define BAUD_RATE 115200
 #define DATA_BITS 8
 #define STOP_BITS 1
 #define PARITY UART_PARITY_NONE
-#define UART_RX_PIN 0
-#define UART_IMU uart0
-#define UART_UARTIMSC_RTIM_LSB 0
+#define UART_TX_PIN 0
+#define UART_RX_PIN 1
+
+// UART receive timeout interrupt bit.
+#define UART_UARTIMSC_RTIM_LSB 6
 struct PIDController {
 	float kP;
 	float kI;
@@ -52,6 +58,7 @@ class Drivetrain {
 
    private:
 	DrivetrainConfiguration config;
+	static Drivetrain* imuInstance;
 
 	Motor* leftMotor;
 	Motor* rightMotor;
@@ -92,11 +99,11 @@ class Drivetrain {
 	void executeDistanceControl(int targetCounts);
 
 	// IMU support
-	volatile uint8_t imuBuffer[19];
-	volatile int imuBufferIndex = 0;
+	volatile uint8_t imuBuffer[19];	 // Buffer to hold IMU packet data.
+	volatile int imuBufferIndex;	 // Index for the IMU buffer.
 	void initIMU();
-	int getCurrentYaw() const;
 	static void imuInterruptHandler();
-	void updateIMU();
+	void handleIMUInterrupt();
+	void processIMUPacket();
 };
 #endif
