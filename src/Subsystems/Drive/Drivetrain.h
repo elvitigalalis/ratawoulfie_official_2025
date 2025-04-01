@@ -5,6 +5,14 @@
 #include <chrono>
 #include <cmath>
 #include "Motor.h"
+
+#define BAUD_RATE 115200
+#define DATA_BITS 8
+#define STOP_BITS 1
+#define PARITY UART_PARITY_NONE
+#define UART_RX_PIN 0
+#define UART_IMU uart0
+#define UART_UARTIMSC_RTIM_LSB 0
 struct PIDController {
 	float kP;
 	float kI;

@@ -18,25 +18,25 @@ Drivetrain::Drivetrain(const DrivetrainConfiguration& config, Motor* leftMotor, 
 	lastUpdateTime = get_absolute_time();
 	oldEncoderCountL = 0;
 	oldEncoderCountR = 0;
-	// initIMU();
+	initIMU();
 }
 
-// void Drivetrain::initIMU() {
-// 	// Initialize UART for IMU communication
-// 	uart_init(UART_IMU, BAUD_RATE);
-// 	gpio_set_function(UART_RX_PIN, GPIO_FUNC_UART);
-// 	uart_set_baudrate(UART_IMU, BAUD_RATE);
-// 	uart_set_hw_flow(UART_IMU, false, false);
-// 	uart_set_format(UART_IMU, DATA_BITS, STOP_BITS, PARITY);
-// 	uart_set_fifo_enabled(UART_IMU, true);
+void Drivetrain::initIMU() {
+	// Initialize UART for IMU communication
+	uart_init(UART_IMU, BAUD_RATE);
+	gpio_set_function(UART_RX_PIN, GPIO_FUNC_UART);
+	uart_set_baudrate(UART_IMU, BAUD_RATE);
+	uart_set_hw_flow(UART_IMU, false, false);
+	uart_set_format(UART_IMU, DATA_BITS, STOP_BITS, PARITY);
+	uart_set_fifo_enabled(UART_IMU, true);
 
-// 	// Set up IMU UART interrupt (assumes UART0 is used for IMU)
-// 	irq_set_enabled(UART0_IRQ, true);
-// 	irq_set_exclusive_handler(UART0_IRQ, &Drivetrain::imuInterruptHandler);
-// 	uart_get_hw(UART_IMU)->imsc = (bool_to_bit(true) << UART_UARTIMSC_RTIM_LSB);
+	// Set up IMU UART interrupt (assumes UART0 is used for IMU)
+	irq_set_enabled(UART0_IRQ, true);
+	irq_set_exclusive_handler(UART0_IRQ, &Drivetrain::imuInterruptHandler);
+	uart_get_hw(UART_IMU)->imsc = (bool_to_bit(true) << UART_UARTIMSC_RTIM_LSB);
 
-// 	imuBufferIndex = 0;
-// }
+	imuBufferIndex = 0;
+}
 
 int Drivetrain::positiveMod(int a, int b) {
 	return (a % b + b) % b;
@@ -71,8 +71,9 @@ void Drivetrain::updateIMU() {
 
 			// Check if checksum is the same
 			if (checksum == imuBuffer[18]) {
-				currentYaw = (imuBuffer[4] << 8) | imuBuffer[5];
-				printf("Yaw: %d\n", currentYaw);
+				int16_t yaw = (imuBuffer[4] << 8) | imuBuffer[5];
+				printf("Yaw: %d\n", yaw);
+                currentYaw = yaw;
 			}
 			imuBufferIndex = 0;	 // Resets the index for next packet of information.
 		}
@@ -156,9 +157,9 @@ void Drivetrain::rotateBy(int angleDegrees) {
 	// turningDerivativeR = turningDerivativeL = 0.0f;
 }
 
-// void Drivetrain::getCurrentYaw() {
-//     return
-// }
+int Drivetrain::getCurrentYaw() const {
+    return currentYaw;
+}
 
 void Drivetrain::setAbsoluteHeading(int headingDegrees) {
 	int angleDifference = headingDegrees - currentYaw;
