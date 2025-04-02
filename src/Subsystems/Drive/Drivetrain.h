@@ -56,15 +56,46 @@ class Drivetrain {
 
 	void controlLoop();
 
+	// Lidar Public Functions 
+	// TODO Overload the following functions to have a definition for Lidar and Tof
+	bool checkLeftWall();
+	bool checkRightWall();
+	bool checkFrontWall();
+
    private:
 	DrivetrainConfiguration config;
 	static Drivetrain* imuInstance;
+	static Drivetrain* lidarInstance;
 
 	Motor* leftMotor;
 	Motor* rightMotor;
 
 	Encoder* leftEncoder;
 	Encoder* rightEncoder;
+
+	// LIDAR Data
+	// volatile char buffer[600]; // Buffer for LIDAR readings
+	// volatile int bufferIndex = 0;
+	// int16_t lidarPoints[320]; // Stores LIDAR data for processing
+	// volatile int lidarPointIndex;
+	// float frontWallDist = 10000; // Distance wall is from mouse
+	//define necessary values
+	#define UART_LIDAR uart1
+	#define BAUD_RATE 921600
+	#define UART_TX_PIN 4 //txPin (system serial port output)
+	#define UART_RX_PIN 5 //rxPin (system serial port input)
+
+
+	/*the buffer will store recieved bytes from the sensor via UART
+	the index variable will keep track of where to store the next byte;
+	once buffer is full, it will reset to 0. */
+	#define BUFFER_SIZE 330  //modify as needed (if all data doesn't show, increase value)
+	uint8_t fifoQueue[BUFFER_SIZE]; // TODO: add constants
+	int head = 0, tail = 0, count = 0;  //FIFO
+	int lidarPoints[360];   //stores distances at different angles
+	float xcor[320]; // Arrays for processed LIDAR data
+	float ycor[320];
+
 
 	volatile float currentRPM;
 	volatile int currentYaw;
@@ -94,6 +125,18 @@ class Drivetrain {
 	int readToFLeft();
 	int readToFRight();
 	int readToFFront();
+
+	// Lidar helper methods
+	static void lidarInterruptHandler();
+	void queue(uint8_t data);
+	int dequeue();
+	void readLidar();
+	void initLidar();
+	void processLidarData();
+	void translateDataToMessage(int distance);
+	int lidarMain();
+	void cartesianConvert(); // Turning LIDAR values to x, y coordinates
+	float checkFrontWallDistance();
 
 	void executeTurningControl();
 	void executeDistanceControl(int targetCounts);
