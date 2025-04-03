@@ -45,7 +45,6 @@ endif()
 add_executable(ratawoulfie_official_2025
     src/Main.cpp
     src/API.cpp
-    src/Constants/Constants.cpp
     src/Constants/Logger.cpp
     src/Maze_Traversal/Maze/Cell.cpp
     src/Maze_Traversal/Maze/MouseLocal.cpp
@@ -55,6 +54,8 @@ add_executable(ratawoulfie_official_2025
     src/Subsystems/Drive/Drivetrain.cpp
     src/Subsystems/Drive/Motor.cpp
     src/Subsystems/Sensors/Encoder.cpp
+    src/Constants/Constants.cpp
+
 )
 
 # Allows files to throw exceptions.

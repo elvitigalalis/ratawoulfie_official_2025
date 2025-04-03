@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <algorithm>
 #include <cmath>
+#include <string>
+#include "../../Constants/Constants.h"
 #include "../Sensors/Encoder.h"
 #include "hardware/gpio.h"
 #include "hardware/irq.h"
@@ -26,17 +28,18 @@ class Motor {
 
 	void setThrottle(float throttle);  // -1 (reverse) to 1 (forward).
 	void setPosition(int pos);		   // Meters.
-    void setRPM(double currentRPM);
+	void setRPM(double currentRPM);
 
 	float getTargetThrottle() const;
 	float getCurrentRPM();
 	int getTargetPosition() const;
 	int32_t getCurrentPosition();
 	Encoder* getEncoder();
-    float getMaxRPM() const;
+	float getMaxRPM() const;
 
 	void updateEncoder();
 	void updatePWM();
+	void getFeedforwardValue(float i, std::string motorName);
 
    private:
 	int motorPin1, motorPin2, encoderPin1, encoderPin2;
@@ -64,5 +67,10 @@ class Motor {
 
 	void setUp();
 	void initializePWM();
+
+	const float feedforwardLConstant = 648.0f;
+	const float feedforwardLSlope = 1.2f;
+	const float feedforwardRConstant = 641.0f;
+	const float feedforwardRSlope = 1.16f;
 };
 #endif

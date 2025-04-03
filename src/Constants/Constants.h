@@ -21,7 +21,7 @@ extern const float maxRPM;
 
 extern const float kP, kI, kD;
 
-extern DrivetrainConfiguration config;
+// extern DrivetrainConfiguration config;
 
 }  // namespace RobotConstants
 

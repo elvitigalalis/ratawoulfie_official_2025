@@ -16,10 +16,21 @@ int main() {
 					 Constants::RobotConstants::rightMotorEncoderPin1, Constants::RobotConstants::rightMotorEncoderPin2,
 					 Constants::RobotConstants::eventsPerRev, Constants::RobotConstants::maxRPM);
 
-	leftMotor.setPIDVariables(1, 0, 0);
-	rightMotor.setPIDVariables(0.5, 0, 0);
+	leftMotor.setPIDVariables(1.2, 0, 0);
+	rightMotor.setPIDVariables(1.9, 0, 0);
 
-	DrivetrainConfiguration config = Constants::RobotConstants::config;
+	DrivetrainConfiguration config = [] {
+		DrivetrainConfiguration cfg;
+		cfg.maxRPM = 100.0f;
+		cfg.maxTurnRPM = 200.0f;
+		cfg.encoderCountsPerCell = 635;	 // 180 / (32.5 mm (wheel diameter) * 3.14 (pi)) * 360 (encoder counts per rev). = 634.6609.
+		cfg.wallThreshold = 50;			 // mm.
+		cfg.distancePID = {0.01f, 0.0f, 0.0f};
+		cfg.turnPID = {0.0f, 0.0f, 0.0f};
+		cfg.yawErrorThrewshold = 3;
+		cfg.distanceErrorThreshold = 10.0f;
+		return cfg;
+	}();
 
 	Drivetrain drivetrain(config, &leftMotor, &rightMotor);
 	MouseLocal mouseLocal;
@@ -27,12 +38,24 @@ int main() {
 	API api(&mouseLocal, &drivetrain);
 
 	try {
-		for (int i = 1; i < 5; i++) {
-			api.moveForward(i);
-			sleep_ms(2000);
-		}
-	
-        /*
+		api.moveForward(2);
+
+		// for (int i = 600; i < 1000; i++) {
+		// 	rightMotor.updateEncoder();
+		// 	rightMotor.getFeedforwardValue(i, "rightMotor");
+		// }
+		// drivetrain.driveForward();
+
+		//     leftMotor.updateEncoder();
+		//     rightMotor.updateEncoder();
+		//     printf("Left Motor RPM %f\n", leftMotor.getCurrentRPM());
+		// 	printf("Right Motor RPM %f\n", rightMotor.getCurrentRPM());
+		// for (int i = 1; i < 2; i++) {
+		// 	api.moveForward(i);
+		// 	sleep_ms(2000);
+		// }
+
+		/*
 		// while (1) {
 		// 	absolute_time_t now = get_absolute_time();
 		// 	int deltaTime = absolute_time_diff_us(lastUpdateTime, now);

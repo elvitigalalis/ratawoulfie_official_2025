@@ -5,9 +5,13 @@
 #include <chrono>
 #include <cmath>
 #include "Motor.h"
+
 #include "hardware/irq.h"
 #include "hardware/uart.h"
 #include "pico/stdlib.h"
+
+class Motor;
+class Encoder;
 
 #define UART_IMU uart0
 #define BAUD_RATE 115200

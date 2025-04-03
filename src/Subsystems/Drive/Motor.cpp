@@ -68,6 +68,7 @@ void Motor::stop() {
 
 void Motor::setThrottle(float targetThrottle) {
 	this->targetThrottle = clamp(targetThrottle, -1.0f, 1.0f);
+    printf("Throttle: %f\n", targetThrottle);
 
 	integral = 0.0f;
 	derivative = lastError = 0.0f;
@@ -87,7 +88,7 @@ float Motor::getCurrentRPM() {
 }
 
 void Motor::setRPM(double currentRPM) {
-    encoder.setRPM(currentRPM);
+	encoder.setRPM(currentRPM);
 }
 
 int Motor::getTargetPosition() const {
@@ -113,51 +114,71 @@ void Motor::updateEncoder() {
 void Motor::updatePWM() {
 	if (!motorOn)
 		return;
+		updateEncoder();
 
-	updateEncoder();
+		// Δt calculations (for PWM cycles)
+		absolute_time_t currentPIDTime = get_absolute_time();
+		float timeDelta = absolute_time_diff_us(lastPIDTime, currentPIDTime) / 1e6f;
+		lastPIDTime = currentPIDTime;
 
-	// Δt calculations (for PWM cycles)
-	absolute_time_t currentPIDTime = get_absolute_time();
-	float timeDelta = absolute_time_diff_us(lastPIDTime, currentPIDTime) / 1e6f;
-	lastPIDTime = currentPIDTime;
+		if (timeDelta <= 0)
+			timeDelta = 0.001f;	 // Avoid divide by zero.
 
-	if (timeDelta <= 0)
-		timeDelta = 0.001f;	 // Avoid divide by zero.
+		float desiredRPM = targetThrottle * maxRPM;	 // Throttle -> RPM calc.
+													 // printf("Desired RPM: %f\n", desiredRPM);
+		if (std::fabs(desiredRPM) < 1e-6) {
+			// printf("Zero RPM Requested\n");
+			pwm_set_both_levels(pwm_slice, 0, 0);
+			return;
+		}
 
-	float desiredRPM = targetThrottle * maxRPM;	 // Throttle -> RPM calc.
-    // printf("Desired RPM: %f\n", desiredRPM);
-	if (std::fabs(desiredRPM) < 1e-6) {
-		// printf("Zero RPM Requested\n");
-		pwm_set_both_levels(pwm_slice, 0, 0);
-		return;
-	}
+		// PID calcs.
+		float currentRPM = encoder.getRPM();
+		float error = std::fabs(desiredRPM) - std::fabs(currentRPM);  // Uses float absolute value.
 
-	// PID calcs.
-	float currentRPM = encoder.getRPM();
-	float error = std::fabs(desiredRPM) - std::fabs(currentRPM);  // Uses float absolute value.
-
-	integral = clamp(integral + error * timeDelta, -100.0f, 100.0f);
-	derivative = (error - lastError) / timeDelta;
-	lastError = error;
-	// Feedforward calculations:
-	/* y = mx + b
+		integral = clamp(integral + error * timeDelta, -100.0f, 100.0f);
+		derivative = (error - lastError) / timeDelta;
+		lastError = error;
+		// Feedforward calculations:
+		/* y = mx + b
      *  b constant (537.0f) = baseline PWM level required to overcome static friction / system losses.
                             "min power needed to start moving the motor"
         m constant (0.8f) = scaling factor; maps desiredRPM to another PWM value. Higher the RPM, 
                             the more additional power you need, so this is proportional.
      */
 
-	// Run motor at diff speeds (with no PID) -> test PWM values needed to maintain steady RPM -> make a regression until feedforward term predicts PWM needed.
-	// Look at motor characteristics too + friction, load, battery, voltage, and H-Bridge characteristics
-	// Then fine-tune using the kP term first, then add the integral and derivative terms for any residual errors.
-	float feedForward = 537.0f + 0.8f * std::fabs(desiredRPM);
+		// Run motor at diff speeds (with no PID) -> test PWM values needed to maintain steady RPM -> make a regression until feedforward term predicts PWM needed.
+		// Look at motor characteristics too + friction, load, battery, voltage, and H-Bridge characteristics
+		// Then fine-tune using the kP term first, then add the integral and derivative terms for any residual errors.
+		float feedForward;
+		if (isReversed) {
+			feedForward = feedforwardLConstant + feedforwardLSlope * std::fabs(desiredRPM);
+		} else {
+			feedForward = feedforwardRConstant + feedforwardRSlope * std::fabs(desiredRPM);
+		}
 
-	float PIDOutput = kP * error + kI * integral + kD * derivative + feedForward;
-	PIDOutput = clamp(PIDOutput, 0.0f, 999.0f);	 // Because there are only 1000 different possible "levels" of motor power.
-    printf("PIDOutput: %f\n", PIDOutput);
-	pwm_set_chan_level(pwm_slice, (desiredRPM >= 0 ? channelForward : channelReverse), (uint16_t)PIDOutput);
-	pwm_set_chan_level(pwm_slice, (desiredRPM >= 0 ? channelReverse : channelForward), 0);
+		// printf("Error : %f\n", error);
+		float PIDOutput = kP * error + kI * integral + kD * derivative + feedForward;
+		PIDOutput = clamp(PIDOutput, 0.0f, 999.0f);	 // Because there are only 1000 different possible "levels" of motor power.
+
+		// printf("PIDOutput: %f", PIDOutput);
+		pwm_set_chan_level(pwm_slice, (desiredRPM >= 0 ? channelForward : channelReverse), (uint16_t)PIDOutput);
+		pwm_set_chan_level(pwm_slice, (desiredRPM >= 0 ? channelReverse : channelForward), 0);
 }
+
+// void Motor::getFeedforwardValue(float i, std::string motorName) {
+// 	float desiredRPM = 10;	// STUB
+
+// 	float PIDOutput = i;
+
+// 	printf("PWM: %f\n", i);
+
+// 	pwm_set_chan_level(pwm_slice, (desiredRPM >= 0 ? channelForward : channelReverse), (uint16_t)PIDOutput);
+// 	pwm_set_chan_level(pwm_slice, (desiredRPM >= 0 ? channelReverse : channelForward), 0);
+
+// 	sleep_ms(100);
+// 	printf("RPM: %f\n", getCurrentRPM());
+// }
 
 float Motor::clamp(float value, float min, float max) {
 	return std::max(std::min(value, max), min);
