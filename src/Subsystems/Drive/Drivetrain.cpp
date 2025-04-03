@@ -130,11 +130,11 @@ void Drivetrain::driveForwardDistance(int cellCount) {
 
 		float dt = absolute_time_diff_us(lastUpdateTime, get_absolute_time()) / 1000000.0f;
 		int errorL = (targetPos - leftMotor->getEncoder()->getCount());
-        int errorR = (targetPos - rightMotor->getEncoder()->getCount());
+		int errorR = (targetPos - rightMotor->getEncoder()->getCount());
 
 		printf("ErrorLR=%f\n", (errorL + errorR) / 2.0 / config.encoderCountsPerCell);
 
-        //Left
+		//Left
 		// printf("Error: %i\n", (int32_t)error);
 		distanceIntegralL += errorL * dt;
 		if (distanceIntegralL > 100) {
@@ -142,18 +142,18 @@ void Drivetrain::driveForwardDistance(int cellCount) {
 		}
 		distanceDerivativeL = (errorL - distanceLastErrorL) / dt;
 		distanceLastErrorL = errorL;
-        float controlSignalL;
-		if (errorL < 0) {
-			controlSignalL = -50 + 
-				config.distancePID.kP * errorL + config.distancePID.kI * distanceIntegralL + config.distancePID.kD * distanceDerivativeL;
-		} else if (errorL == 0) {
-            controlSignalL = 0;
-        } else {
-			controlSignalL =
-				50 + config.distancePID.kP * errorL + config.distancePID.kI * distanceIntegralL + config.distancePID.kD * distanceDerivativeL;
+		float controlSignalL;
+		if (fabs(errorL) < 10) {
+			controlSignalL = 0.0f;
+		} else if (errorL < 0) {
+			controlSignalL = std::min(
+				-50.0f, config.distancePID.kP * errorL + config.distancePID.kI * distanceIntegralL + config.distancePID.kD * distanceDerivativeL);
+		} else {
+			controlSignalL = std::max(
+				50.0f, config.distancePID.kP * errorL + config.distancePID.kI * distanceIntegralL + config.distancePID.kD * distanceDerivativeL);
 		}
 
-        //Right
+		//Right
 		distanceIntegralR += errorR * dt;
 		if (distanceIntegralR > 100) {
 			distanceIntegralR = 100;
@@ -161,25 +161,25 @@ void Drivetrain::driveForwardDistance(int cellCount) {
 		distanceDerivativeR = (errorR - distanceLastErrorR) / dt;
 		distanceLastErrorR = errorR;
 		float controlSignalR;
-		if (errorR < 0) {
-			controlSignalR =
-				-50 + config.distancePID.kP * errorR + config.distancePID.kI * distanceIntegralR + config.distancePID.kD * distanceDerivativeR;
-		} else if (errorR == 0) {
-			controlSignalR = 0;
+		if (fabs(errorR) < 10) {
+			controlSignalR = 0.0f;
+		} else if (errorR < 0) {
+			controlSignalR = std::min(
+				-50.0f, config.distancePID.kP * errorR + config.distancePID.kI * distanceIntegralR + config.distancePID.kD * distanceDerivativeR);
 		} else {
-			controlSignalR =
-				50 + config.distancePID.kP * errorR + config.distancePID.kI * distanceIntegralR + config.distancePID.kD * distanceDerivativeR;
+			controlSignalR = std::max(
+				50.0f, config.distancePID.kP * errorR + config.distancePID.kI * distanceIntegralR + config.distancePID.kD * distanceDerivativeR);
 		}
 
-		printf("Control Signal: %f\n", controlSignalL);
+		printf("Control SignalL: %f\n", controlSignalL);
 		float adjustedRPML = std::min(std::max(controlSignalL, -config.maxRPM), config.maxRPM);
 
-		printf("Control Signal: %f\n", controlSignalR);
+		printf("Control SignalR: %f\n", controlSignalR);
 		float adjustedRPMR = std::min(std::max(controlSignalR, -config.maxRPM), config.maxRPM);
 
 		printf("Adjusted RPML: %f\n", adjustedRPML);
 		printf("Adjusted RPMR: %f\n", adjustedRPMR);
-        printf("Max RPM: %f\n", leftMotor->getMaxRPM());
+		printf("Max RPM: %f\n", leftMotor->getMaxRPM());
 		leftMotor->setThrottle(adjustedRPML / leftMotor->getMaxRPM());
 		rightMotor->setThrottle(adjustedRPMR / rightMotor->getMaxRPM());
 
@@ -188,8 +188,8 @@ void Drivetrain::driveForwardDistance(int cellCount) {
 		if (fabs(errorL) < config.distanceErrorThreshold && fabs(errorR) < config.distanceErrorThreshold) {
 			printf("Reached target position: %i\n", (int32_t)targetPos);
 			stop();
-			break;
 			sleep_ms(2000);	 // FIXME: Remove this
+			break;
 		}
 	}
 }

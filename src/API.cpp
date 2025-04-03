@@ -142,7 +142,7 @@ void API::moveForward(int steps) {
 	if (ack) {
 		drivetrain->driveForwardDistance(steps);
 
-		for (int i = 0; i < steps; ++i) {
+		for (int i = 0; i < steps; i++) {
 			mouseLocal->moveForwardLocal();
 		}
 	} else {
