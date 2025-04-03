@@ -132,7 +132,7 @@ void Drivetrain::driveForwardDistance(int cellCount) {
 		int errorL = (targetPos - leftMotor->getEncoder()->getCount());
         int errorR = (targetPos - rightMotor->getEncoder()->getCount());
 
-		printf("ErrorLR=%f\n", (errorL + error2) / 2.0 / config.encoderCountsPerCell);
+		printf("ErrorLR=%f\n", (errorL + errorR) / 2.0 / config.encoderCountsPerCell);
 
 		// printf("Error: %i\n", (int32_t)error);
 		distanceIntegralL += errorL * dt;
