@@ -16,16 +16,16 @@ int main() {
 					 Constants::RobotConstants::rightMotorEncoderPin1, Constants::RobotConstants::rightMotorEncoderPin2,
 					 Constants::RobotConstants::eventsPerRev, Constants::RobotConstants::maxRPM);
 
-	leftMotor.setPIDVariables(1.2, 0, 0);
-	rightMotor.setPIDVariables(1.9, 0, 0);
+	leftMotor.setPIDVariables(1.2, 0, 0.1);
+	rightMotor.setPIDVariables(1.9, 0, 0.1);
 
 	DrivetrainConfiguration config = [] {
 		DrivetrainConfiguration cfg;
-		cfg.maxRPM = 100.0f;
+		cfg.maxRPM = 200.0f;
 		cfg.maxTurnRPM = 200.0f;
 		cfg.encoderCountsPerCell = 635;	 // 180 / (32.5 mm (wheel diameter) * 3.14 (pi)) * 360 (encoder counts per rev). = 634.6609.
 		cfg.wallThreshold = 50;			 // mm.
-		cfg.distancePID = {0.01f, 0.0f, 0.0f};
+		cfg.distancePID = {0.1f, 0.0f, 0.0f};
 		cfg.turnPID = {0.0f, 0.0f, 0.0f};
 		cfg.yawErrorThrewshold = 3;
 		cfg.distanceErrorThreshold = 10.0f;
@@ -38,7 +38,34 @@ int main() {
 	API api(&mouseLocal, &drivetrain);
 
 	try {
-		api.moveForward(2);
+		sleep_ms(5000);
+
+		for (int i = 0; i < 20; i++) {
+			float kPL = 0.0175f;
+			float kIL = 0.0f;
+			float kDL = 0.075f;
+			;
+			float kPR = 0.06200f;
+			float kIR = 0.0f;
+			float kDR = 0.075f;
+			;
+
+			leftMotor.setPIDVariables(kPL, kIL, kDL);
+			rightMotor.setPIDVariables(kPR, kIR, kDR);
+			printf("PID ValuesL: %f %f %f\n", kPL, kIL, kDL);
+			printf("PID ValuesR: %f %f %f\n", kPR, kIR, kDR);
+			drivetrain.driveForward();
+			absolute_time_t startTime = get_absolute_time();
+			while (absolute_time_diff_us(startTime, get_absolute_time()) < 10000000) {
+				leftMotor.updateEncoder();
+				rightMotor.updateEncoder();
+				printf("Left Motor RPM %f\n", leftMotor.getCurrentRPM());
+				printf("Right Motor RPM %f\n", rightMotor.getCurrentRPM());
+				sleep_ms(500);
+			}
+			drivetrain.stop();
+			sleep_ms(1000);
+		}
 
 		// for (int i = 600; i < 1000; i++) {
 		// 	rightMotor.updateEncoder();

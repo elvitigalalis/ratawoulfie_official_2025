@@ -15,7 +15,7 @@ const int rightMotorEncoderPin1 = rightMotorPin2 + 1;
 const int rightMotorEncoderPin2 = rightMotorEncoderPin1 + 1;
 
 const float eventsPerRev = 360.0f;	// Amount of encoder ticks per revolution.
-const float maxRPM = 100.0f;
+const float maxRPM = 200.0f;
 
 // FOR MOTORS (RPM TO PWM)
 const float kP = 0.0f;

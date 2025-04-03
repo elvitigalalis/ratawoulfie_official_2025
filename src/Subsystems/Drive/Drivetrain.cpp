@@ -134,6 +134,7 @@ void Drivetrain::driveForwardDistance(int cellCount) {
 
 		printf("ErrorLR=%f\n", (errorL + errorR) / 2.0 / config.encoderCountsPerCell);
 
+        //Left
 		// printf("Error: %i\n", (int32_t)error);
 		distanceIntegralL += errorL * dt;
 		if (distanceIntegralL > 100) {
@@ -141,15 +142,46 @@ void Drivetrain::driveForwardDistance(int cellCount) {
 		}
 		distanceDerivativeL = (errorL - distanceLastErrorL) / dt;
 		distanceLastErrorL = errorL;
-		float controlSignalL =
-			config.distancePID.kP * errorL + config.distancePID.kI * distanceIntegralL + config.distancePID.kD * distanceDerivativeL;
+        float controlSignalL;
+		if (errorL < 0) {
+			controlSignalL = -50 + 
+				config.distancePID.kP * errorL + config.distancePID.kI * distanceIntegralL + config.distancePID.kD * distanceDerivativeL;
+		} else if (errorL == 0) {
+            controlSignalL = 0;
+        } else {
+			controlSignalL =
+				50 + config.distancePID.kP * errorL + config.distancePID.kI * distanceIntegralL + config.distancePID.kD * distanceDerivativeL;
+		}
+
+        //Right
+		distanceIntegralR += errorR * dt;
+		if (distanceIntegralR > 100) {
+			distanceIntegralR = 100;
+		}
+		distanceDerivativeR = (errorR - distanceLastErrorR) / dt;
+		distanceLastErrorR = errorR;
+		float controlSignalR;
+		if (errorR < 0) {
+			controlSignalR =
+				-50 + config.distancePID.kP * errorR + config.distancePID.kI * distanceIntegralR + config.distancePID.kD * distanceDerivativeR;
+		} else if (errorR == 0) {
+			controlSignalR = 0;
+		} else {
+			controlSignalR =
+				50 + config.distancePID.kP * errorR + config.distancePID.kI * distanceIntegralR + config.distancePID.kD * distanceDerivativeR;
+		}
 
 		printf("Control Signal: %f\n", controlSignalL);
-		float adjustedRPML = std::min(currentRPM + controlSignalL, config.maxRPM);
-        printf("Adjusted RPM: %f\n", adjustedRPML);
+		float adjustedRPML = std::min(std::max(controlSignalL, -config.maxRPM), config.maxRPM);
+
+		printf("Control Signal: %f\n", controlSignalR);
+		float adjustedRPMR = std::min(std::max(controlSignalR, -config.maxRPM), config.maxRPM);
+
+		printf("Adjusted RPML: %f\n", adjustedRPML);
+		printf("Adjusted RPMR: %f\n", adjustedRPMR);
         printf("Max RPM: %f\n", leftMotor->getMaxRPM());
 		leftMotor->setThrottle(adjustedRPML / leftMotor->getMaxRPM());
-		rightMotor->setThrottle(adjustedRPML / rightMotor->getMaxRPM());
+		rightMotor->setThrottle(adjustedRPMR / rightMotor->getMaxRPM());
 
 		lastUpdateTime = get_absolute_time();
 
