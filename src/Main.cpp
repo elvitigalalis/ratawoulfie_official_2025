@@ -21,10 +21,10 @@ int main() {
 
     DrivetrainConfiguration config = [] {
         DrivetrainConfiguration cfg;
-        cfg.maxRPM = 200.0f;
+        cfg.maxRPM = 300.0f;
         cfg.maxTurnRPM = 200.0f;
-        cfg.encoderCountsPerCell = 635;  // 180 / (32.5 mm (wheel diameter) * 3.14 (pi)) * 360 (encoder counts per rev). = 634.6609.
-        cfg.wallThreshold = 50;          // mm.
+        cfg.encoderCountsPerCell = 635 * 190 / 180;  // 180 / (32.5 mm (wheel diameter) * 3.14 (pi)) * 360 (encoder counts per rev). = 634.6609.
+        cfg.wallThreshold = 50;                      // mm.
         cfg.distancePID = {0.0f, 0.0f, 0.0f};
         cfg.turnPID = {0.0f, 0.0f, 0.0f};
         cfg.yawErrorThrewshold = 3;
@@ -68,6 +68,9 @@ int main() {
         // }
         // leftMotor.setVoltage(3.0f, true);
         drivetrain.initIMU();
+        // drivetrain.driveForwardDistance(10.0f / 18.0f);
+
+        // rightMotor.setVoltage(5.0f, true);
         for (int i = 1; i <= 10; i++) {
             absolute_time_t now = get_absolute_time();
             while (absolute_time_diff_us(now, get_absolute_time()) < 12.5 * 1e6) {
@@ -78,8 +81,9 @@ int main() {
                 // printf("Left Motor RPM %f\n", leftMotor.getCurrentRPM());
                 // printf("%f, %f\n", elapsedTime, rightMotor.getCurrentRPM());
                 // printf("Right Motor RPM %f\n", rightMotor.getCurrentRPM());
-                // printf("LRPM=%f, RRPM=%f, LP=%i, RP=%i\n", leftMotor.getCurrentRPM(), rightMotor.getCurrentRPM(), leftMotor.getCurrentPosition(), rightMotor.getCurrentPosition());
-                printf("Front Wall=%b, Left Wall=%b, Right Wall=%b\n", drivetrain.checkFrontWall(), drivetrain.checkLeftWall(), drivetrain.checkRightWall());
+                // printf("LRPM=%f, RRPM=%f, LP=%i, RP=%i\n", leftMotor.getCurrentRPM(), rightMotor.getCurrentRPM(), leftMotor.getCurrentPosition(),
+                // rightMotor.getCurrentPosition());
+                printf("Front Wall=%b, Left Wall=%b, Right Wall=%b\n", drivetrain.checkFrontWallDistance(), drivetrain.checkLeftWallDistance(), drivetrain.checkRightWallDistance());
                 sleep_ms(100);
             }
             sleep_ms(2000);

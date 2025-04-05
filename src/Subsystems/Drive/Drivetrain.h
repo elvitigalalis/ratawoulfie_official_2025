@@ -58,7 +58,7 @@ class Drivetrain {
     void driveForward();
     void stop();
 
-    void driveForwardDistance(int distanceCounts);
+    void driveForwardDistance(float distanceCounts);
 
     void rotateBy(int angleDegrees);
     void setAbsoluteHeading(int headingDegrees);
@@ -92,7 +92,7 @@ class Drivetrain {
     VL53L0X_Dev_t frontTOF, leftTOF, rightTOF;
 
     volatile float currentRPM;
-    volatile int currentYaw;
+    volatile float currentYaw;
     volatile int desiredYaw;
     volatile bool isTurning;
     volatile bool isMoving;

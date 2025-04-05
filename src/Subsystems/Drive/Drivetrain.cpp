@@ -78,8 +78,8 @@ void Drivetrain::processIMUPacket() {
     if (checksum == imuBuffer[18]) {
         // Extract yaw from bytes 4 and 3.
         int16_t yaw = (imuBuffer[4] << 8) | imuBuffer[3];
-        printf("Yaw: %d\n", yaw);
-        currentYaw = yaw;
+        // printf("Yaw: %f\n", yaw / 100.0f);
+        currentYaw = yaw / 100.0f;
     } else {
         printf("IMU checksum error: calculated %d, expected %d\n", checksum, imuBuffer[18]);
     }
@@ -199,7 +199,7 @@ void Drivetrain::stop() {
     isTurning = false;
 }
 
-void Drivetrain::driveForwardDistance(int cellCount) {
+void Drivetrain::driveForwardDistance(float cellCount) {
     float currPos = getAverageEncoderCount();
     float targetPos = currPos + cellCount * config.encoderCountsPerCell;
     distanceIntegralL = distanceLastErrorL = distanceDerivativeL = distanceIntegralR = distanceLastErrorR = distanceDerivativeR = 0.0f;
@@ -230,10 +230,10 @@ void Drivetrain::driveForwardDistance(int cellCount) {
             controlSignalL = 0.0f;
         } else if (errorL < 0) {
             controlSignalL =
-                std::min(-75.0f, config.distancePID.kP * errorL + config.distancePID.kI * distanceIntegralL + config.distancePID.kD * distanceDerivativeL);
+                std::min(-100.0f, config.distancePID.kP * errorL + config.distancePID.kI * distanceIntegralL + config.distancePID.kD * distanceDerivativeL);
         } else {
             controlSignalL =
-                std::max(75.0f, config.distancePID.kP * errorL + config.distancePID.kI * distanceIntegralL + config.distancePID.kD * distanceDerivativeL);
+                std::max(100.0f, config.distancePID.kP * errorL + config.distancePID.kI * distanceIntegralL + config.distancePID.kD * distanceDerivativeL);
         }
 
         // Right
@@ -248,10 +248,10 @@ void Drivetrain::driveForwardDistance(int cellCount) {
             controlSignalR = 0.0f;
         } else if (errorR < 0) {
             controlSignalR =
-                std::min(-75.0f, config.distancePID.kP * errorR + config.distancePID.kI * distanceIntegralR + config.distancePID.kD * distanceDerivativeR);
+                std::min(-100.0f, config.distancePID.kP * errorR + config.distancePID.kI * distanceIntegralR + config.distancePID.kD * distanceDerivativeR);
         } else {
             controlSignalR =
-                std::max(75.0f, config.distancePID.kP * errorR + config.distancePID.kI * distanceIntegralR + config.distancePID.kD * distanceDerivativeR);
+                std::max(100.0f, config.distancePID.kP * errorR + config.distancePID.kI * distanceIntegralR + config.distancePID.kD * distanceDerivativeR);
         }
 
         printf("Control SignalL: %f\n", controlSignalL);
