@@ -67,8 +67,7 @@ int main() {
         // 	sleep_ms(1000);
         // }
         // leftMotor.setVoltage(3.0f, true);
-        drivetrain.initToF();
-
+        drivetrain.initIMU();
         for (int i = 1; i <= 10; i++) {
             absolute_time_t now = get_absolute_time();
             while (absolute_time_diff_us(now, get_absolute_time()) < 12.5 * 1e6) {

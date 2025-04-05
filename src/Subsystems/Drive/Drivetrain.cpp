@@ -36,8 +36,8 @@ void Drivetrain::initIMU() {
     uart_set_fifo_enabled(UART_IMU, true);
 
     // Set up IMU UART interrupt.
-    irq_set_exclusive_handler(UART0_IRQ, Drivetrain::imuInterruptHandler);
-    irq_set_enabled(UART0_IRQ, true);
+    irq_set_exclusive_handler(UART1_IRQ, Drivetrain::imuInterruptHandler);
+    irq_set_enabled(UART1_IRQ, true);
 
     // Enable the UART receive timeout interrupt.
     uart_get_hw(UART_IMU)->imsc = (1 << UART_UARTIMSC_RTIM_LSB);

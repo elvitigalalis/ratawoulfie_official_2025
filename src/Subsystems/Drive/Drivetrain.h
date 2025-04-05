@@ -21,13 +21,13 @@
 class Motor;
 class Encoder;
 
-#define UART_IMU uart0
+#define UART_IMU uart1
 #define BAUD_RATE 115200
 #define DATA_BITS 8
 #define STOP_BITS 1
 #define PARITY UART_PARITY_NONE
-#define UART_TX_PIN 0
-#define UART_RX_PIN 1
+#define UART_TX_PIN 4
+#define UART_RX_PIN 5
 
 #define WALLCUTOFF 50
 
@@ -71,6 +71,7 @@ class Drivetrain {
 
     // ToF distance calculations in mm.
     void initToF();
+    void initIMU();
     float checkFrontWallDistance();
     float checkLeftWallDistance();
     float checkRightWallDistance();
@@ -120,7 +121,6 @@ class Drivetrain {
     // IMU support
     volatile uint8_t imuBuffer[19];  // Buffer to hold IMU packet data.
     volatile int imuBufferIndex;     // Index for the IMU buffer.
-    void initIMU();
     static void imuInterruptHandler();
     void handleIMUInterrupt();
     void processIMUPacket();
