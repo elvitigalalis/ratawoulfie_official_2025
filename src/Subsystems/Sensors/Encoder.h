@@ -6,38 +6,40 @@
 
 class Encoder {
    public:
-	Encoder(uint encoderPin1, uint encoderPin2, float eventsPerRev, uint smoothingWindow = 100, bool isReversed = false);
-	~Encoder();
+    Encoder(uint encoderPin1, uint encoderPin2, float eventsPerRev, uint smoothingWindow = 100, bool isReversed = false);
+    ~Encoder();
 
-	void update();
-	int32_t getCount() const;
-	float getPosition() const;	// ft
-	float getRPM() const;
+    void update();
+    int32_t getCount() const;
+    float getPosition() const;  // ft
+    float getRPM() const;
     void setRPM(double RPM);
-	void reset();
+    void reset();
+
+    float updateTime = 0.5f;
 
    private:
-	float getAverageDeltaTime(float newDelta);
+    float getAverageDeltaTime(float newDelta);
 
-	// Configuration
-	const uint encoderPin1;
-	const uint encoderPin2;
-	const float eventsPerRev;
-	const uint smoothingWindow;
-	const bool isReversed;
+    // Configuration
+    const uint encoderPin1;
+    const uint encoderPin2;
+    const float eventsPerRev;
+    const uint smoothingWindow;
+    const bool isReversed;
 
-	// PIO State (mutable for hardware access)
-	mutable PIO pioInstance;
-	mutable uint stateMachine;
+    // PIO State (mutable for hardware access)
+    mutable PIO pioInstance;
+    mutable uint stateMachine;
 
-	// Tracking State
-	int32_t currentCount;
-	int32_t oldEncoderCount;
-	float currentRPM;
-	absolute_time_t lastUpdateTime;
+    // Tracking State
+    int32_t currentCount;
+    int32_t oldEncoderCount;
+    float currentRPM;
+    absolute_time_t lastUpdateTime;
 
-	// Smoothing
-	float* deltaTimesBuffer;
-	uint bufferIndex;
-	uint sampleCount;
+    // Smoothing
+    float* deltaTimesBuffer;
+    uint bufferIndex;
+    uint sampleCount;
 };

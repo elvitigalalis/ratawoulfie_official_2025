@@ -66,24 +66,21 @@ int main() {
         // 	drivetrain.stop();
         // 	sleep_ms(1000);
         // }
-
-        for (int i = 15; i <= 15; i++) {
-            // drivetrain.driveForwardDistance(1);
-            float RPM = 200.0f;
-            leftMotor.setRPM(RPM);
-            rightMotor.setRPM(RPM);
-            printf("RPM Running at %f\n", RPM);
+        for (int i = 1; i <= 10; i++) {
+            api.moveForward(1);
             absolute_time_t now = get_absolute_time();
-            while (absolute_time_diff_us(now, get_absolute_time()) < 20 * 1e6) {
-                leftMotor.updateEncoder();
-                rightMotor.updateEncoder();
-                printf("Time Elapsed %f\n", absolute_time_diff_us(now, get_absolute_time()) / 1e6);
-                printf("Left Motor RPM %f\n", leftMotor.getCurrentRPM());
-                printf("Right Motor RPM %f\n", rightMotor.getCurrentRPM());
+            while (absolute_time_diff_us(now, get_absolute_time()) < 12.5 * 1e6) {
+                float elapsedTime = absolute_time_diff_us(now, get_absolute_time()) / 1e6f;
+                // rightMotor.updateEncoder();
+                // printf("Left Motor RPM %f\n", leftMotor.getCurrentRPM());
+                // printf("%f, %f\n", elapsedTime, rightMotor.getCurrentRPM());
+                // printf("Right Motor RPM %f\n", rightMotor.getCurrentRPM());
+                printf("LRPM=%f, RRPM=%f, LP=%i, RP=%i\n", leftMotor.getCurrentRPM(), rightMotor.getCurrentRPM(), leftMotor.getCurrentPosition(), rightMotor.getCurrentPosition());
                 sleep_ms(100);
             }
             sleep_ms(2000);
         }
+        // }
         // api.moveForward(1);
 
         // for (int i = 600; i < 1000; i++) {

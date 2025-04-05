@@ -5,14 +5,12 @@
 #include <algorithm>
 #include <cmath>
 #include <string>
-#include "../../Constants/Constants.h"
 #include "../Sensors/Encoder.h"
 #include "hardware/adc.h"
 #include "hardware/gpio.h"
 #include "hardware/irq.h"
 #include "hardware/pwm.h"
 #include "pico/stdlib.h"
-
 class Motor {
    public:
     /**
@@ -22,9 +20,9 @@ class Motor {
     Motor(int motorPin1, int motorPin2, int encoderPin1, int encoderPin2, float eventsPerRev = 360.0f, float maxRPM = 200.0f, bool isReversed = false);
 
     void setPIDVariables(float Kp, float Ki, float Kd) {
-        this->kP = kP;
-        this->kI = kI;
-        this->kD = kD;
+        kP = Kp;
+        kI = Ki;
+        kD = Kd;
     }  // All PID Constants.
 
     void start();

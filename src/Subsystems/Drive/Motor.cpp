@@ -49,7 +49,7 @@ void Motor::setUp() {
 
     // Initializes the voltage.
     adc_init();
-    adc_gpio_init(BATTERY_ADC_PIN);
+    // adc_gpio_init();
     adc_select_input(0);
 }
 
@@ -67,11 +67,9 @@ void Motor::setVoltage(float volts, bool direction) {
     // Sets the voltage for the motor.
     volts = clamp(volts, -MAX_MOTOR_VOLTAGE, MAX_MOTOR_VOLTAGE);
     m_motor_voltage = volts;
-    float m_battery_voltage = voltage();
-    if (abs(m_battery_voltage) < 0.01f) {
-        m_battery_voltage = MAX_MOTOR_VOLTAGE;
-    }
-    printf("Battery Voltage: %f\n", m_battery_voltage);
+    float m_battery_voltage = MAX_MOTOR_VOLTAGE;
+
+    // printf("Battery Voltage: %f\n", m_battery_voltage);
 
     int motorPWM = pwm_compensated(volts, m_battery_voltage);
     setMotorPWM(motorPWM, direction);
@@ -84,17 +82,16 @@ int Motor::pwm_compensated(float desired_voltage, float battery_voltage) {
 
 void Motor::setMotorPWM(int motorPWM, bool direction) {
     motorPWM = clamp(motorPWM, 0.0f, 999.0f);  // Because there are only 1000 different possible "levels" of motor power.
-    printf("PWM Expected: %i\n", motorPWM);
+    // printf("PWM Expected: %i\n", motorPWM);
 
     pwm_set_chan_level(pwm_slice, direction ? channelForward : channelReverse, (uint16_t)motorPWM);
     pwm_set_chan_level(pwm_slice, direction ? channelReverse : channelForward, 0);
 }
 
 float Motor::voltage() {
-    // Returns the voltage of the motor.
     uint16_t raw = adc_read();
     float voltage = (raw * 3.3f) / 4096.0f;  // Convert to volts.
-    printf("Voltage: %f\n", voltage);
+    // printf("Voltage: %f\n", voltage);
     return voltage;
 }
 
@@ -143,11 +140,15 @@ void Motor::updatePWM() {
     // Δt calculations (for PWM cycles)
     absolute_time_t currentPIDTime = get_absolute_time();
     float timeDelta = absolute_time_diff_us(lastPIDTime, currentPIDTime) / 1e6f;
+
+    if (timeDelta < 0.1f) {
+        return;
+    }
     lastPIDTime = currentPIDTime;
 
-    if (timeDelta <= 0)
-        timeDelta = 0.001f;  // Avoid divide by zero.  // Throttle -> RPM calc.
-                             // printf("Desired RPM: %f\n", desiredRPM);
+    // if (timeDelta <= 0)
+    //     timeDelta = 0.001f;  // Avoid divide by zero.  // Throttle -> RPM calc.
+    //                          // printf("Desired RPM: %f\n", desiredRPM);
     if (std::fabs(desiredRPM) < 1e-6) {
         stop();
         return;
@@ -179,12 +180,10 @@ m constant (0.8f) = scaling factor; maps desiredRPM to another PWM value. Higher
         feedForward = feedforwardRConstant + feedforwardRSlope * desiredRPM;
     }
 
-    float voltageOutput;
-    if (desiredRPM >= 0) {
-        voltageOutput = feedForward + kP * error + kI * integral + kD * derivative;
-    } else {
-        voltageOutput = -feedForward - kP * error - kI * integral - kD * derivative;
-    }
+    float voltageOutput = feedForward + kP * error + kI * integral + kD * derivative;
+    printf("kP * error: %f\n", kP * error);
+    printf("Feedforward: %f\n", feedForward);
+
     printf("Error: %f\n", error);
     printf("Voltage Output: %f\n", voltageOutput);
 

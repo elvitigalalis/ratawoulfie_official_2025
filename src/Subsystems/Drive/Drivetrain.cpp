@@ -136,10 +136,10 @@ void Drivetrain::driveForwardDistance(int cellCount) {
 
         // Left
         //  printf("Error: %i\n", (int32_t)error);
-        distanceIntegralL += errorL * dt;
-        if (distanceIntegralL > 100) {
-            distanceIntegralL = 100;
-        }
+        // distanceIntegralL += errorL * dt;
+        // if (distanceIntegralL > 100) {
+        //     distanceIntegralL = 100;
+        // }
         distanceDerivativeL = (errorL - distanceLastErrorL) / dt;
         distanceLastErrorL = errorL;
         float controlSignalL;
@@ -147,17 +147,17 @@ void Drivetrain::driveForwardDistance(int cellCount) {
             controlSignalL = 0.0f;
         } else if (errorL < 0) {
             controlSignalL =
-                std::min(-50.0f, config.distancePID.kP * errorL + config.distancePID.kI * distanceIntegralL + config.distancePID.kD * distanceDerivativeL);
+                std::min(-75.0f, config.distancePID.kP * errorL + config.distancePID.kI * distanceIntegralL + config.distancePID.kD * distanceDerivativeL);
         } else {
             controlSignalL =
-                std::max(50.0f, config.distancePID.kP * errorL + config.distancePID.kI * distanceIntegralL + config.distancePID.kD * distanceDerivativeL);
+                std::max(75.0f, config.distancePID.kP * errorL + config.distancePID.kI * distanceIntegralL + config.distancePID.kD * distanceDerivativeL);
         }
 
         // Right
-        distanceIntegralR += errorR * dt;
-        if (distanceIntegralR > 100) {
-            distanceIntegralR = 100;
-        }
+        // distanceIntegralR += errorR * dt;
+        // if (distanceIntegralR > 100) {
+        //     distanceIntegralR = 100;
+        // }
         distanceDerivativeR = (errorR - distanceLastErrorR) / dt;
         distanceLastErrorR = errorR;
         float controlSignalR;
@@ -165,10 +165,10 @@ void Drivetrain::driveForwardDistance(int cellCount) {
             controlSignalR = 0.0f;
         } else if (errorR < 0) {
             controlSignalR =
-                std::min(-50.0f, config.distancePID.kP * errorR + config.distancePID.kI * distanceIntegralR + config.distancePID.kD * distanceDerivativeR);
+                std::min(-75.0f, config.distancePID.kP * errorR + config.distancePID.kI * distanceIntegralR + config.distancePID.kD * distanceDerivativeR);
         } else {
             controlSignalR =
-                std::max(50.0f, config.distancePID.kP * errorR + config.distancePID.kI * distanceIntegralR + config.distancePID.kD * distanceDerivativeR);
+                std::max(75.0f, config.distancePID.kP * errorR + config.distancePID.kI * distanceIntegralR + config.distancePID.kD * distanceDerivativeR);
         }
 
         printf("Control SignalL: %f\n", controlSignalL);
@@ -179,7 +179,6 @@ void Drivetrain::driveForwardDistance(int cellCount) {
 
         printf("Adjusted RPML: %f\n", adjustedRPML);
         printf("Adjusted RPMR: %f\n", adjustedRPMR);
-        printf("Max RPM: %f\n", leftMotor->getMaxRPM());
         leftMotor->setRPM(adjustedRPML);
         rightMotor->setRPM(adjustedRPMR);
         lastUpdateTime = get_absolute_time();
