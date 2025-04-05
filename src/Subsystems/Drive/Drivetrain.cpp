@@ -33,7 +33,7 @@ void Drivetrain::initIMU() {
     uart_set_baudrate(UART_IMU, BAUD_RATE);
     uart_set_hw_flow(UART_IMU, false, false);
     uart_set_format(UART_IMU, DATA_BITS, STOP_BITS, PARITY);
-    uart_set_fifo_enabled(UART_IMU, true);
+    uart_set_fifo_enabled(UART_IMU, true, false);
 
     // Set up IMU UART interrupt.
     irq_set_exclusive_handler(UART0_IRQ, Drivetrain::imuInterruptHandler);
@@ -95,12 +95,83 @@ int Drivetrain::getAverageEncoderCount() {
     return (leftEncoder->getCount() + rightEncoder->getCount()) / 2;
 }
 
-int Drivetrain::readToFLeft() {
-    return 100;  // FIXME
+void Drivetrain::initToF() {
+    gpio_init(XSHUT_FRONT);
+    gpio_set_dir(XSHUT_FRONT, GPIO_OUT);
+    gpio_init(XSHUT_LEFT);
+    gpio_set_dir(XSHUT_LEFT, GPIO_OUT);
+    gpio_init(XSHUT_RIGHT);
+    gpio_set_dir(XSHUT_RIGHT, GPIO_OUT);
+
+    // Reset all sensors
+    gpio_put(XSHUT_FRONT, 0);
+    gpio_put(XSHUT_LEFT, 0);
+    gpio_put(XSHUT_RIGHT, 0);
+    sleep_ms(100);
+
+    // Initialize front sensor
+    gpio_put(XSHUT_FRONT, 1);
+    sleep_ms(100);
+    frontTOF.I2cDevAddr = 0x29;
+    frontTOF.comms_type = 1;
+    frontTOF.comms_speed_khz = 400;
+    VL53L0X_dev_i2c_default_initialise(&frontTOF, VL53L0X_DEFAULT_MODE);
+    VL53L0X_SetDeviceAddress(&frontTOF, 0x30);
+    frontTOF.I2cDevAddr = 0x30;
+    VL53L0X_SetDeviceMode(&frontTOF, VL53L0X_DEVICEMODE_CONTINUOUS_RANGING);
+    VL53L0X_StartMeasurement(&frontTOF);
+    sleep_ms(100);
+
+    // Initialize left sensor
+    gpio_put(XSHUT_LEFT, 1);
+    sleep_ms(100);
+    leftTOF.I2cDevAddr = 0x29;
+    leftTOF.comms_type = 1;
+    leftTOF.comms_speed_khz = 400;
+    VL53L0X_dev_i2c_default_initialise(&leftTOF, VL53L0X_DEFAULT_MODE);
+    VL53L0X_SetDeviceAddress(&leftTOF, 0x31);
+    leftTOF.I2cDevAddr = 0x31;
+    VL53L0X_SetDeviceMode(&leftTOF, VL53L0X_DEVICEMODE_CONTINUOUS_RANGING);
+    VL53L0X_StartMeasurement(&leftTOF);
+    sleep_ms(100);
+
+    // Initialize right sensor
+    gpio_put(XSHUT_RIGHT, 1);
+    sleep_ms(100);
+    rightTOF.I2cDevAddr = 0x29;
+    rightTOF.comms_type = 1;
+    rightTOF.comms_speed_khz = 400;
+    VL53L0X_dev_i2c_default_initialise(&rightTOF, VL53L0X_DEFAULT_MODE);
+    VL53L0X_SetDeviceAddress(&rightTOF, 0x32);
+    rightTOF.I2cDevAddr = 0x32;
+    VL53L0X_SetDeviceMode(&rightTOF, VL53L0X_DEVICEMODE_CONTINUOUS_RANGING);
+    VL53L0X_StartMeasurement(&rightTOF);
+    sleep_ms(100);
 }
 
-int Drivetrain::readToFRight() {
-    return 100;  // FIXME
+float Drivetrain::checkFrontWallDistance() {
+    VL53L0X_RangingMeasurementData_t distance;
+    VL53L0X_GetRangingMeasurementData(&frontTOF, &distance);
+    VL53L0X_ClearInterruptMask(&frontTOF, VL53L0X_REG_SYSTEM_INTERRUPT_GPIO_NEW_SAMPLE_READY);
+    return distance.RangeMilliMeter;
+}
+
+bool Drivetrain::checkFrontWall() {
+    return checkFrontWallDistance() < WALLCUTOFF;
+}
+
+bool Drivetrain::checkLeftWall() {
+    VL53L0X_RangingMeasurementData_t distance;
+    VL53L0X_GetRangingMeasurementData(&leftTOF, &distance);
+    VL53L0X_ClearInterruptMask(&leftTOF, VL53L0X_REG_SYSTEM_INTERRUPT_GPIO_NEW_SAMPLE_READY);
+    return distance.RangeMilliMeter < WALLCUTOFF;
+}
+
+bool Drivetrain::checkRightWall() {
+    VL53L0X_RangingMeasurementData_t distance;
+    VL53L0X_GetRangingMeasurementData(&rightTOF, &distance);
+    VL53L0X_ClearInterruptMask(&rightTOF, VL53L0X_REG_SYSTEM_INTERRUPT_GPIO_NEW_SAMPLE_READY);
+    return distance.RangeMilliMeter < WALLCUTOFF;
 }
 
 void Drivetrain::driveForward() {
@@ -268,10 +339,11 @@ void Drivetrain::executeTurningControl() {
 }
 
 bool Drivetrain::isWallAhead() {
-    int leftDistance = readToFLeft();
-    int rightDistance = readToFRight();
+    return true;
+    // int leftDistance = readToFLeft();
+    // int rightDistance = readToFRight();
 
-    return (leftDistance < config.wallThreshold || rightDistance < config.wallThreshold);
+    // return (leftDistance < config.wallThreshold || rightDistance < config.wallThreshold);
 }
 
 void Drivetrain::controlLoop() {

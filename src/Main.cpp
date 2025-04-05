@@ -66,10 +66,12 @@ int main() {
         // 	drivetrain.stop();
         // 	sleep_ms(1000);
         // }
+        leftMotor.setVoltage(3.0f, true);
         for (int i = 1; i <= 10; i++) {
-            api.moveForward(1);
             absolute_time_t now = get_absolute_time();
             while (absolute_time_diff_us(now, get_absolute_time()) < 12.5 * 1e6) {
+                leftMotor.updateEncoder();
+                rightMotor.updateEncoder();
                 float elapsedTime = absolute_time_diff_us(now, get_absolute_time()) / 1e6f;
                 // rightMotor.updateEncoder();
                 // printf("Left Motor RPM %f\n", leftMotor.getCurrentRPM());
