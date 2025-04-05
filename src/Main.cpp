@@ -27,10 +27,34 @@ int main() {
 	API api(&mouseLocal, &drivetrain);
 
 	try {
-		for (int i = 1; i < 5; i++) {
-			api.moveForward(i);
-			sleep_ms(2000);
+		// // Initialize UART for IMU communication.
+		// uart_init(UART_IMU, BAUD_RATE);
+		// gpio_set_function(UART_RX_PIN, GPIO_FUNC_UART);
+		// uart_set_baudrate(UART_IMU, BAUD_RATE);
+		// uart_set_hw_flow(UART_IMU, false, false);
+		// uart_set_format(UART_IMU, DATA_BITS, STOP_BITS, PARITY);
+		// // uart_set_fifo_enabled(UART_IMU, true);
+		// printf("UART initialized\n");
+		// imuBufferIndex = 0;
+		// drivetrain.IMUinit();
+
+
+
+		drivetrain.initIMU();	 // Initialize the IMU.
+
+		// Enable the UART receive timeout interrupt.
+		// uart_get_hw(UART_IMU)->imsc = (1 << UART_UARTIMSC_RTIM_LSB);
+		
+		while(1) {
+			drivetrain.handleIMUInterrupt();
+			// printf("IMU Test");
+			sleep_ms(1000);
 		}
+
+		// for (int i = 1; i < 5; i++) {
+		// 	api.moveForward(i);
+		// 	sleep_ms(2000);
+		// }
 	
         /*
 		// while (1) {
