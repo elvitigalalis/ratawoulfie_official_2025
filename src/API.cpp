@@ -1,7 +1,8 @@
 #include "API.h"
 
 // Constructor
-API::API(MouseLocal* mouseLocal, Drivetrain* drivetrain) : mouseLocal(mouseLocal), drivetrain(drivetrain) {}
+API::API(MouseLocal* mouseLocal, Drivetrain* drivetrain) : mouseLocal(mouseLocal), drivetrain(drivetrain) {
+}
 
 // Internal helper methods for reading from simulator
 
@@ -12,11 +13,11 @@ API::API(MouseLocal* mouseLocal, Drivetrain* drivetrain) : mouseLocal(mouseLocal
  * @return The response from the simulator as a string.
  */
 string API::getResponse(const string& commandUsed) {
-	std::cout << commandUsed << std::endl;	// Send command to simulator
-	string response;
+    std::cout << commandUsed << std::endl;  // Send command to simulator
+    string response;
 
-	std::getline(std::cin, response);  // Read full line response
-	return response;
+    std::getline(std::cin, response);  // Read full line response
+    return response;
 }
 
 /**
@@ -26,14 +27,14 @@ string API::getResponse(const string& commandUsed) {
  * @return The integer response from the simulator.
  */
 int API::getIntegerResponse(const string& commandUsed) {
-	string response = getResponse(commandUsed);
-	try {
-		return std::stoi(response);
-	} catch (const std::invalid_argument& e) {
-		throw std::runtime_error("Invalid integer response for command: " + commandUsed);
-	} catch (const std::out_of_range& e) {
-		throw std::runtime_error("Integer response out of range for command: " + commandUsed);
-	}
+    string response = getResponse(commandUsed);
+    try {
+        return std::stoi(response);
+    } catch (const std::invalid_argument& e) {
+        throw std::runtime_error("Invalid integer response for command: " + commandUsed);
+    } catch (const std::out_of_range& e) {
+        throw std::runtime_error("Integer response out of range for command: " + commandUsed);
+    }
 }
 
 /**
@@ -43,8 +44,8 @@ int API::getIntegerResponse(const string& commandUsed) {
  * @return The boolean response from the simulator.
  */
 bool API::getBooleanResponse(const string& commandUsed) {
-	string response = getResponse(commandUsed);
-	return response == "true";
+    string response = getResponse(commandUsed);
+    return response == "true";
 }
 
 /**
@@ -54,8 +55,8 @@ bool API::getBooleanResponse(const string& commandUsed) {
  * @return True if acknowledgment received, false otherwise.
  */
 bool API::getAck(const string& commandUsed) {
-	// string response = getResponse(commandUsed);
-	return true;
+    // string response = getResponse(commandUsed);
+    return true;
 }
 
 // Maze dimension queries
@@ -66,7 +67,7 @@ bool API::getAck(const string& commandUsed) {
  * @return The width of the maze as an integer.
  */
 int API::mazeWidth() {
-	return getIntegerResponse("mazeWidth");
+    return getIntegerResponse("mazeWidth");
 }
 
 /**
@@ -75,7 +76,7 @@ int API::mazeWidth() {
  * @return The height of the maze as an integer.
  */
 int API::mazeHeight() {
-	return getIntegerResponse("mazeHeight");
+    return getIntegerResponse("mazeHeight");
 }
 
 // Wall queries
@@ -86,7 +87,7 @@ int API::mazeHeight() {
  * @return True if a wall exists in front, false otherwise.
  */
 bool API::wallFront() {
-	return getBooleanResponse("wallFront");
+    return getBooleanResponse("wallFront");
 }
 
 /**
@@ -95,7 +96,7 @@ bool API::wallFront() {
  * @return True if a wall exists to the right, false otherwise.
  */
 bool API::wallRight() {
-	return getBooleanResponse("wallRight");
+    return getBooleanResponse("wallRight");
 }
 
 /**
@@ -104,7 +105,7 @@ bool API::wallRight() {
  * @return True if a wall exists to the left, false otherwise.
  */
 bool API::wallLeft() {
-	return getBooleanResponse("wallLeft");
+    return getBooleanResponse("wallLeft");
 }
 
 // Mouse movement commands
@@ -115,15 +116,15 @@ bool API::wallLeft() {
  * @throws std::runtime_error if the simulator does not acknowledge the move.
  */
 void API::moveForward() {
-	bool ack = getAck("moveForward");
+    bool ack = getAck("moveForward");
 
-	if (ack) {
-		drivetrain->driveForwardDistance(1);
-		mouseLocal->moveForwardLocal();
-	} else {
-		cerr << mouseLocal->localMazeToString();
-		throw std::runtime_error("Cannot move forward");
-	}
+    if (ack) {
+        drivetrain->driveForwardDistance(1);
+        mouseLocal->moveForwardLocal();
+    } else {
+        cerr << mouseLocal->localMazeToString();
+        throw std::runtime_error("Cannot move forward");
+    }
 }
 
 /**
@@ -133,22 +134,22 @@ void API::moveForward() {
  * @throws std::runtime_error if the simulator does not acknowledge the move.
  */
 void API::moveForward(int steps) {
-	ostringstream commandStream;
-	commandStream << "moveForward " << steps;
-	string command = commandStream.str();
+    ostringstream commandStream;
+    commandStream << "moveForward " << steps;
+    string command = commandStream.str();
 
-	bool ack = getAck(command);
+    bool ack = getAck(command);
 
-	if (ack) {
-		drivetrain->driveForwardDistance(steps);
+    if (ack) {
+        drivetrain->driveForwardDistance(steps);
 
-		for (int i = 0; i < steps; i++) {
-			mouseLocal->moveForwardLocal();
-		}
-	} else {
-		cerr << mouseLocal->localMazeToString();
-		throw std::runtime_error("Cannot move forward " + std::to_string(steps) + " steps");
-	}
+        for (int i = 0; i < steps; i++) {
+            mouseLocal->moveForwardLocal();
+        }
+    } else {
+        cerr << mouseLocal->localMazeToString();
+        throw std::runtime_error("Cannot move forward " + std::to_string(steps) + " steps");
+    }
 }
 
 /**
@@ -157,14 +158,14 @@ void API::moveForward(int steps) {
  * @throws std::runtime_error if the simulator does not acknowledge the move.
  */
 void API::moveForwardHalf() {
-	bool ack = getAck("moveForwardHalf");
+    bool ack = getAck("moveForwardHalf");
 
-	if (ack) {
-		drivetrain->driveForwardDistance(0.5);
-	} else {
-		cerr << mouseLocal->localMazeToString();
-		throw std::runtime_error("Cannot move forward half");
-	}
+    if (ack) {
+        drivetrain->driveForwardDistance(0.5);
+    } else {
+        cerr << mouseLocal->localMazeToString();
+        throw std::runtime_error("Cannot move forward half");
+    }
 }
 
 /**
@@ -173,14 +174,14 @@ void API::moveForwardHalf() {
  * @throws std::runtime_error if the simulator does not acknowledge the turn.
  */
 void API::turnRight() {
-	bool ack = getAck("turnRight");
-	if (ack) {
-		drivetrain->rotateBy(90);
-		mouseLocal->turnMouseLocal(0, 2);
-	} else {
-		cerr << mouseLocal->localMazeToString();
-		throw std::runtime_error("Cannot turn right");
-	}
+    bool ack = getAck("turnRight");
+    if (ack) {
+        drivetrain->rotateBy(90);
+        mouseLocal->turnMouseLocal(0, 2);
+    } else {
+        cerr << mouseLocal->localMazeToString();
+        throw std::runtime_error("Cannot turn right");
+    }
 }
 
 /**
@@ -189,14 +190,14 @@ void API::turnRight() {
  * @throws std::runtime_error if the simulator does not acknowledge the turn.
  */
 void API::turnLeft() {
-	bool ack = getAck("turnLeft");
-	if (ack) {
-		drivetrain->rotateBy(-90);
-		mouseLocal->turnMouseLocal(2, 0);
-	} else {
-		cerr << mouseLocal->localMazeToString();
-		throw std::runtime_error("Cannot turn left");
-	}
+    bool ack = getAck("turnLeft");
+    if (ack) {
+        drivetrain->rotateBy(-90);
+        mouseLocal->turnMouseLocal(2, 0);
+    } else {
+        cerr << mouseLocal->localMazeToString();
+        throw std::runtime_error("Cannot turn left");
+    }
 }
 
 /**
@@ -205,14 +206,14 @@ void API::turnLeft() {
  * @throws std::runtime_error if the simulator does not acknowledge the turn.
  */
 void API::turnRight45() {
-	bool ack = getAck("turnRight45");
-	if (ack) {
-		drivetrain->rotateBy(45);
-		mouseLocal->turnMouseLocal(0, 1);
-	} else {
-		cerr << mouseLocal->localMazeToString();
-		throw std::runtime_error("Cannot turn right 45 degrees");
-	}
+    bool ack = getAck("turnRight45");
+    if (ack) {
+        drivetrain->rotateBy(45);
+        mouseLocal->turnMouseLocal(0, 1);
+    } else {
+        cerr << mouseLocal->localMazeToString();
+        throw std::runtime_error("Cannot turn right 45 degrees");
+    }
 }
 
 /**
@@ -221,14 +222,14 @@ void API::turnRight45() {
  * @throws std::runtime_error if the simulator does not acknowledge the turn.
  */
 void API::turnLeft45() {
-	bool ack = getAck("turnLeft45");
-	if (ack) {
-		drivetrain->rotateBy(-45);
-		mouseLocal->turnMouseLocal(1, 0);
-	} else {
-		cerr << mouseLocal->localMazeToString();
-		throw std::runtime_error("Cannot turn left 45 degrees");
-	}
+    bool ack = getAck("turnLeft45");
+    if (ack) {
+        drivetrain->rotateBy(-45);
+        mouseLocal->turnMouseLocal(1, 0);
+    } else {
+        cerr << mouseLocal->localMazeToString();
+        throw std::runtime_error("Cannot turn left 45 degrees");
+    }
 }
 
 // Set / clear walls
@@ -243,16 +244,16 @@ void API::turnLeft45() {
  * @throws std::invalid_argument if an unexpected direction is provided.
  */
 void API::setWall(int x, int y, const string& direction) {
-	if (direction == "n" || direction == "e" || direction == "s" || direction == "w") {
-		std::cout << "setWall " << x << " " << y << " " << direction << std::endl;
-		mouseLocal->addWallLocal(x, y, mouseLocal->getDirectionOffset(direction));
-	} else if (direction == "ne" || direction == "se" || direction == "sw" || direction == "nw") {
-		std::cout << "setWall " << x << " " << y << " " << direction[0] << std::endl;
-		std::cout << "setWall " << x << " " << y << " " << direction[1] << std::endl;
-		mouseLocal->addWallLocal(x, y, mouseLocal->getDirectionOffset(direction));
-	} else {
-		throw std::invalid_argument("Unexpected direction: " + direction);
-	}
+    if (direction == "n" || direction == "e" || direction == "s" || direction == "w") {
+        std::cout << "setWall " << x << " " << y << " " << direction << std::endl;
+        mouseLocal->addWallLocal(x, y, mouseLocal->getDirectionOffset(direction));
+    } else if (direction == "ne" || direction == "se" || direction == "sw" || direction == "nw") {
+        std::cout << "setWall " << x << " " << y << " " << direction[0] << std::endl;
+        std::cout << "setWall " << x << " " << y << " " << direction[1] << std::endl;
+        mouseLocal->addWallLocal(x, y, mouseLocal->getDirectionOffset(direction));
+    } else {
+        throw std::invalid_argument("Unexpected direction: " + direction);
+    }
 }
 
 /**
@@ -264,12 +265,12 @@ void API::setWall(int x, int y, const string& direction) {
  * @throws std::invalid_argument if an unexpected direction is provided.
  */
 void API::clearWall(int x, int y, const string& direction) {
-	if (direction == "n" || direction == "e" || direction == "s" || direction == "w" || direction == "ne" || direction == "se" || direction == "sw" ||
-		direction == "nw") {
-		std::cout << "clearWall " << x << " " << y << " " << direction << std::endl;
-	} else {
-		throw std::invalid_argument("Unexpected direction: " + direction);
-	}
+    if (direction == "n" || direction == "e" || direction == "s" || direction == "w" || direction == "ne" || direction == "se" || direction == "sw" ||
+        direction == "nw") {
+        std::cout << "clearWall " << x << " " << y << " " << direction << std::endl;
+    } else {
+        throw std::invalid_argument("Unexpected direction: " + direction);
+    }
 }
 
 // Cell color / text
@@ -282,7 +283,7 @@ void API::clearWall(int x, int y, const string& direction) {
  * @param color The color to set (as a character).
  */
 void API::setColor(int x, int y, char color) {
-	std::cout << "setColor " << x << " " << y << " " << color << std::endl;
+    std::cout << "setColor " << x << " " << y << " " << color << std::endl;
 }
 
 /**
@@ -292,14 +293,14 @@ void API::setColor(int x, int y, char color) {
  * @param y The y-coordinate of the cell.
  */
 void API::clearColor(int x, int y) {
-	std::cout << "clearColor " << x << " " << y << std::endl;
+    std::cout << "clearColor " << x << " " << y << std::endl;
 }
 
 /**
  * Clears the color of all cells.
  */
 void API::clearAllColor() {
-	std::cout << "clearAllColor" << std::endl;
+    std::cout << "clearAllColor" << std::endl;
 }
 
 /**
@@ -310,7 +311,7 @@ void API::clearAllColor() {
  * @param text The text to set in the cell.
  */
 void API::setText(int x, int y, const string& text) {
-	std::cout << "setText " << x << " " << y << " " << text << std::endl;
+    std::cout << "setText " << x << " " << y << " " << text << std::endl;
 }
 
 /**
@@ -320,14 +321,14 @@ void API::setText(int x, int y, const string& text) {
  * @param y The y-coordinate of the cell.
  */
 void API::clearText(int x, int y) {
-	std::cout << "clearText " << x << " " << y << std::endl;
+    std::cout << "clearText " << x << " " << y << std::endl;
 }
 
 /**
  * Clears the text of all cells.
  */
 void API::clearAllText() {
-	std::cout << "clearAllText" << std::endl;
+    std::cout << "clearAllText" << std::endl;
 }
 
 // Reset booleans
@@ -338,16 +339,16 @@ void API::clearAllText() {
  * @return True if the simulator was reset, false otherwise.
  */
 bool API::wasReset() {
-	return getBooleanResponse("wasReset");
+    return getBooleanResponse("wasReset");
 }
 
 /**
  * Acknowledges the reset status in the simulator.
  */
 void API::ackReset() {
-	bool ack = getAck("ackReset");
-	if (!ack) {
-		cerr << "Failed to acknowledge reset." << std::endl;
-		throw std::runtime_error("Cannot acknowledge reset");
-	}
+    bool ack = getAck("ackReset");
+    if (!ack) {
+        cerr << "Failed to acknowledge reset." << std::endl;
+        throw std::runtime_error("Cannot acknowledge reset");
+    }
 }

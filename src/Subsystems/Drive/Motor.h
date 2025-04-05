@@ -7,6 +7,7 @@
 #include <string>
 #include "../../Constants/Constants.h"
 #include "../Sensors/Encoder.h"
+#include "hardware/adc.h"
 #include "hardware/gpio.h"
 #include "hardware/irq.h"
 #include "hardware/pwm.h"
@@ -14,63 +15,80 @@
 
 class Motor {
    public:
-	/**
+    /**
      * Motor pins (for H-Bridge PWM outputs) + encoder pins (for encoder inputs).
      * Encoer events per revolution = 360 degrees by default.
      */
-	Motor(int motorPin1, int motorPin2, int encoderPin1, int encoderPin2, float eventsPerRev = 360.0f, float maxRPM = 200.0f,
-		  bool isReversed = false);
+    Motor(int motorPin1, int motorPin2, int encoderPin1, int encoderPin2, float eventsPerRev = 360.0f, float maxRPM = 200.0f, bool isReversed = false);
 
-	void setPIDVariables(float Kp, float Ki, float Kd);	 // All PID Constants.
+    void setPIDVariables(float Kp, float Ki, float Kd) {
+        this->kP = kP;
+        this->kI = kI;
+        this->kD = kD;
+    }  // All PID Constants.
 
-	void start();
-	void stop();
+    void start();
+    void stop();
 
-	void setThrottle(float throttle);  // -1 (reverse) to 1 (forward).
-	void setPosition(int pos);		   // Meters.
-	void setRPM(double currentRPM);
+    void setRPM(float RPM);
+    float getDesiredRPM();
+    void setPosition(int pos);  // Meters.
+    void setVoltage(float volts, bool direction);
+    int pwm_compensated(float desired_voltage, float battery_voltage);
 
-	float getTargetThrottle() const;
-	float getCurrentRPM();
-	int getTargetPosition() const;
-	int32_t getCurrentPosition();
-	Encoder* getEncoder();
-	float getMaxRPM() const;
+    float getTargetThrottle() const;
+    float getCurrentRPM();
+    int getTargetPosition() const;
+    int32_t getCurrentPosition();
+    Encoder* getEncoder();
+    float getMaxRPM() const;
+    float voltage();
+    void setMotorPWM(int motorPWM, bool forward = true);
 
-	void updateEncoder();
-	void updatePWM();
-	void getFeedforwardValue(float i, std::string motorName);
+    void updateEncoder();
+    void updatePWM();
+    void getFeedforwardValue(float i, std::string motorName);
 
    private:
-	int motorPin1, motorPin2, encoderPin1, encoderPin2;
-	bool isReversed;
+    int motorPin1, motorPin2, encoderPin1, encoderPin2;
+    bool isReversed;
 
-	float maxRPM;
-	float eventsPerRev;	 // Before quadrature division (so 360 degrees per rev).
+    float maxRPM;
+    float eventsPerRev;  // Before quadrature division (so 360 degrees per rev).
 
-	uint pwm_slice;
-	uint channelForward, channelReverse;
+    uint pwm_slice;
+    uint channelForward, channelReverse;
 
-	volatile float targetThrottle;	// [-1 (max reverse speed), 0 (off), 1 (max forward speed)].
+    volatile float desiredRPM;  // [-1 (max reverse speed), 0 (off), 1 (max forward speed)].
 
-	volatile int targetPosition;
-	volatile bool motorOn;
+    volatile int targetPosition;
+    volatile bool motorOn;
 
-	float kP, kI, kD;
-	volatile float integral;
-	volatile float derivative, lastError;
-	absolute_time_t lastPIDTime;
+    volatile float m_motor_voltage;  // Volts.
 
-	Encoder encoder;
+    float kP, kI, kD;
+    volatile float integral;
+    volatile float derivative, lastError;
+    absolute_time_t lastPIDTime;
 
-	float clamp(float value, float min, float max);
+    Encoder encoder;
 
-	void setUp();
-	void initializePWM();
+    float clamp(float value, float min, float max);
 
-	const float feedforwardLConstant = 648.0f;
-	const float feedforwardLSlope = 1.2f;
-	const float feedforwardRConstant = 641.0f;
-	const float feedforwardRSlope = 1.16f;
+    void setUp();
+
+    // const float feedforwardLConstant = 648.0f / 200.0f;
+    // const float feedforwardLSlope = 1.2f / 200.0f;
+    // const float feedforwardRConstant = 641.0f / 200.0f;
+    // const float feedforwardRSlope = 1.16f / 200.0f;
+    const float feedforwardLConstant = 0.0f;
+    const float feedforwardLSlope = 0.0f;
+    const float feedforwardRConstant = 0.0f;
+    const float feedforwardRSlope = 0.0f;
+
+    const float MAX_MOTOR_VOLTAGE = 5.0f;  // Volts.
+    const int MAX_MOTOR_PWM = 999;
+
+    const int BATTERY_ADC_PIN = 26;
 };
 #endif

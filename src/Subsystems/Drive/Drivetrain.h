@@ -22,7 +22,6 @@ class Encoder;
 #define UART_RX_PIN 1
 
 // UART receive timeout interrupt bit.
-#define UART_UARTIMSC_RTIM_LSB 6
 struct PIDController {
 	float kP;
 	float kI;
