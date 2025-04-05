@@ -48,7 +48,7 @@ void Encoder::update() {
             oldEncoderCount = currentCount;
             lastUpdateTime = now;
 
-            double currentRPM = (deltaCount / 360.0) * (60 / newDeltaTime);
+            double currentRPM = (deltaCount / eventsPerRev) * (60 / newDeltaTime);
             setRPM(currentRPM);
 
             int32_t RPM = getRPM();

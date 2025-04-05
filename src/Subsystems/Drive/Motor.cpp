@@ -181,11 +181,11 @@ m constant (0.8f) = scaling factor; maps desiredRPM to another PWM value. Higher
     }
 
     float voltageOutput = feedForward + kP * error + kI * integral + kD * derivative;
-    printf("kP * error: %f\n", kP * error);
-    printf("Feedforward: %f\n", feedForward);
+    // printf("kP * error: %f\n", kP * error);
+    // printf("Feedforward: %f\n", feedForward);
 
-    printf("Error: %f\n", error);
-    printf("Voltage Output: %f\n", voltageOutput);
+    // printf("Error: %f\n", error);
+    // printf("Voltage Output: %f\n", voltageOutput);
 
     setVoltage(voltageOutput, (desiredRPM >= 0));
 }

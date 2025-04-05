@@ -31,6 +31,9 @@ class Encoder;
 
 #define WALLCUTOFF 50
 
+#define CUTOFF_FOR_CORRECTION 30
+#define STEADY_STATE 40
+
 // UART receive timeout interrupt bit.
 struct PIDController {
     float kP;
@@ -56,6 +59,8 @@ class Drivetrain {
     Drivetrain(const DrivetrainConfiguration& config, Motor* leftMotor, Motor* rightMotor);
 
     void driveForward();
+    void turnLeft();
+    void turnRight();
     void stop();
 
     void driveForwardDistance(float distanceCounts);
