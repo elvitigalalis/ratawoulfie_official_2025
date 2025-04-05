@@ -14,9 +14,9 @@
 #include "../../../vl53l0x_api_rp2040/platform/inc/vl53l0x_rp2040.h"
 
 // Define XSHUT pins for three ToF sensors
-#define XSHUT_FRONT 14
-#define XSHUT_LEFT 15
-#define XSHUT_RIGHT 16
+#define XSHUT_FRONT 12
+#define XSHUT_LEFT 11
+#define XSHUT_RIGHT 13
 
 class Motor;
 class Encoder;

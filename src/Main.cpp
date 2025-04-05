@@ -80,7 +80,7 @@ int main() {
                 // printf("%f, %f\n", elapsedTime, rightMotor.getCurrentRPM());
                 // printf("Right Motor RPM %f\n", rightMotor.getCurrentRPM());
                 // printf("LRPM=%f, RRPM=%f, LP=%i, RP=%i\n", leftMotor.getCurrentRPM(), rightMotor.getCurrentRPM(), leftMotor.getCurrentPosition(), rightMotor.getCurrentPosition());
-                printf("Front Wall=%f, Left Wall=%f, Right Wall=%f\n", drivetrain.checkFrontWallDistance(), drivetrain.checkLeftWallDistance(), drivetrain.checkRightWallDistance());
+                printf("Front Wall=%b, Left Wall=%b, Right Wall=%b\n", drivetrain.checkFrontWall(), drivetrain.checkLeftWall(), drivetrain.checkRightWall());
                 sleep_ms(100);
             }
             sleep_ms(2000);
