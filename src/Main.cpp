@@ -66,18 +66,21 @@ int main() {
         // 	drivetrain.stop();
         // 	sleep_ms(1000);
         // }
-        leftMotor.setVoltage(3.0f, true);
+        // leftMotor.setVoltage(3.0f, true);
+        drivetrain.initToF();
+
         for (int i = 1; i <= 10; i++) {
             absolute_time_t now = get_absolute_time();
             while (absolute_time_diff_us(now, get_absolute_time()) < 12.5 * 1e6) {
-                leftMotor.updateEncoder();
-                rightMotor.updateEncoder();
+                // leftMotor.updateEncoder();
+                // rightMotor.updateEncoder();
                 float elapsedTime = absolute_time_diff_us(now, get_absolute_time()) / 1e6f;
                 // rightMotor.updateEncoder();
                 // printf("Left Motor RPM %f\n", leftMotor.getCurrentRPM());
                 // printf("%f, %f\n", elapsedTime, rightMotor.getCurrentRPM());
                 // printf("Right Motor RPM %f\n", rightMotor.getCurrentRPM());
-                printf("LRPM=%f, RRPM=%f, LP=%i, RP=%i\n", leftMotor.getCurrentRPM(), rightMotor.getCurrentRPM(), leftMotor.getCurrentPosition(), rightMotor.getCurrentPosition());
+                // printf("LRPM=%f, RRPM=%f, LP=%i, RP=%i\n", leftMotor.getCurrentRPM(), rightMotor.getCurrentRPM(), leftMotor.getCurrentPosition(), rightMotor.getCurrentPosition());
+                printf("Front Wall=%f, Left Wall=%f, Right Wall=%f\n", drivetrain.checkFrontWallDistance(), drivetrain.checkLeftWallDistance(), drivetrain.checkRightWallDistance());
                 sleep_ms(100);
             }
             sleep_ms(2000);

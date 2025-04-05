@@ -66,10 +66,11 @@ set_source_files_properties(src/Main.cpp PROPERTIES COMPILE_FLAGS "-fexceptions"
 
 # Generate extra outputs (UF2, etc.) for the Pico
 pico_add_extra_outputs(ratawoulfie_official_2025)
-
+add_subdirectory(vl53l0x_api_rp2040)
 # Link with Pico's standard libraries and hardware-specific libraries
-target_link_libraries(ratawoulfie_official_2025 pico_stdlib hardware_gpio hardware_pwm hardware_irq hardware_pio hardware_uart hardware_adc hardware_i2c)
+target_link_libraries(ratawoulfie_official_2025 pico_stdlib hardware_gpio hardware_pwm hardware_irq hardware_pio hardware_uart hardware_adc hardware_i2c vl53l0x_api_rp2040)
 
 # Enable USB stdio (disable UART)
 pico_enable_stdio_usb(ratawoulfie_official_2025 1)
 pico_enable_stdio_uart(ratawoulfie_official_2025 0)
+

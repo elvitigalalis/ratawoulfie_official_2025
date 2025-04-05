@@ -69,6 +69,15 @@ class Drivetrain {
 
     void controlLoop();
 
+    // ToF distance calculations in mm.
+    void initToF();
+    float checkFrontWallDistance();
+    float checkLeftWallDistance();
+    float checkRightWallDistance();
+    bool checkFrontWall();
+    bool checkLeftWall();
+    bool checkRightWall();
+
    private:
     DrivetrainConfiguration config;
     static Drivetrain* imuInstance;
@@ -104,13 +113,6 @@ class Drivetrain {
     // Helper methods.
     int positiveMod(int a, int b);
     int getAverageEncoderCount();
-
-    // ToF distance calculations in mm.
-    void initToF();
-    float checkFrontWallDistance();
-    bool checkFrontWall();
-    bool checkLeftWall();
-    bool checkRightWall();
 
     void executeTurningControl();
     void executeDistanceControl(int targetCounts);

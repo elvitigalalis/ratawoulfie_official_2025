@@ -87,7 +87,7 @@ int API::mazeHeight() {
  * @return True if a wall exists in front, false otherwise.
  */
 bool API::wallFront() {
-    return getBooleanResponse("wallFront");
+    return drivetrain->checkFrontWall();
 }
 
 /**
@@ -96,7 +96,7 @@ bool API::wallFront() {
  * @return True if a wall exists to the right, false otherwise.
  */
 bool API::wallRight() {
-    return getBooleanResponse("wallRight");
+    return drivetrain->checkRightWall();
 }
 
 /**
@@ -105,7 +105,7 @@ bool API::wallRight() {
  * @return True if a wall exists to the left, false otherwise.
  */
 bool API::wallLeft() {
-    return getBooleanResponse("wallLeft");
+    return drivetrain->checkLeftWall();
 }
 
 // Mouse movement commands
