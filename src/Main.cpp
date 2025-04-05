@@ -67,13 +67,19 @@ int main() {
         // 	sleep_ms(1000);
         // }
 
-        for (int i = 10; i <= 20; i++) {
-            leftMotor.setVoltage(0.25f * i, true);
-            printf("Voltage Running at %f\n", 0.25f * i);
+        for (int i = 15; i <= 15; i++) {
+            // drivetrain.driveForwardDistance(1);
+            float RPM = 200.0f;
+            leftMotor.setRPM(RPM);
+            rightMotor.setRPM(RPM);
+            printf("RPM Running at %f\n", RPM);
             absolute_time_t now = get_absolute_time();
-            while (absolute_time_diff_us(now, get_absolute_time()) < 10 * 1e6) {
+            while (absolute_time_diff_us(now, get_absolute_time()) < 20 * 1e6) {
                 leftMotor.updateEncoder();
+                rightMotor.updateEncoder();
+                printf("Time Elapsed %f\n", absolute_time_diff_us(now, get_absolute_time()) / 1e6);
                 printf("Left Motor RPM %f\n", leftMotor.getCurrentRPM());
+                printf("Right Motor RPM %f\n", rightMotor.getCurrentRPM());
                 sleep_ms(100);
             }
             sleep_ms(2000);
