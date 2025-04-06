@@ -24,8 +24,8 @@ int main() {
         cfg.maxRPM = 100.0f;
         cfg.maxTurnRPM = 150.0f;
         cfg.encoderCountsPerCell = 2010;  // 180 / (32.5 mm (wheel diameter) * 3.14 (pi)) * 360 (encoder counts per rev). = 634.6609.
-        cfg.wallThreshold = 50;                      // mm.
-        cfg.distancePID = {0.1f, 0.0f, 0.0f};
+        cfg.wallThreshold = 50;           // mm.
+        cfg.distancePID = {0.05f, 0.0f, 0.0f};
         cfg.turnPID = {0.0f, 0.0f, 0.0f};
         cfg.yawErrorThrewshold = 3;
         cfg.distanceErrorThreshold = 10.0f;
@@ -68,42 +68,64 @@ int main() {
         // }
         // leftMotor.setVoltage(3.0f, true);
         drivetrain.initIMU();
+
+        mousePtr = new MouseLocal();
+        // apiPtr = new API(mousePtr, drivetrain);
+        aStarPtr = new AStar();
+        frontierBasedPtr = new FrontierBased();
+
+        vector<Cell*> startCells = vector<Cell*>{&mousePtr->getMousePosition()};
+        vector<Cell*> goalCells = mousePtr->getGoalCells();
+        // // Explore maze using frontier-based search.
+        setUp(startCells, goalCells);
+        frontierBasedPtr->explore(*mousePtr, *apiPtr, false);
+        // sleepFor(1000);
+
+        // Travel to start cell using A*.
+        // setUp(startCells);
+        // traversePathIteratively(mousePtr, startCells, false, true, false);
+        // sleepFor(1000);
+
+        // // Travel to goal cells using A*.
+        // setUp(goalCells);
+        // traversePathIteratively(mousePtr, goalCells, true, true, false);
+        // sleepFor(1000);
         // drivetrain.driveForwardDistance(10.0f / 18.0f);
         // leftMotor.setRPM(200.0f);
         // rightMotor.setRPM(200.0f);
         // rightMotor.setVoltage(5.0f, true);
         // leftMotor.setVoltage(5.0f, true);
-        for (int i = 5; i <= 10; i++) {
-            sleep_ms(2000);
-            api.moveForward(1);
-            // sleep_ms(5000);
-            // printf("Voltage: %f\n", i * 0.5f);
-            // leftMotor.setRPM(i * 20.0f);
-            // rightMotor.setRPM(i * 20.0f);
+        // for (int i = 5; i <= 10; i++) {
+        //     sleep_ms(2000);
+        //     api.moveForward(1);
+        //     // sleep_ms(5000);
+        //     // printf("Voltage: %f\n", i * 0.5f);
+        //     // leftMotor.setRPM(i * 20.0f);
+        //     // rightMotor.setRPM(i * 20.0f);
 
-            // rightMotor.setVoltage(5.0f, true);
-            absolute_time_t now = get_absolute_time();
-            while (absolute_time_diff_us(now, get_absolute_time()) < 12.5 * 1e6) {
-                // leftMotor.updatePWM();
-                // leftMotor.updateEncoder();
-                float elapsedTime = absolute_time_diff_us(now, get_absolute_time()) / 1e6f;
-                // rightMotor.updateEncoder();
-                // printf("Left Motor RPM %f\n", leftMotor.getCurrentRPM());
-                // printf("%f, %f\n", elapsedTime, rightMotor.getCurrentRPM());
-                // printf("Right Motor RPM %f\n", rightMotor.getCurrentRPM());
-                // printf("LRPM=%f, RRPM=%f, LP=%i, RP=%i\n", leftMotor.getCurrentRPM(), rightMotor.getCurrentRPM(), leftMotor.getCurrentPosition(),
-                // rightMotor.getCurrentPosition());
-                // printf("L Motor RPM %f\n", leftMotor.getCurrentRPM());
-                // printf("L Motor Position %i\n", leftMotor.getEncoder()->getCount());
-                // printf("R Motor RPM %f\n", rightMotor.getCurrentRPM());
-                // printf("R Motor Position %i\n", rightMotor.getEncoder()->getCount());
-                printf("L:%f, R:%f, LPos:%i, RPos:%i\n", leftMotor.getCurrentRPM(), rightMotor.getCurrentRPM(), leftMotor.getEncoder()->getCount(),
-                       rightMotor.getEncoder()->getCount());
-                printf("Walls F%f L%f R%f\n", drivetrain.checkFrontWallDistance(), drivetrain.checkLeftWallDistance(), drivetrain.checkRightWallDistance());
-                sleep_ms(100);
-            }
-            sleep_ms(2000);
-        }
+        //     // rightMotor.setVoltage(5.0f, true);
+        //     absolute_time_t now = get_absolute_time();
+        //     while (absolute_time_diff_us(now, get_absolute_time()) < 12.5 * 1e6) {
+        //         // leftMotor.updatePWM();
+        //         // leftMotor.updateEncoder();
+        //         float elapsedTime = absolute_time_diff_us(now, get_absolute_time()) / 1e6f;
+        //         // rightMotor.updateEncoder();
+        //         // printf("Left Motor RPM %f\n", leftMotor.getCurrentRPM());
+        //         // printf("%f, %f\n", elapsedTime, rightMotor.getCurrentRPM());
+        //         // printf("Right Motor RPM %f\n", rightMotor.getCurrentRPM());
+        //         // printf("LRPM=%f, RRPM=%f, LP=%i, RP=%i\n", leftMotor.getCurrentRPM(), rightMotor.getCurrentRPM(), leftMotor.getCurrentPosition(),
+        //         // rightMotor.getCurrentPosition());
+        //         // printf("L Motor RPM %f\n", leftMotor.getCurrentRPM());
+        //         // printf("L Motor Position %i\n", leftMotor.getEncoder()->getCount());
+        //         // printf("R Motor RPM %f\n", rightMotor.getCurrentRPM());
+        //         // printf("R Motor Position %i\n", rightMotor.getEncoder()->getCount());
+        //         printf("L:%f, R:%f, LPos:%i, RPos:%i\n", leftMotor.getCurrentRPM(), rightMotor.getCurrentRPM(), leftMotor.getEncoder()->getCount(),
+        //                rightMotor.getEncoder()->getCount());
+        //         printf("Walls F%f L%f R%f\n", drivetrain.checkFrontWallDistance(), drivetrain.checkLeftWallDistance(), drivetrain.checkRightWallDistance());
+        //         sleep_ms(100);
+        //     }
+        //     sleep_ms(2000);
+        // }
         // }
         // api.moveForward(1);
 
@@ -452,6 +474,7 @@ vector<string> splitPath(const string& path) {
 }
 
 void executeSequence(const string& seq, ostringstream& diagPath) {
+   
     diagPath << seq;
     stringstream ss(seq);
     string token;

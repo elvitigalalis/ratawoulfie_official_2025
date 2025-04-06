@@ -218,6 +218,7 @@ void Drivetrain::driveForwardDistance(float cellCount) {
         printf("LRPM=%d RRPM=%d LP=%d RP=%d\n", leftRPM, rightRPM, leftPos, rightPos);
 
         float dt = absolute_time_diff_us(lastUpdateTime, get_absolute_time()) / 1000000.0f;
+        lastUpdateTime = get_absolute_time();
         int errorL = targetPosLeft - leftMotor->getEncoder()->getCount();
         int errorR = targetPosRight - rightMotor->getEncoder()->getCount();
 
@@ -270,7 +271,6 @@ void Drivetrain::driveForwardDistance(float cellCount) {
 
         leftMotor->setRPM(adjustedRPML);
         rightMotor->setRPM(adjustedRPMR);
-        lastUpdateTime = get_absolute_time();
 
         if (fabs(errorL) < config.distanceErrorThreshold && fabs(errorR) < config.distanceErrorThreshold) {
             printf("Reached target position: %i\n", (int32_t)targetPosLeft);

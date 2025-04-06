@@ -247,6 +247,7 @@ void API::setWall(int x, int y, const string& direction) {
     if (direction == "n" || direction == "e" || direction == "s" || direction == "w") {
         std::cout << "setWall " << x << " " << y << " " << direction << std::endl;
         mouseLocal->addWallLocal(x, y, mouseLocal->getDirectionOffset(direction));
+        
     } else if (direction == "ne" || direction == "se" || direction == "sw" || direction == "nw") {
         std::cout << "setWall " << x << " " << y << " " << direction[0] << std::endl;
         std::cout << "setWall " << x << " " << y << " " << direction[1] << std::endl;
