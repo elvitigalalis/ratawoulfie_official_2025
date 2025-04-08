@@ -174,9 +174,10 @@ m constant (0.8f) = scaling factor; maps desiredRPM to another PWM value. Higher
     // Then fine-tune using the kP term first, then add the integral and derivative terms for any residual errors.
     float feedForward;
     if (isReversed) {
+        LOG_DEBUG("Left:" + std::to_string(feedforwardLConstant + feedforwardLSlope * desiredRPM));
         feedForward = feedforwardLConstant + feedforwardLSlope * desiredRPM;
-
     } else {
+        LOG_DEBUG("Right:" + std::to_string(feedforwardRConstant + feedforwardRSlope * desiredRPM));
         feedForward = feedforwardRConstant + feedforwardRSlope * desiredRPM;
     }
 

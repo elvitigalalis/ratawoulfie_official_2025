@@ -5,12 +5,14 @@
 #include <algorithm>
 #include <cmath>
 #include <string>
+#include "../../Constants/Logger.h"
 #include "../Sensors/Encoder.h"
 #include "hardware/adc.h"
 #include "hardware/gpio.h"
 #include "hardware/irq.h"
 #include "hardware/pwm.h"
 #include "pico/stdlib.h"
+
 class Motor {
    public:
     /**
@@ -83,10 +85,14 @@ class Motor {
     // const float feedforwardLSlope = 0.006180486071f;
     // const float feedforwardRConstant = 3.163033433f;
     // const float feedforwardRSlope = 0.0060479671f;
-    const float feedforwardLConstant = 0.81613f;  // 3.381507466f;
-    const float feedforwardLSlope = 0.015257f;    // 0.006180486071f;
-    const float feedforwardRConstant = 1.17717f;  // 3.163033433f;
-    const float feedforwardRSlope = 0.01418f;     // 0.0060479671f;
+    // const float feedforwardLConstant = 0.81613f;  // 3.381507466f;
+    // const float feedforwardLSlope = 0.015257f;    // 0.006180486071f;
+    // const float feedforwardRConstant = 1.17717f;  // 3.163033433f;
+    // const float feedforwardRSlope = 0.01418f;     // 0.0060479671f;
+    const float feedforwardLConstant = 1.258043f;
+    const float feedforwardLSlope = 0.014981f;
+    const float feedforwardRConstant = 1.274472f;
+    const float feedforwardRSlope = 0.014868f;
 
     const float MAX_MOTOR_VOLTAGE = 5.0f;  // Volts.
     const int MAX_MOTOR_PWM = 999;

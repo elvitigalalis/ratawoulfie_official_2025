@@ -10,7 +10,7 @@ Drivetrain::Drivetrain(const DrivetrainConfiguration& config, Motor* leftMotor, 
     leftEncoder = leftMotor->getEncoder();
     rightEncoder = rightMotor->getEncoder();
 
-    currentRPM = config.maxRPM;
+    currentRPM = 0.0f;
     currentYaw = desiredYaw = 0;
     isMoving = isTurning = false;
     distanceIntegralL = distanceLastErrorL = distanceDerivativeL = 0.0f;
@@ -20,8 +20,8 @@ Drivetrain::Drivetrain(const DrivetrainConfiguration& config, Motor* leftMotor, 
     lastUpdateTime = get_absolute_time();
     oldEncoderCountL = 0;
     oldEncoderCountR = 0;
-    initIMU();
-    initToF();
+    // initIMU();
+    // initToF();
 }
 
 void Drivetrain::initIMU() {

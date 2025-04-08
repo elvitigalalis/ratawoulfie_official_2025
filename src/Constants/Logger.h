@@ -7,7 +7,8 @@
 
 using std::cout;
 using std::string;
-
+using std::ostringstream;
+using std::endl;
 enum class LogLevel { DEBUG, INFO, WARN, ERROR };
 
 class Logger {
@@ -31,7 +32,7 @@ class Logger {
                     prefix = "[ERROR] ";
                     break;
             }
-            cout << prefix << message << std::endl;
+            cout << prefix << message << endl;
         }
     }
 };

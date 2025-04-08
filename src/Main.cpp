@@ -14,10 +14,10 @@ int main() {
     Motor rightMotor(Constants::RobotConstants::rightMotorPin1, Constants::RobotConstants::rightMotorPin2, Constants::RobotConstants::rightMotorEncoderPin1,
                      Constants::RobotConstants::rightMotorEncoderPin2, Constants::RobotConstants::eventsPerRev, Constants::RobotConstants::maxRPM);
 
-    leftMotor.setPIDVariables(0.632 * 0.0175f, 0, 0.00f);
-    rightMotor.setPIDVariables(0.23 * 0.06200f, 0, 0.00f);
-    // leftMotor.setPIDVariables(0, 0, 0);
-    // rightMotor.setPIDVariables(0, 0, 0);
+    // leftMotor.setPIDVariables(0.632 * 0.0175f, 0, 0.00f);
+    // rightMotor.setPIDVariables(0.23 * 0.06200f, 0, 0.00f);
+    leftMotor.setPIDVariables(0, 0, 0);
+    rightMotor.setPIDVariables(0, 0, 0);
 
     DrivetrainConfiguration config = [] {
         DrivetrainConfiguration cfg;
@@ -42,12 +42,17 @@ int main() {
         aStarPtr = new AStar();
         frontierBasedPtr = new FrontierBased();
 
-        drivetrain.driveForwardDistance(0.7f);
-        while (true) {
-            leftMotor.updateEncoder();
-            rightMotor.updateEncoder();
-            LOG_DEBUG("LRPM: " + to_string(leftMotor.getCurrentRPM()) + " RRPM: " + to_string(rightMotor.getCurrentRPM()));
+        float intendedRPM = 200.0f;
+        leftMotor.setRPM(intendedRPM);
+        rightMotor.setRPM(intendedRPM);
+        while(fabs(leftMotor.getCurrentRPM() - intendedRPM) > 0.1f || fabs(rightMotor.getCurrentRPM() - intendedRPM) > 0.1f) {
+            sleep_ms(250);
+            leftMotor.updatePWM();
+            rightMotor.updatePWM();
+            LOG_DEBUG("LRPM: " + std::to_string(leftMotor.getCurrentRPM()) + ", RRPM: " + std::to_string(rightMotor.getCurrentRPM()));
         }
+        // drivetrain.driveForwardDistance(0.7f);
+        // auto feedforwardConstants = calculateFeedforwardConstants(leftMotor, rightMotor);
 
         // vector<Cell*> startCells = vector<Cell*>{&mousePtr->getMousePosition()};
         // vector<Cell*> goalCells = mousePtr->getGoalCells();
@@ -58,10 +63,107 @@ int main() {
         // frontierBasedPtr->explore(*mousePtr, *apiPtr, false);
 
     } catch (const std::runtime_error& e) {
-        std::cerr << "Error: " << e.what() << std::endl;
+        std::cout << "Error: " << e.what() << std::endl;
     }
 
     return 0;
+}
+
+// Wait for a motor to reach a steady state and then return its stable RPM.
+// Note: This function can be used for either motor.
+float measureSteadyStateRPM(Motor& motor) {
+    sleep_ms(200);                 // initial delay to let the motor respond
+    const float threshold = 0.1f;  // RPM change tolerance for steady state
+    const int stableCountTarget = 5;
+    int stableCount = 0;
+    motor.updateEncoder();
+    float lastRPM = motor.getCurrentRPM();
+
+    while (stableCount < stableCountTarget) {
+        sleep_ms(100);  // poll every 100ms
+        motor.updateEncoder();
+        float currentRPM = motor.getCurrentRPM();
+        if (fabs(currentRPM - lastRPM) < threshold) {
+            stableCount++;
+        } else {
+            stableCount = 0;  // restart check if RPM fluctuates
+        }
+        lastRPM = currentRPM;
+    }
+    return lastRPM;
+}
+
+// This function calculates feedforward constants for both left and right motors.
+// It returns a pair: first = left motor constants, second = right motor constants.
+std::pair<FeedforwardConstants, FeedforwardConstants> calculateFeedforwardConstants(Motor& leftMotor, Motor& rightMotor) {
+    std::vector<float> voltages;   // same applied voltage for both motors
+    std::vector<float> leftRPMs;   // measured steady-state RPMs for left motor
+    std::vector<float> rightRPMs;  // measured steady-state RPMs for right motor
+
+    // Loop through a series of voltage steps (e.g., 0.5V to 5V)
+    for (int i = 1; i <= 10; i++) {
+        float appliedVoltage = 0.5f * i;
+
+        // Apply the voltage to both motors simultaneously.
+        leftMotor.setVoltage(appliedVoltage, true);
+        rightMotor.setVoltage(appliedVoltage, true);
+
+        // Give time for the motors to respond.
+        sleep_ms(500);
+
+        // Measure each motor's steady-state RPM.
+        float measuredLeftRPM = measureSteadyStateRPM(leftMotor);
+        float measuredRightRPM = measureSteadyStateRPM(rightMotor);
+
+        // Log the results
+        LOG_DEBUG("Voltage: " + std::to_string(appliedVoltage) + " V, Left RPM: " + std::to_string(measuredLeftRPM) +
+                  ", Right RPM: " + std::to_string(measuredRightRPM));
+
+        // Record the data points.
+        voltages.push_back(appliedVoltage);
+        leftRPMs.push_back(measuredLeftRPM);
+        rightRPMs.push_back(measuredRightRPM);
+
+        // Stop motors between tests to allow them to settle.
+        leftMotor.setVoltage(0, true);
+        rightMotor.setVoltage(0, true);
+        sleep_ms(500);
+    }
+
+    // Now perform linear regression for each motor to fit the model: Voltage = kS + kV * RPM
+
+    auto linearRegression = [&](const std::vector<float>& rpms) -> FeedforwardConstants {
+        float sumRPM = 0.0f, sumVoltage = 0.0f;
+        int n = voltages.size();
+        for (int i = 0; i < n; i++) {
+            sumRPM += rpms[i];
+            sumVoltage += voltages[i];
+        }
+        float meanRPM = sumRPM / n;
+        float meanVoltage = sumVoltage / n;
+
+        float numerator = 0.0f;
+        float denominator = 0.0f;
+        for (int i = 0; i < n; i++) {
+            numerator += (rpms[i] - meanRPM) * (voltages[i] - meanVoltage);
+            denominator += (rpms[i] - meanRPM) * (rpms[i] - meanRPM);
+        }
+        FeedforwardConstants constants;
+        constants.kV = numerator / denominator;               // Slope
+        constants.kS = meanVoltage - constants.kV * meanRPM;  // Intercept
+
+        return constants;
+    };
+
+    FeedforwardConstants leftConstants = linearRegression(leftRPMs);
+    FeedforwardConstants rightConstants = linearRegression(rightRPMs);
+
+    // Log the calculated constants for each motor.
+    LOG_DEBUG("Left Motor Feedforward: kS = " + std::to_string(leftConstants.kS) + ", kV = " + std::to_string(leftConstants.kV));
+    LOG_DEBUG("Right Motor Feedforward: kS = " + std::to_string(rightConstants.kS) + ", kV = " + std::to_string(rightConstants.kV));
+
+    // Return a pair with left constants first, right constants second.
+    return std::make_pair(leftConstants, rightConstants);
 }
 
 void setUp(const vector<Cell*>& goalCells) {
