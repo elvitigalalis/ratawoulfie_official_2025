@@ -222,7 +222,7 @@ void Drivetrain::driveForwardDistance(float cellCount) {
         int errorL = targetPosLeft - leftMotor->getEncoder()->getCount();
         int errorR = targetPosRight - rightMotor->getEncoder()->getCount();
 
-        printf("ErrorLR=%f\n", (errorL + errorR) / 2.0 / config.encoderCountsPerCell);
+        // printf("ErrorLR=%f\n", (errorL + errorR) / 2.0 / config.encoderCountsPerCell);
 
         // PID Calculations for Left Motor
         distanceDerivativeL = (errorL - distanceLastErrorL) / dt;

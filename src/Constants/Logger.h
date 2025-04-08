@@ -1,10 +1,11 @@
 #ifndef LOGGER_H
 #define LOGGER_H
 
-#include <cstdio>
+#include <iostream>
 #include <sstream>
 #include <string>
 
+using std::cout;
 using std::string;
 
 enum class LogLevel { DEBUG, INFO, WARN, ERROR };
@@ -24,13 +25,13 @@ class Logger {
                     prefix = "[INFO] ";
                     break;
                 case LogLevel::WARN:
-                    prefix = "[WARN] ";
+                    prefix = "\n[WARN] ";
                     break;
                 case LogLevel::ERROR:
                     prefix = "[ERROR] ";
                     break;
             }
-            printf("%s%s\n", prefix.c_str(), message.c_str());
+            cout << prefix << message << std::endl;
         }
     }
 };
@@ -38,25 +39,25 @@ class Logger {
 /// @brief Macros that can be used for logging.
 #define LOG_DEBUG(msg)                           \
     {                                            \
-        std::ostringstream oss;                  \
+        ostringstream oss;                       \
         oss << msg;                              \
         Logger::log(LogLevel::DEBUG, oss.str()); \
     }
 #define LOG_INFO(msg)                           \
     {                                           \
-        std::ostringstream oss;                 \
+        ostringstream oss;                      \
         oss << msg;                             \
         Logger::log(LogLevel::INFO, oss.str()); \
     }
 #define LOG_WARN(msg)                           \
     {                                           \
-        std::ostringstream oss;                 \
+        ostringstream oss;                      \
         oss << msg;                             \
         Logger::log(LogLevel::WARN, oss.str()); \
     }
 #define LOG_ERROR(msg)                           \
     {                                            \
-        std::ostringstream oss;                  \
+        ostringstream oss;                       \
         oss << msg;                              \
         Logger::log(LogLevel::ERROR, oss.str()); \
     }

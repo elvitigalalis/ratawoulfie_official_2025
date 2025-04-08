@@ -21,9 +21,9 @@ int main() {
 
     DrivetrainConfiguration config = [] {
         DrivetrainConfiguration cfg;
-        cfg.maxRPM = 100.0f;
+        cfg.maxRPM = 200.0f;
         cfg.maxTurnRPM = 150.0f;
-        cfg.encoderCountsPerCell = 2010;  // 180 / (32.5 mm (wheel diameter) * 3.14 (pi)) * 360 (encoder counts per rev). = 634.6609.
+        cfg.encoderCountsPerCell = 2006;  // 180mm / (40.0 mm (wheel diameter) * 3.14 (pi)) * 360 (encoder counts per rev). = 634.6609.
         cfg.wallThreshold = 50;           // mm.
         cfg.distancePID = {0.05f, 0.0f, 0.0f};
         cfg.turnPID = {0.0f, 0.0f, 0.0f};
@@ -42,12 +42,20 @@ int main() {
         aStarPtr = new AStar();
         frontierBasedPtr = new FrontierBased();
 
-        vector<Cell*> startCells = vector<Cell*>{&mousePtr->getMousePosition()};
-        vector<Cell*> goalCells = mousePtr->getGoalCells();
+        drivetrain.driveForwardDistance(0.7f);
+        while (true) {
+            leftMotor.updateEncoder();
+            rightMotor.updateEncoder();
+            LOG_DEBUG("LRPM: " + to_string(leftMotor.getCurrentRPM()) + " RRPM: " + to_string(rightMotor.getCurrentRPM()));
+        }
+
+        // vector<Cell*> startCells = vector<Cell*>{&mousePtr->getMousePosition()};
+        // vector<Cell*> goalCells = mousePtr->getGoalCells();
         // // Explore maze using frontier-based search.
-        setUp(startCells, goalCells);
-        printf("%s", mousePtr->localMazeToString().c_str());
-        frontierBasedPtr->explore(*mousePtr, *apiPtr, false);
+
+        // setUp(startCells, goalCells);
+        // printf("%s", mousePtr->localMazeToString().c_str());
+        // frontierBasedPtr->explore(*mousePtr, *apiPtr, false);
 
     } catch (const std::runtime_error& e) {
         std::cerr << "Error: " << e.what() << std::endl;
@@ -188,9 +196,7 @@ void executeSequence(const string& seq, ostringstream& diagPath) {
     string token;
     // Executes a command sequence.
     while (getline(ss, token, '#')) {
-        std::cout << "Token: " << token << std::endl;
         if (token.empty()) {
-            std::cout << "Token empty" << std::endl;
             continue;
         }
         if (token == "R") {
@@ -210,7 +216,6 @@ void executeSequence(const string& seq, ostringstream& diagPath) {
 }
 
 void performSequence(const string& seq, ostringstream& diagPath, bool localMove = false) {
-    std::cout << "Movethird: " << seq << std::endl;
     // Executes and updates mouse position for combo moves.
     if (localMove) {
         LOG_DEBUG("Performing Sequence: " + seq);
@@ -227,8 +232,6 @@ void executeIndividualMovement(const vector<string>& movementsSequence, int& i, 
     MovementBlock twoMovementBlock = MovementBlock::DEFAULT;
     MovementBlock nextMovementBlock = MovementBlock::DEFAULT;
 
-    std::cout << "Movesecond: " << movementsSequence[0] << std::endl;
-
     if (i + 2 < static_cast<int>(movementsSequence.size())) {
         threeMovementBlock = parseMovementBlock(movementsSequence[i] + movementsSequence[i + 1] + movementsSequence[i + 2]);
     }
@@ -236,8 +239,6 @@ void executeIndividualMovement(const vector<string>& movementsSequence, int& i, 
         twoMovementBlock = parseMovementBlock(movementsSequence[i] + movementsSequence[i + 1]);
     }
     nextMovementBlock = parseMovementBlock(movementsSequence[i]);
-    std::cout << "Next movement block: " << (int)nextMovementBlock << std::endl;
-    std::cout << "Previous movement block: " << (int)prevBlockType << std::endl;
     if (!ignoreRFLF) {
         if (prevBlockType == MovementBlock::RFLF || prevBlockType == MovementBlock::LFLF) {
             if (twoMovementBlock == MovementBlock::RF) {
@@ -277,7 +278,6 @@ void executeIndividualMovement(const vector<string>& movementsSequence, int& i, 
             return;
         }
     }
-    printf("Indiv movement: %s\n", movementsSequence[i].c_str());
     if (nextMovementBlock == MovementBlock::R) {
         performSequence("R#", diagPath);
     } else if (nextMovementBlock == MovementBlock::L) {
@@ -291,7 +291,6 @@ void executeIndividualMovement(const vector<string>& movementsSequence, int& i, 
 }
 
 void executeIndividualMovement(string movement, Cell& currCell) {
-    std::cout << "Movefirst: " << movement << std::endl;
     vector<string> movementsSequence = {movement};
     ostringstream path = ostringstream();
     MovementBlock prevBlockType = MovementBlock::DEFAULT;
@@ -479,7 +478,6 @@ bool traversePathIteratively(MouseLocal* mouse, vector<Cell*>& goalCells, bool d
         }
 
         // Log the algorithm path
-        printf("Logging algorithm path\n");
         string algPathStr = "";
         for (const auto& c : cellPath) {
             algPathStr += "(" + std::to_string(c->getX()) + ", " + std::to_string(c->getY()) + ") -> ";
@@ -490,7 +488,6 @@ bool traversePathIteratively(MouseLocal* mouse, vector<Cell*>& goalCells, bool d
         for (auto& cell : cellPath) {
             cellPathPtrs.push_back(cell);
         }
-        printf("Converting path to string\n");
         string path = AStar::pathToString(*mouse, cellPathPtrs);
 
         if (cellPath.size() > 9 && allExplored) {
@@ -502,14 +499,10 @@ bool traversePathIteratively(MouseLocal* mouse, vector<Cell*>& goalCells, bool d
             path = diagonalizeAndRun(currCell, path);
             LOG_INFO("Diag Path: " + path);
         } else {
-            printf("calling movement\n");
             // Execute the movement commands step-by-step
             stringstream ss(path);
             string move;
             while (std::getline(ss, move, '#')) {
-                std::cout << "Move: " << move << std::endl;
-                // printf("Move: %s\n", move.c_str());
-                // printf("moving indiv + %s\n", move);
                 executeIndividualMovement(move, currCell);
 
                 if (!currCell.getIsExplored()) {
