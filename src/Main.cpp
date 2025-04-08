@@ -33,44 +33,12 @@ int main() {
     }();
 
     Drivetrain drivetrain(config, &leftMotor, &rightMotor);
-    MouseLocal mouseLocal;
-
-    API api(&mouseLocal, &drivetrain);
 
     try {
         sleep_ms(1000);
 
-        // for (int i = 0; i < 20; i++) {
-        // 	float kPL = 0.0175f;
-        // 	float kIL = 0.0f;
-        // 	float kDL = 0.075f;
-        // 	;
-        // 	float kPR = 0.06200f;
-        // 	float kIR = 0.0f;
-        // 	float kDR = 0.075f;
-        // 	;
-
-        // 	leftMotor.setPIDVariables(kPL, kIL, kDL);
-        // 	rightMotor.setPIDVariables(kPR, kIR, kDR);
-        // 	printf("PID ValuesL: %f %f %f\n", kPL, kIL, kDL);
-        // 	printf("PID ValuesR: %f %f %f\n", kPR, kIR, kDR);
-        // 	drivetrain.driveForward();
-        // 	absolute_time_t startTime = get_absolute_time();
-        // 	while (absolute_time_diff_us(startTime, get_absolute_time()) < 10000000) {
-        // 		leftMotor.updateEncoder();
-        // 		rightMotor.updateEncoder();
-        // 		printf("Left Motor RPM %f\n", leftMotor.getCurrentRPM());
-        // 		printf("Right Motor RPM %f\n", rightMotor.getCurrentRPM());
-        // 		sleep_ms(500);
-        // 	}
-        // 	drivetrain.stop();
-        // 	sleep_ms(1000);
-        // }
-        // leftMotor.setVoltage(3.0f, true);
-        drivetrain.initIMU();
-
         mousePtr = new MouseLocal();
-        // apiPtr = new API(mousePtr, drivetrain);
+        apiPtr = new API(mousePtr, &drivetrain);
         aStarPtr = new AStar();
         frontierBasedPtr = new FrontierBased();
 
@@ -78,110 +46,8 @@ int main() {
         vector<Cell*> goalCells = mousePtr->getGoalCells();
         // // Explore maze using frontier-based search.
         setUp(startCells, goalCells);
+        printf("%s", mousePtr->localMazeToString().c_str());
         frontierBasedPtr->explore(*mousePtr, *apiPtr, false);
-        // sleepFor(1000);
-
-        // Travel to start cell using A*.
-        // setUp(startCells);
-        // traversePathIteratively(mousePtr, startCells, false, true, false);
-        // sleepFor(1000);
-
-        // // Travel to goal cells using A*.
-        // setUp(goalCells);
-        // traversePathIteratively(mousePtr, goalCells, true, true, false);
-        // sleepFor(1000);
-        // drivetrain.driveForwardDistance(10.0f / 18.0f);
-        // leftMotor.setRPM(200.0f);
-        // rightMotor.setRPM(200.0f);
-        // rightMotor.setVoltage(5.0f, true);
-        // leftMotor.setVoltage(5.0f, true);
-        // for (int i = 5; i <= 10; i++) {
-        //     sleep_ms(2000);
-        //     api.moveForward(1);
-        //     // sleep_ms(5000);
-        //     // printf("Voltage: %f\n", i * 0.5f);
-        //     // leftMotor.setRPM(i * 20.0f);
-        //     // rightMotor.setRPM(i * 20.0f);
-
-        //     // rightMotor.setVoltage(5.0f, true);
-        //     absolute_time_t now = get_absolute_time();
-        //     while (absolute_time_diff_us(now, get_absolute_time()) < 12.5 * 1e6) {
-        //         // leftMotor.updatePWM();
-        //         // leftMotor.updateEncoder();
-        //         float elapsedTime = absolute_time_diff_us(now, get_absolute_time()) / 1e6f;
-        //         // rightMotor.updateEncoder();
-        //         // printf("Left Motor RPM %f\n", leftMotor.getCurrentRPM());
-        //         // printf("%f, %f\n", elapsedTime, rightMotor.getCurrentRPM());
-        //         // printf("Right Motor RPM %f\n", rightMotor.getCurrentRPM());
-        //         // printf("LRPM=%f, RRPM=%f, LP=%i, RP=%i\n", leftMotor.getCurrentRPM(), rightMotor.getCurrentRPM(), leftMotor.getCurrentPosition(),
-        //         // rightMotor.getCurrentPosition());
-        //         // printf("L Motor RPM %f\n", leftMotor.getCurrentRPM());
-        //         // printf("L Motor Position %i\n", leftMotor.getEncoder()->getCount());
-        //         // printf("R Motor RPM %f\n", rightMotor.getCurrentRPM());
-        //         // printf("R Motor Position %i\n", rightMotor.getEncoder()->getCount());
-        //         printf("L:%f, R:%f, LPos:%i, RPos:%i\n", leftMotor.getCurrentRPM(), rightMotor.getCurrentRPM(), leftMotor.getEncoder()->getCount(),
-        //                rightMotor.getEncoder()->getCount());
-        //         printf("Walls F%f L%f R%f\n", drivetrain.checkFrontWallDistance(), drivetrain.checkLeftWallDistance(), drivetrain.checkRightWallDistance());
-        //         sleep_ms(100);
-        //     }
-        //     sleep_ms(2000);
-        // }
-        // }
-        // api.moveForward(1);
-
-        // for (int i = 600; i < 1000; i++) {
-        // 	rightMotor.updateEncoder();
-        // 	rightMotor.getFeedforwardValue(i, "rightMotor");
-        // }
-        // drivetrain.driveForward();
-
-        //     leftMotor.updateEncoder();
-        //     rightMotor.updateEncoder();
-        //     printf("Left Motor RPM %f\n", leftMotor.getCurrentRPM());
-        // 	printf("Right Motor RPM %f\n", rightMotor.getCurrentRPM());
-        // for (int i = 1; i < 2; i++) {
-        // 	api.moveForward(i);
-        // 	sleep_ms(2000);
-        // }
-
-        /*
-        // while (1) {
-        // 	absolute_time_t now = get_absolute_time();
-        // 	int deltaTime = absolute_time_diff_us(lastUpdateTime, now);
-        // 	// printf("Delta Time: %f\n", deltaTime);
-        // 	lastUpdateTime = now;
-        // 	int currentCount = leftMotor.getEncoder()->getCount();
-
-        // 	// printf("Current Count: %d\n", currentCount);
-        // 	int deltaCount = currentCount - oldEncoderCount;
-        // 	// printf("Delta Count: %d\n", deltaCount);
-        // 	oldEncoderCount = currentCount;
-
-        // 	// Calculate RPM with noise filtering
-        // 	// float averageDelta = getAverageDeltaTime(deltaTime);
-        // 	double averageDelta = deltaTime / 1000000.0;
-        // 	double currentRPM = (deltaCount / 360.0) * (60.0 / averageDelta);
-
-        // 	printf("LRPM=%.6f\n", currentRPM);
-        // 	sleep_ms(500);
-        // }
-
-        /*
-        leftMotor.setThrottle(1);
-        rightMotor.setThrottle(1);
-
-        while (1){
-                leftMotor.updatePWM();
-                int32_t leftRPM = leftMotor.getCurrentRPM();
-                printf("LRPM=%.6f\n", leftRPM);
-                sleep_ms(1000);
-        }
-                */
-        // int32_t rightRPM = rightMotor.getCurrentRPM();
-
-        // int32_t leftPos = leftMotor.getCurrentPosition();
-        // int32_t rightPos = rightMotor.getCurrentPosition();
-        // printf("LRPM=%d RRPM=%d LP=%d RP=%d\n", leftRPM, rightRPM, leftPos, rightPos);
 
     } catch (const std::runtime_error& e) {
         std::cerr << "Error: " << e.what() << std::endl;
@@ -189,163 +55,6 @@ int main() {
 
     return 0;
 }
-// int main() {
-// 	stdio_init_all();
-
-// 	Motor leftMotor(Constants::RobotConstants::leftMotorPin1, Constants::RobotConstants::leftMotorPin2,
-// 					Constants::RobotConstants::leftMotorEncoderPin1, Constants::RobotConstants::leftMotorEncoderPin2,
-// 					Constants::RobotConstants::eventsPerRev, Constants::RobotConstants::maxRPM, true);
-
-// 	Motor rightMotor(Constants::RobotConstants::rightMotorPin1, Constants::RobotConstants::rightMotorPin2,
-// 					 Constants::RobotConstants::rightMotorEncoderPin1, Constants::RobotConstants::rightMotorEncoderPin2,
-// 					 Constants::RobotConstants::eventsPerRev, Constants::RobotConstants::maxRPM);
-
-// 	leftMotor.setPIDVariables(Constants::RobotConstants::kP, Constants::RobotConstants::kI, Constants::RobotConstants::kD);
-// 	rightMotor.setPIDVariables(Constants::RobotConstants::kP, Constants::RobotConstants::kI, Constants::RobotConstants::kD);
-
-// 	float testThrottles[] = {0.5f, 0.25f, -0.1f};
-
-// 	sleep_ms(5000);
-// 	printf("Starting test sequence!\n");
-
-// 	while (true) {
-// 		for (size_t i = 0; i < sizeof(testThrottles) / sizeof(testThrottles[0]); i++) {
-// 			float throttle = testThrottles[i];
-// 			leftMotor.setThrottle(throttle);
-// 			rightMotor.setThrottle(throttle);
-
-// 			leftMotor.updatePWM();
-// 			rightMotor.updatePWM();
-
-// 			absolute_time_t startTime = get_absolute_time();
-// 			while (absolute_time_diff_us(startTime, get_absolute_time()) < 2000000) {
-//                 leftMotor.updateEncoder();
-//                 rightMotor.updateEncoder();
-
-// 				printf("-------\n");
-// 				printf("Left RPM: %f\nRight RPM: %f\nat Throttle: %f\n", leftMotor.getCurrentRPM(), rightMotor.getCurrentRPM(), throttle);
-// 				sleep_ms(200);
-// 			}
-// 			sleep_ms(2000);
-// 		}
-// 	}
-// 	return 0;
-// }
-
-// int main() {
-// 	// Initialize stdio for serial printing
-// 	stdio_init_all();
-// 	printf("Motor + Encoder Test: twist wheels by hand to observe count/RPM\n");
-
-// 	// Wait a moment for the serial console to open
-// 	sleep_ms(2000);
-
-// 	// Here, use the same pins/arguments you normally do for your Motor constructor.
-// 	// e.g., if your real motor is Motor(19, 18, 21, 20, 400.0f, 400.0f)
-// 	// (replace them below with your actual motorPin1, motorPin2, etc.)
-// 	Motor testMotor(19,		 // motorPin1
-// 					18,		 // motorPin2
-// 					21,		 // encoderPin1
-// 					20,		 // encoderPin2
-// 					400.0f,	 // eventsPerRev
-// 					400.0f	 // maxRPM
-// 	);
-
-// 	// Normally you might call:
-// 	// testMotor.setPIDVariables(1.0f, 0.0f, 0.0f);
-// 	// testMotor.setThrottle(0.2f);
-// 	// but we comment these out for the test, so the motor does NOT drive:
-// 	// testMotor.setPIDVariables(...);
-// 	// testMotor.setThrottle(...);
-// 	// testMotor.start();
-
-// 	while (true) {
-// 		// We'll just read the encoder data and print it every 500ms
-// 		// This calls Motor::updateEncoder(), which calls your embedded Encoder code
-// 		// and updates currentPosition / currentRPM
-// 		testMotor.updateEncoder();
-
-// 		// Retrieve the new position and RPM
-// 		int currentPos = testMotor.getCurrentPosition();
-// 		float currentRpm = testMotor.getCurrentRPM();
-
-// 		// Print them out so we can see how it changes when we twist the wheels
-// 		printf("Encoder Count = %d, RPM = %.2f\n", currentPos, currentRpm);
-
-// 		// Sleep for half a second, then loop again
-// 		sleep_ms(500);
-// 	}
-
-// 	return 0;  // Not really reached
-// }
-
-// int main() {
-// 	stdio_init_all();
-// 	sleep_ms(2000);	 // Wait for the serial console to open
-// 	Motor leftMotor(Constants::RobotConstants::leftMotorPin1, Constants::RobotConstants::leftMotorPin2,
-// 					Constants::RobotConstants::leftMotorEncoderPin1, Constants::RobotConstants::leftMotorEncoderPin2,
-// 					Constants::RobotConstants::eventsPerRev, Constants::RobotConstants::maxRPM, true);
-
-// 	Motor rightMotor(Constants::RobotConstants::rightMotorPin1, Constants::RobotConstants::rightMotorPin2,
-// 					 Constants::RobotConstants::rightMotorEncoderPin1, Constants::RobotConstants::rightMotorEncoderPin2,
-// 					 Constants::RobotConstants::eventsPerRev, Constants::RobotConstants::maxRPM);
-
-// 	leftMotor.setPIDVariables(Constants::RobotConstants::kP, Constants::RobotConstants::kI, Constants::RobotConstants::kD);
-// 	rightMotor.setPIDVariables(Constants::RobotConstants::kP, Constants::RobotConstants::kI, Constants::RobotConstants::kD);
-
-// 	leftMotor.setThrottle(0.3);
-// 	rightMotor.setThrottle(0.3);
-
-// 	leftMotor.updatePWM();
-// 	rightMotor.updatePWM();
-
-// 	while (true) {
-// 		leftMotor.updateEncoder();
-// 		rightMotor.updateEncoder();
-
-// 		int32_t leftRPM = leftMotor.getCurrentRPM();
-// 		int32_t rightRPM = rightMotor.getCurrentRPM();
-// 		int32_t leftPos = leftMotor.getCurrentPosition();
-// 		int32_t rightPos = rightMotor.getCurrentPosition();
-// 		printf("LRPM=%d RRPM=%d LP=%d RP=%d\n", leftRPM, rightRPM, leftPos, rightPos);
-// 		// bool stateA = gpio_get(pinA);
-// 		// bool stateB = gpio_get(pinB);
-// 		// bool stateA2 = gpio_get(pinA2);
-// 		// bool stateB2 = gpio_get(pinB2);
-// 		// printf("A=%d B=%d C=%d D=%d\n", stateA, stateB, stateA2, stateB2);
-// 		sleep_ms(100);
-// 	}
-// }
-
-// mousePtr = new MouseLocal();
-// apiPtr = new API(mousePtr);
-// aStarPtr = new AStar();
-// frontierBasedPtr = new FrontierBased();
-
-// vector<Cell*> startCells = vector<Cell*>{&mousePtr->getMousePosition()};
-// vector<Cell*> goalCells = mousePtr->getGoalCells();
-
-// // Explore maze using frontier-based search.
-// setUp(startCells, goalCells);
-// frontierBasedPtr->explore(*mousePtr, *apiPtr, false);
-// sleepFor(1000);
-
-// // Travel to start cell using A*.
-// setUp(startCells);
-// traversePathIteratively(mousePtr, startCells, false, true, false);
-// sleepFor(1000);
-
-// // Travel to goal cells using A*.
-// setUp(goalCells);
-// traversePathIteratively(mousePtr, goalCells, true, true, false);
-// sleepFor(1000);
-
-// delete frontierBasedPtr;
-// delete aStarPtr;
-// delete apiPtr;
-// delete mousePtr;
-// return 0;
-// }
 
 void setUp(const vector<Cell*>& goalCells) {
     setUp(vector<Cell*>{&mousePtr->getMousePosition()}, goalCells);
@@ -474,15 +183,16 @@ vector<string> splitPath(const string& path) {
 }
 
 void executeSequence(const string& seq, ostringstream& diagPath) {
-   
     diagPath << seq;
     stringstream ss(seq);
     string token;
-    LOG_DEBUG("Path Sequence: " + seq);
     // Executes a command sequence.
     while (getline(ss, token, '#')) {
-        if (token.empty())
+        std::cout << "Token: " << token << std::endl;
+        if (token.empty()) {
+            std::cout << "Token empty" << std::endl;
             continue;
+        }
         if (token == "R") {
             apiPtr->turnRight();
         } else if (token == "L") {
@@ -500,6 +210,7 @@ void executeSequence(const string& seq, ostringstream& diagPath) {
 }
 
 void performSequence(const string& seq, ostringstream& diagPath, bool localMove = false) {
+    std::cout << "Movethird: " << seq << std::endl;
     // Executes and updates mouse position for combo moves.
     if (localMove) {
         LOG_DEBUG("Performing Sequence: " + seq);
@@ -516,6 +227,8 @@ void executeIndividualMovement(const vector<string>& movementsSequence, int& i, 
     MovementBlock twoMovementBlock = MovementBlock::DEFAULT;
     MovementBlock nextMovementBlock = MovementBlock::DEFAULT;
 
+    std::cout << "Movesecond: " << movementsSequence[0] << std::endl;
+
     if (i + 2 < static_cast<int>(movementsSequence.size())) {
         threeMovementBlock = parseMovementBlock(movementsSequence[i] + movementsSequence[i + 1] + movementsSequence[i + 2]);
     }
@@ -523,6 +236,8 @@ void executeIndividualMovement(const vector<string>& movementsSequence, int& i, 
         twoMovementBlock = parseMovementBlock(movementsSequence[i] + movementsSequence[i + 1]);
     }
     nextMovementBlock = parseMovementBlock(movementsSequence[i]);
+    std::cout << "Next movement block: " << (int)nextMovementBlock << std::endl;
+    std::cout << "Previous movement block: " << (int)prevBlockType << std::endl;
     if (!ignoreRFLF) {
         if (prevBlockType == MovementBlock::RFLF || prevBlockType == MovementBlock::LFLF) {
             if (twoMovementBlock == MovementBlock::RF) {
@@ -562,6 +277,7 @@ void executeIndividualMovement(const vector<string>& movementsSequence, int& i, 
             return;
         }
     }
+    printf("Indiv movement: %s\n", movementsSequence[i].c_str());
     if (nextMovementBlock == MovementBlock::R) {
         performSequence("R#", diagPath);
     } else if (nextMovementBlock == MovementBlock::L) {
@@ -575,6 +291,7 @@ void executeIndividualMovement(const vector<string>& movementsSequence, int& i, 
 }
 
 void executeIndividualMovement(string movement, Cell& currCell) {
+    std::cout << "Movefirst: " << movement << std::endl;
     vector<string> movementsSequence = {movement};
     ostringstream path = ostringstream();
     MovementBlock prevBlockType = MovementBlock::DEFAULT;
@@ -762,6 +479,7 @@ bool traversePathIteratively(MouseLocal* mouse, vector<Cell*>& goalCells, bool d
         }
 
         // Log the algorithm path
+        printf("Logging algorithm path\n");
         string algPathStr = "";
         for (const auto& c : cellPath) {
             algPathStr += "(" + std::to_string(c->getX()) + ", " + std::to_string(c->getY()) + ") -> ";
@@ -772,6 +490,7 @@ bool traversePathIteratively(MouseLocal* mouse, vector<Cell*>& goalCells, bool d
         for (auto& cell : cellPath) {
             cellPathPtrs.push_back(cell);
         }
+        printf("Converting path to string\n");
         string path = AStar::pathToString(*mouse, cellPathPtrs);
 
         if (cellPath.size() > 9 && allExplored) {
@@ -783,10 +502,14 @@ bool traversePathIteratively(MouseLocal* mouse, vector<Cell*>& goalCells, bool d
             path = diagonalizeAndRun(currCell, path);
             LOG_INFO("Diag Path: " + path);
         } else {
+            printf("calling movement\n");
             // Execute the movement commands step-by-step
             stringstream ss(path);
             string move;
             while (std::getline(ss, move, '#')) {
+                std::cout << "Move: " << move << std::endl;
+                // printf("Move: %s\n", move.c_str());
+                // printf("moving indiv + %s\n", move);
                 executeIndividualMovement(move, currCell);
 
                 if (!currCell.getIsExplored()) {

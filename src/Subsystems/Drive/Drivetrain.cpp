@@ -20,7 +20,8 @@ Drivetrain::Drivetrain(const DrivetrainConfiguration& config, Motor* leftMotor, 
     lastUpdateTime = get_absolute_time();
     oldEncoderCountL = 0;
     oldEncoderCountR = 0;
-    // initIMU();
+    initIMU();
+    initToF();
 }
 
 void Drivetrain::initIMU() {
@@ -116,7 +117,6 @@ void Drivetrain::initToF() {
     frontTOF.comms_type = 1;
     frontTOF.comms_speed_khz = 400;
     VL53L0X_dev_i2c_default_initialise(&frontTOF, VL53L0X_DEFAULT_MODE);
-    VL53L0X_SetDeviceAddress(&frontTOF, 0x30);
     int status = VL53L0X_SetDeviceAddress(&frontTOF, 0x30);
     printf("Front sensor address set status: %d\n", status);
     frontTOF.I2cDevAddr = 0x30;

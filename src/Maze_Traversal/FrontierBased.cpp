@@ -8,7 +8,6 @@
  * @param diagonalsAllowed Whether diagonal movements are permitted.
  */
 void FrontierBased::explore(MouseLocal& mouse, API& api, bool diagonalsAllowed) {
-    printf("a");
     std::unordered_set<Cell*> frontiers;
     Cell* start = &mouse.getMousePosition();
     frontiers.insert(start);
@@ -16,23 +15,27 @@ void FrontierBased::explore(MouseLocal& mouse, API& api, bool diagonalsAllowed) 
     Cell* currCell = start;
 
     while (!frontiers.empty()) {
-        printf("loop");
+        printf("found new frontier\n");
         // 1) Pick the closest frontier.
         Cell* nextFrontier = pickNextFrontier(mouse, frontiers, diagonalsAllowed);
         if (nextFrontier == nullptr) {
             break;
         }
+        printf("continuing explore\n");
 
         bool moved = traversePathIteratively(&mouse, *nextFrontier, diagonalsAllowed, false, true);
+        printf("traversed\n");
         if (!moved) {
             api.setText(nextFrontier->getX(), nextFrontier->getY(), "");
             frontiers.erase(nextFrontier);
             continue;
         }
-
+        printf("detecting walls\n");
         // 3) We’ve physically arrived: detect walls, mark as explored.
         currCell = &mouse.getMousePosition();
+        printf("Getting mouse position\n");
         mouse.detectAndSetWalls(api);
+        printf("done detecting walls\n");
         currCell->setIsExplored(true);
         api.setText(currCell->getX(), currCell->getY(), "");
         frontiers.erase(currCell);
@@ -41,6 +44,7 @@ void FrontierBased::explore(MouseLocal& mouse, API& api, bool diagonalsAllowed) 
 
         // 4) Add valid neighbors, ignoring avoided goals.
         vector<Cell*> neighbors = mouse.getNeighbors(*currCell, diagonalsAllowed);
+        printf("Getting neighbors\n");
         for (Cell* neighbor : neighbors) {
             if (!neighbor->getIsExplored() && mouse.getMovement(*currCell, *neighbor, diagonalsAllowed).getCanMove() &&
                 !mouse.isGoalCell(*neighbor, mouse.getGoalCells())) {
@@ -48,6 +52,7 @@ void FrontierBased::explore(MouseLocal& mouse, API& api, bool diagonalsAllowed) 
                 frontiers.insert(neighbor);
             }
         }
+        printf("done with loop\n");
     }
 
     // 5) Finally, visit each avoided goal cell (if reachable).

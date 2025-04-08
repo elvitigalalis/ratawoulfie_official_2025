@@ -36,16 +36,19 @@ MouseLocal::~MouseLocal() {
  * 0,0 +x -->
  */
 void MouseLocal::setUpMazeLocal() {
-    for (int i = 0; i < Constants::MazeConstants::numCols; ++i) {      // X-direction
-        for (int j = 0; j < Constants::MazeConstants::numRows; ++j) {  // Y-direction
-            mazeCells[j][i] = new Cell(i, j);                          // Assuming mazeCells[row][col], row=j, col=i
+    mazeCells.resize(Constants::MazeConstants::numRows);
+    for (int j = 0; j < Constants::MazeConstants::numRows; j++) {  // Y-direction
+        mazeCells[j].resize(Constants::MazeConstants::numCols);
+        for (int i = 0; i < Constants::MazeConstants::numCols; i++) {  // X-direction
+
+            mazeCells[j][i] = new Cell(i, j);  // Assuming mazeCells[row][col], row=j, col=i
         }
     }
 }
 
 void MouseLocal::deleteMazeLocal() {
-    for (int i = 0; i < Constants::MazeConstants::numCols; ++i) {      // X-direction
-        for (int j = 0; j < Constants::MazeConstants::numRows; ++j) {  // Y-direction
+    for (int i = 0; i < Constants::MazeConstants::numCols; i++) {      // X-direction
+        for (int j = 0; j < Constants::MazeConstants::numRows; j++) {  // Y-direction
             delete mazeCells[j][i];
         }
     }
@@ -123,10 +126,7 @@ void MouseLocal::addWallLocal(int x, int y, const array<int, 2>& direction) {
         mazeCells[neighboringCellY][neighboringCellX]->addWall({-direction[0], -direction[1]}, true);
         // cerr << "Shared wall cell found :)" << std::endl;
     } else {
-        std::cout << "b " << mazeCells.size() << std::endl;
-        printf("%d\n", mazeCells[0].size());
-        mazeCells[y][x]->addWall(direction, false);
-        std::cout << "c " << std::endl;
+        (mazeCells[y][x])->addWall(direction, false);
         // cerr << "Edge cell found :)" << std::endl; // FIXME: Remove later.
     }
 }

@@ -87,7 +87,8 @@ int API::mazeHeight() {
  * @return True if a wall exists in front, false otherwise.
  */
 bool API::wallFront() {
-    return drivetrain->checkFrontWall();
+    return false;
+    // return drivetrain->checkFrontWall();
 }
 
 /**
@@ -96,7 +97,8 @@ bool API::wallFront() {
  * @return True if a wall exists to the right, false otherwise.
  */
 bool API::wallRight() {
-    return drivetrain->checkRightWall();
+    return false;
+    // return drivetrain->checkRightWall();
 }
 
 /**
@@ -105,7 +107,8 @@ bool API::wallRight() {
  * @return True if a wall exists to the left, false otherwise.
  */
 bool API::wallLeft() {
-    return drivetrain->checkLeftWall();
+    return false;
+    // return drivetrain->checkLeftWall();
 }
 
 // Mouse movement commands
@@ -174,10 +177,14 @@ void API::moveForwardHalf() {
  * @throws std::runtime_error if the simulator does not acknowledge the turn.
  */
 void API::turnRight() {
+    printf("turnRight\n");
     bool ack = getAck("turnRight");
     if (ack) {
-        drivetrain->rotateBy(90);
+        printf("turnRight ack\n");
+        drivetrain->turnRight();
+        printf("drivetrain rotated\n");
         mouseLocal->turnMouseLocal(0, 2);
+        printf("mouseLocal turned\n");
     } else {
         cerr << mouseLocal->localMazeToString();
         throw std::runtime_error("Cannot turn right");
@@ -192,7 +199,7 @@ void API::turnRight() {
 void API::turnLeft() {
     bool ack = getAck("turnLeft");
     if (ack) {
-        drivetrain->rotateBy(-90);
+        drivetrain->turnLeft();
         mouseLocal->turnMouseLocal(2, 0);
     } else {
         cerr << mouseLocal->localMazeToString();
@@ -284,7 +291,7 @@ void API::clearWall(int x, int y, const string& direction) {
  * @param color The color to set (as a character).
  */
 void API::setColor(int x, int y, char color) {
-    std::cout << "setColor " << x << " " << y << " " << color << std::endl;
+    // std::cout << "setColor " << x << " " << y << " " << color << std::endl;
 }
 
 /**
@@ -294,14 +301,14 @@ void API::setColor(int x, int y, char color) {
  * @param y The y-coordinate of the cell.
  */
 void API::clearColor(int x, int y) {
-    std::cout << "clearColor " << x << " " << y << std::endl;
+    // std::cout << "clearColor " << x << " " << y << std::endl;
 }
 
 /**
  * Clears the color of all cells.
  */
 void API::clearAllColor() {
-    std::cout << "clearAllColor" << std::endl;
+    // std::cout << "clearAllColor" << std::endl;
 }
 
 /**
@@ -312,7 +319,7 @@ void API::clearAllColor() {
  * @param text The text to set in the cell.
  */
 void API::setText(int x, int y, const string& text) {
-    std::cout << "setText " << x << " " << y << " " << text << std::endl;
+    // std::cout << "setText " << x << " " << y << " " << text << std::endl;
 }
 
 /**
@@ -322,14 +329,14 @@ void API::setText(int x, int y, const string& text) {
  * @param y The y-coordinate of the cell.
  */
 void API::clearText(int x, int y) {
-    std::cout << "clearText " << x << " " << y << std::endl;
+    // std::cout << "clearText " << x << " " << y << std::endl;
 }
 
 /**
  * Clears the text of all cells.
  */
 void API::clearAllText() {
-    std::cout << "clearAllText" << std::endl;
+    // std::cout << "clearAllText" << std::endl;
 }
 
 // Reset booleans

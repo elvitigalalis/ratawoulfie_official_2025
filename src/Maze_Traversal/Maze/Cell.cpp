@@ -16,7 +16,6 @@ Cell::Cell(int x, int y)
 
 // Method to add a wall based on direction
 void Cell::addWall(const array<int, 2>& direction, bool isShared) {
-    std::cout << "add " << std::endl;
     // Check east/west walls
     if (direction[0] == 1) {
         eastWall.setExists(isShared);
