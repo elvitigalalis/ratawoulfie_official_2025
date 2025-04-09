@@ -16,8 +16,8 @@ int main() {
 
     // leftMotor.setPIDVariables(0.632 * 0.0175f, 0, 0.00f);
     // rightMotor.setPIDVariables(0.23 * 0.06200f, 0, 0.00f);
-    leftMotor.setPIDVariables(0, 0, 0);
-    rightMotor.setPIDVariables(0, 0, 0);
+    leftMotor.setPIDVariables(0.03f, 0.0f, 0.0f);
+    rightMotor.setPIDVariables(0.03f, 0.0f, 0.0f);
 
     DrivetrainConfiguration config = [] {
         DrivetrainConfiguration cfg;
@@ -46,7 +46,7 @@ int main() {
         leftMotor.setRPM(intendedRPM);
         rightMotor.setRPM(intendedRPM);
         while(fabs(leftMotor.getCurrentRPM() - intendedRPM) > 0.1f || fabs(rightMotor.getCurrentRPM() - intendedRPM) > 0.1f) {
-            sleep_ms(250);
+            sleep_ms(200);
             leftMotor.updatePWM();
             rightMotor.updatePWM();
             LOG_DEBUG("LRPM: " + std::to_string(leftMotor.getCurrentRPM()) + ", RRPM: " + std::to_string(rightMotor.getCurrentRPM()));

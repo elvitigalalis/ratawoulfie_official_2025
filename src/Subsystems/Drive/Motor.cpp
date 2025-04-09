@@ -68,6 +68,7 @@ void Motor::setVoltage(float volts, bool direction) {
     volts = clamp(volts, -MAX_MOTOR_VOLTAGE, MAX_MOTOR_VOLTAGE);
     m_motor_voltage = volts;
     float m_battery_voltage = MAX_MOTOR_VOLTAGE;
+    // printf("Motor Voltage: %f\n", m_motor_voltage);
 
     // printf("Battery Voltage: %f\n", m_battery_voltage);
 
@@ -174,21 +175,22 @@ m constant (0.8f) = scaling factor; maps desiredRPM to another PWM value. Higher
     // Then fine-tune using the kP term first, then add the integral and derivative terms for any residual errors.
     float feedForward;
     if (isReversed) {
-        LOG_DEBUG("Left:" + std::to_string(feedforwardLConstant + feedforwardLSlope * desiredRPM));
+        // LOG_DEBUG("Left:" + std::to_string(feedforwardLConstant + feedforwardLSlope * desiredRPM));
         feedForward = feedforwardLConstant + feedforwardLSlope * desiredRPM;
     } else {
-        LOG_DEBUG("Right:" + std::to_string(feedforwardRConstant + feedforwardRSlope * desiredRPM));
+        // LOG_DEBUG("Right:" + std::to_string(feedforwardRConstant + feedforwardRSlope * desiredRPM));
         feedForward = feedforwardRConstant + feedforwardRSlope * desiredRPM;
     }
-
+    // LOG_DEBUG("Kp = " + std::to_string(kP) + ", Ki = " + std::to_string(kI) + ", Kd = " + std::to_string(kD));
+    // LOG_DEBUG("Error: " + std::to_string(error) + "; kP * error: " + std::to_string(kP * error) + "; Voltage Output" + std::to_string(feedForward + kP * error + kI * integral + kD * derivative));
     float voltageOutput = feedForward + kP * error + kI * integral + kD * derivative;
     // printf("kP * error: %f\n", kP * error);
     // printf("Feedforward: %f\n", feedForward);
 
     // printf("Error: %f\n", error);
     // printf("Voltage Output: %f\n", voltageOutput);
-
-    setVoltage(voltageOutput, (desiredRPM >= 0));
+    // LOG_DEBUG("Voltage Sign: " + std::to_string(!std::signbit(voltageOutput)));
+    setVoltage(voltageOutput, !std::signbit(voltageOutput));
 }
 
 // void Motor::getFeedforwardValue(float i, std::string motorName) {
