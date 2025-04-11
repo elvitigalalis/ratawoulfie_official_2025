@@ -200,31 +200,31 @@ void Drivetrain::stop() {
 }
 
 void Drivetrain::driveForwardDistance(float cellCount) {
-    float targetPosLeft = leftMotor->getEncoder()->getCount() + cellCount * config.encoderCountsPerCell;
-    float targetPosRight = rightMotor->getEncoder()->getCount() + cellCount * config.encoderCountsPerCell;
-    distanceIntegralL = distanceLastErrorL = distanceDerivativeL = 0.0f;
-    distanceIntegralR = distanceLastErrorR = distanceDerivativeR = 0.0f;
+    float currPos = getAverageEncoderCount();
+    float targetPos = currPos + cellCount * config.encoderCountsPerCell;
+    distanceIntegralL = distanceLastErrorL = distanceDerivativeL = distanceIntegralR = distanceLastErrorR = distanceDerivativeR = 0.0f;
     driveForward();
-
-    // Set the start time for ramping and define the ramp duration (in seconds)
-    uint64_t startTime = get_absolute_time();
-    float rampDuration = 1.0f;  // Adjust this value to control how quickly full speed is reached
-
+    absolute_time_t now2 = get_absolute_time();
     while (isMoving) {
-        int32_t leftRPM = leftMotor->getCurrentRPM();
-        int32_t rightRPM = rightMotor->getCurrentRPM();
-        int32_t leftPos = leftMotor->getCurrentPosition();
-        int32_t rightPos = rightMotor->getCurrentPosition();
-        printf("LRPM=%d RRPM=%d LP=%d RP=%d\n", leftRPM, rightRPM, leftPos, rightPos);
+        // printf("LRPM=%d RRPM=%d LP=%d RP=%d\n", leftRPM, rightRPM, leftPos, rightPos);
 
         float dt = absolute_time_diff_us(lastUpdateTime, get_absolute_time()) / 1000000.0f;
-        lastUpdateTime = get_absolute_time();
-        int errorL = targetPosLeft - leftMotor->getEncoder()->getCount();
-        int errorR = targetPosRight - rightMotor->getEncoder()->getCount();
+        if (dt <= 0.1f) {
+            continue;
+        }
+        int errorL = (targetPos - leftMotor->getEncoder()->getCount());
+        int errorR = (targetPos - rightMotor->getEncoder()->getCount());
 
+        LOG_DEBUG(std::to_string(leftMotor->getCurrentRPM()) + "," + std::to_string(absolute_time_diff_us(now2, get_absolute_time()) / 1e6f) + "," +
+                  std::to_string(rightMotor->getCurrentRPM()));
         // printf("ErrorLR=%f\n", (errorL + errorR) / 2.0 / config.encoderCountsPerCell);
 
-        // PID Calculations for Left Motor
+        // Left
+        //  printf("Error: %i\n", (int32_t)error);
+        // distanceIntegralL += errorL * dt;
+        // if (distanceIntegralL > 100) {
+        //     distanceIntegralL = 100;
+        // }
         distanceDerivativeL = (errorL - distanceLastErrorL) / dt;
         distanceLastErrorL = errorL;
         float controlSignalL;
@@ -232,13 +232,17 @@ void Drivetrain::driveForwardDistance(float cellCount) {
             controlSignalL = 0.0f;
         } else if (errorL < 0) {
             controlSignalL =
-                std::min(-80.0f, config.distancePID.kP * errorL + config.distancePID.kI * distanceIntegralL + config.distancePID.kD * distanceDerivativeL);
+                std::min(-75.0f, config.distancePID.kP * errorL + config.distancePID.kI * distanceIntegralL + config.distancePID.kD * distanceDerivativeL);
         } else {
             controlSignalL =
-                std::max(80.0f, config.distancePID.kP * errorL + config.distancePID.kI * distanceIntegralL + config.distancePID.kD * distanceDerivativeL);
+                std::max(75.0f, config.distancePID.kP * errorL + config.distancePID.kI * distanceIntegralL + config.distancePID.kD * distanceDerivativeL);
         }
 
-        // PID Calculations for Right Motor
+        // Right
+        // distanceIntegralR += errorR * dt;
+        // if (distanceIntegralR > 100) {
+        //     distanceIntegralR = 100;
+        // }
         distanceDerivativeR = (errorR - distanceLastErrorR) / dt;
         distanceLastErrorR = errorR;
         float controlSignalR;
@@ -246,34 +250,26 @@ void Drivetrain::driveForwardDistance(float cellCount) {
             controlSignalR = 0.0f;
         } else if (errorR < 0) {
             controlSignalR =
-                std::min(-80.0f, config.distancePID.kP * errorR + config.distancePID.kI * distanceIntegralR + config.distancePID.kD * distanceDerivativeR);
+                std::min(-75.0f, config.distancePID.kP * errorR + config.distancePID.kI * distanceIntegralR + config.distancePID.kD * distanceDerivativeR);
         } else {
             controlSignalR =
-                std::max(80.0f, config.distancePID.kP * errorR + config.distancePID.kI * distanceIntegralR + config.distancePID.kD * distanceDerivativeR);
+                std::max(75.0f, config.distancePID.kP * errorR + config.distancePID.kI * distanceIntegralR + config.distancePID.kD * distanceDerivativeR);
         }
 
-        printf("Control SignalL: %f\n", controlSignalL);
+        // printf("Control SignalL: %f\n", controlSignalL);
         float adjustedRPML = std::min(std::max(controlSignalL, -config.maxRPM), config.maxRPM);
-        printf("Control SignalR: %f\n", controlSignalR);
+
+        // printf("Control SignalR: %f\n", controlSignalR);
         float adjustedRPMR = std::min(std::max(controlSignalR, -config.maxRPM), config.maxRPM);
 
-        // Compute the elapsed time since starting and calculate the ramp factor
-        float elapsedTimeSec = absolute_time_diff_us(startTime, get_absolute_time()) / 1000000.0f;
-        float rampFactor = std::min(1.0f, elapsedTimeSec / rampDuration);
-        printf("Ramp Factor: %f\n", rampFactor);
-
-        // Apply the ramp factor to the adjusted RPM values for a smooth start
-        adjustedRPML *= rampFactor;
-        adjustedRPMR *= rampFactor;
-
-        printf("Adjusted RPML: %f\n", adjustedRPML);
-        printf("Adjusted RPMR: %f\n", adjustedRPMR);
-
+        // printf("Adjusted RPML: %f\n", adjustedRPML);
+        // printf("Adjusted RPMR: %f\n", adjustedRPMR);
         leftMotor->setRPM(adjustedRPML);
         rightMotor->setRPM(adjustedRPMR);
+        lastUpdateTime = get_absolute_time();
 
         if (fabs(errorL) < config.distanceErrorThreshold && fabs(errorR) < config.distanceErrorThreshold) {
-            printf("Reached target position: %i\n", (int32_t)targetPosLeft);
+            // printf("Reached target position: %i\n", (int32_t)targetPos);
             stop();
             sleep_ms(2000);  // FIXME: Remove this
             break;

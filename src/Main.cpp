@@ -7,50 +7,112 @@ FrontierBased* frontierBasedPtr;
 
 int main() {
     stdio_init_all();
-    sleep_ms(5000);  // Wait for the serial console to open
+    sleep_ms(3000);  // Wait for the serial console to open
     Motor leftMotor(Constants::RobotConstants::leftMotorPin1, Constants::RobotConstants::leftMotorPin2, Constants::RobotConstants::leftMotorEncoderPin1,
                     Constants::RobotConstants::leftMotorEncoderPin2, Constants::RobotConstants::eventsPerRev, Constants::RobotConstants::maxRPM, true);
 
     Motor rightMotor(Constants::RobotConstants::rightMotorPin1, Constants::RobotConstants::rightMotorPin2, Constants::RobotConstants::rightMotorEncoderPin1,
                      Constants::RobotConstants::rightMotorEncoderPin2, Constants::RobotConstants::eventsPerRev, Constants::RobotConstants::maxRPM);
 
-    // leftMotor.setPIDVariables(0.632 * 0.0175f, 0, 0.00f);
-    // rightMotor.setPIDVariables(0.23 * 0.06200f, 0, 0.00f);
-    leftMotor.setPIDVariables(0.03f, 0.0f, 0.0f);
-    rightMotor.setPIDVariables(0.03f, 0.0f, 0.0f);
+    // leftMotor.setPIDVariables(0.015f, 0.0f, 0.001f);
+    // leftMotor.setPIDVariables(0.016f, 0.0f, 0.0015f);
+    // leftMotor.setPIDVariables(0.016f, 0.00f, 0.00155f);
+    // leftMotor.setPIDVariables(0.016f, 0.01f, 0.00155f);
+    // leftMotor.setPIDVariables(0.016f / 2.0f, 0.05f, 0.0f);
+    // leftMotor.setPIDVariables(0.005f, 0.0045f, 0.0f);
+    // leftMotor.setPIDVariables(0.005f, 0.0045f, 0.0f);
+    // leftMotor.setPIDVariables(0.0150f / 2.0f, 0.1f / 100.0f, 0.1f / 100.0f);
+    leftMotor.setPIDVariables(0.005f, 0.0020f, 0.000675f);
+
+    rightMotor.setPIDVariables(0.0055f, 0.0025f, 0.000675f);
 
     DrivetrainConfiguration config = [] {
         DrivetrainConfiguration cfg;
-        cfg.maxRPM = 200.0f;
+        cfg.maxRPM = 250.0f;
         cfg.maxTurnRPM = 150.0f;
         cfg.encoderCountsPerCell = 2006;  // 180mm / (40.0 mm (wheel diameter) * 3.14 (pi)) * 360 (encoder counts per rev). = 634.6609.
         cfg.wallThreshold = 50;           // mm.
-        cfg.distancePID = {0.05f, 0.0f, 0.0f};
+        cfg.distancePID = {0.0650f, 0.0f, 0.0f};
         cfg.turnPID = {0.0f, 0.0f, 0.0f};
         cfg.yawErrorThrewshold = 3;
-        cfg.distanceErrorThreshold = 10.0f;
+        cfg.distanceErrorThreshold = 100.0f;
         return cfg;
     }();
 
     Drivetrain drivetrain(config, &leftMotor, &rightMotor);
 
     try {
-        sleep_ms(1000);
+        // sleep_ms(1000);
 
         mousePtr = new MouseLocal();
         apiPtr = new API(mousePtr, &drivetrain);
         aStarPtr = new AStar();
         frontierBasedPtr = new FrontierBased();
+        // sleep_ms(4000);
 
-        float intendedRPM = 200.0f;
-        leftMotor.setRPM(intendedRPM);
-        rightMotor.setRPM(intendedRPM);
-        while(fabs(leftMotor.getCurrentRPM() - intendedRPM) > 0.1f || fabs(rightMotor.getCurrentRPM() - intendedRPM) > 0.1f) {
-            sleep_ms(200);
-            leftMotor.updatePWM();
-            rightMotor.updatePWM();
-            LOG_DEBUG("LRPM: " + std::to_string(leftMotor.getCurrentRPM()) + ", RRPM: " + std::to_string(rightMotor.getCurrentRPM()));
+        absolute_time_t now2 = get_absolute_time();
+        // for (int i = 1; i <= 5; i++) {
+        apiPtr->moveForward(4);
+        // }
+        sleep_ms(10000);
+        for (int i = 1; i < 3; i++) {
+            sleep_ms(1000);
+            leftMotor.setRPM(150.0f * i);
+            rightMotor.setRPM(150.0f * i);
+            // float rpmL = measureSteadyStateRPM(leftMotor);
+            // float rpmR = measureSteadyStateRPM(rightMotor);
+            absolute_time_t now = get_absolute_time();
+            while (absolute_time_diff_us(now, get_absolute_time()) < 10 * 1e6f) {
+                leftMotor.updatePWM();
+                rightMotor.updatePWM();
+                // LOG_DEBUG("LRPM: " + std::to_string(leftMotor.getCurrentRPM()) + " RRPM: " + std::to_string(rightMotor.getCurrentRPM()));
+                LOG_DEBUG(std::to_string(leftMotor.getCurrentRPM()) + "," + std::to_string(absolute_time_diff_us(now2, get_absolute_time()) / 1e6f) + "," +
+                          std::to_string(rightMotor.getCurrentRPM()));
+
+                // LOG_DEBUG("RPM Diff (Left to Right): " + std::to_string(leftMotor.getCurrentRPM() - rightMotor.getCurrentRPM()));
+                sleep_ms(100);
+            }
+
+            sleep_ms(1000);
+            now = get_absolute_time();
+            leftMotor.setRPM(100.0f * i);
+            rightMotor.setRPM(100.0f * i);
+
+            while (absolute_time_diff_us(now, get_absolute_time()) < 10 * 1e6f) {
+                leftMotor.updatePWM();
+                rightMotor.updatePWM();
+
+                LOG_DEBUG(std::to_string(leftMotor.getCurrentRPM()) + "," + std::to_string(absolute_time_diff_us(now2, get_absolute_time()) / 1e6f) + "," +
+                          std::to_string(rightMotor.getCurrentRPM()));
+                sleep_ms(100);
+            }
+
+            sleep_ms(1000);
+            now = get_absolute_time();
+            leftMotor.setRPM(200.0f * i);
+            rightMotor.setRPM(200.0f * i);
+
+            while (absolute_time_diff_us(now, get_absolute_time()) < 10 * 1e6f) {
+                leftMotor.updatePWM();
+                rightMotor.updatePWM();
+
+                LOG_DEBUG(std::to_string(leftMotor.getCurrentRPM()) + "," + std::to_string(absolute_time_diff_us(now2, get_absolute_time()) / 1e6f) + "," +
+                          std::to_string(rightMotor.getCurrentRPM()));
+
+                sleep_ms(100);
+            }
         }
+        leftMotor.stop();
+
+        // float intendedRPM = 200.0f;
+        // leftMotor.setRPM(intendedRPM);
+        // rightMotor.setRPM(intendedRPM);
+        // while(fabs(leftMotor.getCurrentRPM() - intendedRPM) > 0.1f || fabs(rightMotor.getCurrentRPM() - intendedRPM) > 0.1f) {
+        //     sleep_ms(200);
+        //     leftMotor.updatePWM();
+        //     rightMotor.updatePWM();
+        //     LOG_DEBUG("LRPM: " + std::to_string(leftMotor.getCurrentRPM()) + ", RRPM: " + std::to_string(rightMotor.getCurrentRPM()));
+        // }
         // drivetrain.driveForwardDistance(0.7f);
         // auto feedforwardConstants = calculateFeedforwardConstants(leftMotor, rightMotor);
 
@@ -101,8 +163,8 @@ std::pair<FeedforwardConstants, FeedforwardConstants> calculateFeedforwardConsta
     std::vector<float> rightRPMs;  // measured steady-state RPMs for right motor
 
     // Loop through a series of voltage steps (e.g., 0.5V to 5V)
-    for (int i = 1; i <= 10; i++) {
-        float appliedVoltage = 0.5f * i;
+    for (int i = 1; i <= 25; i++) {
+        float appliedVoltage = 0.2f * i;
 
         // Apply the voltage to both motors simultaneously.
         leftMotor.setVoltage(appliedVoltage, true);
@@ -159,8 +221,11 @@ std::pair<FeedforwardConstants, FeedforwardConstants> calculateFeedforwardConsta
     FeedforwardConstants rightConstants = linearRegression(rightRPMs);
 
     // Log the calculated constants for each motor.
-    LOG_DEBUG("Left Motor Feedforward: kS = " + std::to_string(leftConstants.kS) + ", kV = " + std::to_string(leftConstants.kV));
-    LOG_DEBUG("Right Motor Feedforward: kS = " + std::to_string(rightConstants.kS) + ", kV = " + std::to_string(rightConstants.kV));
+    while (1) {
+        LOG_DEBUG("Left Motor Feedforward: kS = " + std::to_string(leftConstants.kS) + ", kV = " + std::to_string(leftConstants.kV));
+        LOG_DEBUG("Right Motor Feedforward: kS = " + std::to_string(rightConstants.kS) + ", kV = " + std::to_string(rightConstants.kV));
+        sleep_ms(100);
+    }
 
     // Return a pair with left constants first, right constants second.
     return std::make_pair(leftConstants, rightConstants);

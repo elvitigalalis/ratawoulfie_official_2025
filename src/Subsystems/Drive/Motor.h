@@ -89,12 +89,18 @@ class Motor {
     // const float feedforwardLSlope = 0.015257f;    // 0.006180486071f;
     // const float feedforwardRConstant = 1.17717f;  // 3.163033433f;
     // const float feedforwardRSlope = 0.01418f;     // 0.0060479671f;
-    const float feedforwardLConstant = 1.258043f;
-    // const float feedforwardLSlope = 0.014981f;
-    const float feedforwardLSlope = 0.013f;
-    const float feedforwardRConstant = 1.274472f;
-    // const float feedforwardRSlope = 0.014868f;
-    const float feedforwardRSlope = 0.013f;
+   
+    // const float feedforwardLConstant = 1.258043f;
+    // // const float feedforwardLSlope = 0.014981f;
+    // const float feedforwardLSlope = 0.013f;
+    // const float feedforwardRConstant = 1.274472f;
+    // // const float feedforwardRSlope = 0.014868f;
+    // const float feedforwardRSlope = 0.013f;
+
+    const float feedforwardLConstant = 0.565543f;
+    const float feedforwardLSlope = 0.009177f;
+    const float feedforwardRConstant = 0.689846f;
+    const float feedforwardRSlope = 0.009576f;
 
     const float MAX_MOTOR_VOLTAGE = 5.0f;  // Volts.
     const int MAX_MOTOR_PWM = 999;

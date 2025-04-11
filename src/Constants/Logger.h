@@ -20,7 +20,8 @@ class Logger {
             string prefix;
             switch (logLevel) {
                 case LogLevel::DEBUG:
-                    prefix = "[DEBUG] ";
+                    // prefix = "[DEBUG] ";
+                    prefix = "";
                     break;
                 case LogLevel::INFO:
                     prefix = "[INFO] ";
