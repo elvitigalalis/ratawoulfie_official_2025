@@ -11,7 +11,7 @@ Encoder::Encoder(uint encoderPin1, uint encoderPin2, float eventsPerRev, uint sm
       pioInstance(pio0),
       currentCount(0),
       oldEncoderCount(0),
-      currentRPM(0.0f),
+      currentRPM(200.0f),
       bufferIndex(0),
       sampleCount(0),
 
@@ -43,7 +43,7 @@ void Encoder::update() {
     currentCount = getCount();
     double deltaCount = currentCount - oldEncoderCount;
 
-    if (newDeltaTime >= 0.1f) {
+    if (newDeltaTime >= 15.0f / 1000.0f) {
         if (abs(deltaCount) >= 1) {
             oldEncoderCount = currentCount;
             lastUpdateTime = now;

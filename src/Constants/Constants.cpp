@@ -24,6 +24,8 @@ const float kP = 0.0f;
 const float kI = 0.0f;
 const float kD = 0.0f;
 
+const float PIDtime = 50.0f; // in ms.
+
 // DrivetrainConfiguration config = [] {
 // 	DrivetrainConfiguration cfg;
 // 	cfg.maxRPM = 200.0f;

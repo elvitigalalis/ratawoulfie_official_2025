@@ -22,17 +22,25 @@ int main() {
     // leftMotor.setPIDVariables(0.005f, 0.0045f, 0.0f);
     // leftMotor.setPIDVariables(0.005f, 0.0045f, 0.0f);
     // leftMotor.setPIDVariables(0.0150f / 2.0f, 0.1f / 100.0f, 0.1f / 100.0f);
-    leftMotor.setPIDVariables(0.005f, 0.0020f, 0.000675f);
+    // leftMotor.setPIDVariables(0.005f, 0.0020f, 0.000675f);
 
-    rightMotor.setPIDVariables(0.0055f, 0.0025f, 0.000675f);
+    // rightMotor.setPIDVariables(0.0055f, 0.0025f, 0.000675f);
 
+    // leftMotor.setPIDVariables(0.01f, 0.0059f, 0.0f);
+
+    // rightMotor.setPIDVariables(0.0085f, 0.00775f, 0.0f);
+
+    // leftMotor.setPIDVariables(0.0105f, 0.00677f, 0.000675f);
+    leftMotor.setPIDVariables(0.0095f, 0.00677f, 0.000675f);
+
+    rightMotor.setPIDVariables(0.0085f, 0.0075f, 0.000675f);
     DrivetrainConfiguration config = [] {
         DrivetrainConfiguration cfg;
         cfg.maxRPM = 250.0f;
         cfg.maxTurnRPM = 150.0f;
         cfg.encoderCountsPerCell = 2006;  // 180mm / (40.0 mm (wheel diameter) * 3.14 (pi)) * 360 (encoder counts per rev). = 634.6609.
         cfg.wallThreshold = 50;           // mm.
-        cfg.distancePID = {0.0650f, 0.0f, 0.0f};
+        cfg.distancePID = {0.0250f, 0.0f, 0.0675f};
         cfg.turnPID = {0.0f, 0.0f, 0.0f};
         cfg.yawErrorThrewshold = 3;
         cfg.distanceErrorThreshold = 100.0f;
@@ -54,55 +62,69 @@ int main() {
         // for (int i = 1; i <= 5; i++) {
         apiPtr->moveForward(4);
         // }
-        sleep_ms(10000);
-        for (int i = 1; i < 3; i++) {
-            sleep_ms(1000);
-            leftMotor.setRPM(150.0f * i);
-            rightMotor.setRPM(150.0f * i);
-            // float rpmL = measureSteadyStateRPM(leftMotor);
-            // float rpmR = measureSteadyStateRPM(rightMotor);
-            absolute_time_t now = get_absolute_time();
-            while (absolute_time_diff_us(now, get_absolute_time()) < 10 * 1e6f) {
-                leftMotor.updatePWM();
-                rightMotor.updatePWM();
-                // LOG_DEBUG("LRPM: " + std::to_string(leftMotor.getCurrentRPM()) + " RRPM: " + std::to_string(rightMotor.getCurrentRPM()));
-                LOG_DEBUG(std::to_string(leftMotor.getCurrentRPM()) + "," + std::to_string(absolute_time_diff_us(now2, get_absolute_time()) / 1e6f) + "," +
-                          std::to_string(rightMotor.getCurrentRPM()));
+        sleep_ms(3000);
 
-                // LOG_DEBUG("RPM Diff (Left to Right): " + std::to_string(leftMotor.getCurrentRPM() - rightMotor.getCurrentRPM()));
-                sleep_ms(100);
-            }
+        leftMotor.setRPM(150.0f);
+        rightMotor.setRPM(150.0f);
+        absolute_time_t now = get_absolute_time();
+        while (1) {
+            leftMotor.updatePWM();
+            rightMotor.updatePWM();
+            // LOG_DEBUG("LRPM: " + std::to_string(leftMotor.getCurrentRPM()) + " RRPM: " + std::to_string(rightMotor.getCurrentRPM()));
+            LOG_DEBUG(std::to_string(leftMotor.getCurrentRPM()) + "," + std::to_string(absolute_time_diff_us(now2, get_absolute_time()) / 1e6f) + "," +
+                      std::to_string(rightMotor.getCurrentRPM()));
 
-            sleep_ms(1000);
-            now = get_absolute_time();
-            leftMotor.setRPM(100.0f * i);
-            rightMotor.setRPM(100.0f * i);
-
-            while (absolute_time_diff_us(now, get_absolute_time()) < 10 * 1e6f) {
-                leftMotor.updatePWM();
-                rightMotor.updatePWM();
-
-                LOG_DEBUG(std::to_string(leftMotor.getCurrentRPM()) + "," + std::to_string(absolute_time_diff_us(now2, get_absolute_time()) / 1e6f) + "," +
-                          std::to_string(rightMotor.getCurrentRPM()));
-                sleep_ms(100);
-            }
-
-            sleep_ms(1000);
-            now = get_absolute_time();
-            leftMotor.setRPM(200.0f * i);
-            rightMotor.setRPM(200.0f * i);
-
-            while (absolute_time_diff_us(now, get_absolute_time()) < 10 * 1e6f) {
-                leftMotor.updatePWM();
-                rightMotor.updatePWM();
-
-                LOG_DEBUG(std::to_string(leftMotor.getCurrentRPM()) + "," + std::to_string(absolute_time_diff_us(now2, get_absolute_time()) / 1e6f) + "," +
-                          std::to_string(rightMotor.getCurrentRPM()));
-
-                sleep_ms(100);
-            }
+            // LOG_DEBUG("RPM Diff (Left to Right): " + std::to_string(leftMotor.getCurrentRPM() - rightMotor.getCurrentRPM()));
+            sleep_ms(15);
         }
-        leftMotor.stop();
+        // for (int i = 1; i < 3; i++) {
+        //     sleep_ms(1000);
+        //     leftMotor.setRPM(150.0f * i);
+        //     rightMotor.setRPM(150.0f * i);
+        //     // float rpmL = measureSteadyStateRPM(leftMotor);
+        //     // float rpmR = measureSteadyStateRPM(rightMotor);
+        //     absolute_time_t now = get_absolute_time();
+        //     while (absolute_time_diff_us(now, get_absolute_time()) < 10 * 1e6f) {
+        //         leftMotor.updatePWM();
+        //         rightMotor.updatePWM();
+        //         // LOG_DEBUG("LRPM: " + std::to_string(leftMotor.getCurrentRPM()) + " RRPM: " + std::to_string(rightMotor.getCurrentRPM()));
+        //         LOG_DEBUG(std::to_string(leftMotor.getCurrentRPM()) + "," + std::to_string(absolute_time_diff_us(now2, get_absolute_time()) / 1e6f) + "," +
+        //                   std::to_string(rightMotor.getCurrentRPM()));
+
+        //         // LOG_DEBUG("RPM Diff (Left to Right): " + std::to_string(leftMotor.getCurrentRPM() - rightMotor.getCurrentRPM()));
+        //         sleep_ms(100);
+        //     }
+
+        //     sleep_ms(1000);
+        //     now = get_absolute_time();
+        //     leftMotor.setRPM(100.0f * i);
+        //     rightMotor.setRPM(100.0f * i);
+
+        //     while (absolute_time_diff_us(now, get_absolute_time()) < 10 * 1e6f) {
+        //         leftMotor.updatePWM();
+        //         rightMotor.updatePWM();
+
+        //         LOG_DEBUG(std::to_string(leftMotor.getCurrentRPM()) + "," + std::to_string(absolute_time_diff_us(now2, get_absolute_time()) / 1e6f) + "," +
+        //                   std::to_string(rightMotor.getCurrentRPM()));
+        //         sleep_ms(100);
+        //     }
+
+        //     sleep_ms(1000);
+        //     now = get_absolute_time();
+        //     leftMotor.setRPM(200.0f * i);
+        //     rightMotor.setRPM(200.0f * i);
+
+        //     while (absolute_time_diff_us(now, get_absolute_time()) < 10 * 1e6f) {
+        //         leftMotor.updatePWM();
+        //         rightMotor.updatePWM();
+
+        //         LOG_DEBUG(std::to_string(leftMotor.getCurrentRPM()) + "," + std::to_string(absolute_time_diff_us(now2, get_absolute_time()) / 1e6f) + "," +
+        //                   std::to_string(rightMotor.getCurrentRPM()));
+
+        //         sleep_ms(100);
+        //     }
+        // }
+        // leftMotor.stop();
 
         // float intendedRPM = 200.0f;
         // leftMotor.setRPM(intendedRPM);

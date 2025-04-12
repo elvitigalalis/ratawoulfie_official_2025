@@ -142,7 +142,7 @@ void Motor::updatePWM() {
     absolute_time_t currentPIDTime = get_absolute_time();
     float timeDelta = absolute_time_diff_us(lastPIDTime, currentPIDTime) / 1e6f;
 
-    if (timeDelta < 0.1f) {
+    if (timeDelta < 0.015f) {
         return;
     }
     lastPIDTime = currentPIDTime;
@@ -159,6 +159,7 @@ void Motor::updatePWM() {
     float currentRPM = encoder.getRPM();
     float error = desiredRPM - currentRPM;  // Uses float absolute value.
 
+    // if (absolute_time_diff()
     integral = clamp(integral + error * timeDelta, -100.0f, 100.0f);
     derivative = (error - lastError) / timeDelta;
     lastError = error;
@@ -186,7 +187,6 @@ m constant (0.8f) = scaling factor; maps desiredRPM to another PWM value. Higher
     float voltageOutput = feedForward + kP * error + kI * integral + kD * derivative;
     // printf("kP * error: %f\n", kP * error);
     // printf("Feedforward: %f\n", feedForward);
-
     // printf("Error: %f\n", error);
     // printf("Voltage Output: %f\n", voltageOutput);
     // LOG_DEBUG("Voltage Sign: " + std::to_string(!std::signbit(voltageOutput)));

@@ -21,6 +21,8 @@ extern const float maxRPM;
 
 extern const float kP, kI, kD;
 
+extern const float PIDtime;
+
 // extern DrivetrainConfiguration config;
 
 }  // namespace RobotConstants

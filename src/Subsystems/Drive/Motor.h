@@ -97,10 +97,10 @@ class Motor {
     // // const float feedforwardRSlope = 0.014868f;
     // const float feedforwardRSlope = 0.013f;
 
-    const float feedforwardLConstant = 0.565543f;
-    const float feedforwardLSlope = 0.009177f;
-    const float feedforwardRConstant = 0.689846f;
-    const float feedforwardRSlope = 0.009576f;
+    const float feedforwardLConstant = 2.075f;
+    const float feedforwardLSlope = 0.0f;
+    const float feedforwardRConstant = 2.16f;
+    const float feedforwardRSlope = 0.0f;
 
     const float MAX_MOTOR_VOLTAGE = 5.0f;  // Volts.
     const int MAX_MOTOR_PWM = 999;

@@ -10,7 +10,7 @@ Drivetrain::Drivetrain(const DrivetrainConfiguration& config, Motor* leftMotor, 
     leftEncoder = leftMotor->getEncoder();
     rightEncoder = rightMotor->getEncoder();
 
-    currentRPM = 0.0f;
+    // currentRPM = 0.0f;
     currentYaw = desiredYaw = 0;
     isMoving = isTurning = false;
     distanceIntegralL = distanceLastErrorL = distanceDerivativeL = 0.0f;
@@ -261,6 +261,9 @@ void Drivetrain::driveForwardDistance(float cellCount) {
 
         // printf("Control SignalR: %f\n", controlSignalR);
         float adjustedRPMR = std::min(std::max(controlSignalR, -config.maxRPM), config.maxRPM);
+
+        // adjustedRPML = 200.0f;
+        // adjustedRPMR = 200.0f;
 
         // printf("Adjusted RPML: %f\n", adjustedRPML);
         // printf("Adjusted RPMR: %f\n", adjustedRPMR);
