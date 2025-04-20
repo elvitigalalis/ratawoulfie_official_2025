@@ -38,12 +38,12 @@ int main() {
         DrivetrainConfiguration cfg;
         cfg.maxRPM = 250.0f;
         cfg.maxTurnRPM = 150.0f;
-        cfg.encoderCountsPerCell = 2006;  // 180mm / (40.0 mm (wheel diameter) * 3.14 (pi)) * 360 (encoder counts per rev). = 634.6609.
-        cfg.wallThreshold = 50;           // mm.
+        cfg.encoderCountsPerCell = 2006 * 1.9f / 1.8f;  // 180mm / (40.0 mm (wheel diameter) * 3.14 (pi)) * 360 (encoder counts per rev). = 634.6609.
+        cfg.wallThreshold = 50;                         // mm.
         cfg.distancePID = {0.0250f, 0.0f, 0.0675f};
         cfg.turnPID = {0.5f, 0.0f, 0.0f};
         cfg.yawErrorThrewshold = 3;
-        cfg.distanceErrorThreshold = 100.0f;
+        cfg.distanceErrorThreshold = 200.0f;
         return cfg;
     }();
 
@@ -52,7 +52,7 @@ int main() {
     Drivetrain drivetrain(config, &leftMotor, &rightMotor);
 
     try {
-        // sleep_ms(1000);
+        sleep_ms(1000);
 
         mousePtr = new MouseLocal();
         apiPtr = new API(mousePtr, &drivetrain);
@@ -60,32 +60,34 @@ int main() {
         frontierBasedPtr = new FrontierBased();
         // sleep_ms(4000);
 
-        absolute_time_t now2 = get_absolute_time();
+        // absolute_time_t now2 = get_absolute_time();
         // for (int i = 1; i <= 5; i++) {
+        drivetrain.initIMU();
+        // drivetrain.initToF();
+
+        // drivetrain.driveForwardDistance(0.4f); // 90mm = to the center of the cell.
         apiPtr->moveForward(4);
         apiPtr->turnRight();
+        apiPtr->moveForward(1);
         // }
         sleep_ms(3000);
 
-
-
-
-        // leftMotor.setRPM(150.0f);
-        // rightMotor.setRPM(150.0f);
-        absolute_time_t now = get_absolute_time();
-        while (1) {
-            // leftMotor.updatePWM();
-            // rightMotor.updatePWM();
-            // // LOG_DEBUG("LRPM: " + std::to_string(leftMotor.getCurrentRPM()) + " RRPM: " + std::to_string(rightMotor.getCurrentRPM()));
-            // LOG_DEBUG(std::to_string(leftMotor.getCurrentRPM()) + "," + std::to_string(absolute_time_diff_us(now2, get_absolute_time()) / 1e6f) + "," +
-            //           std::to_string(rightMotor.getCurrentRPM()));
-            // LOG_DEBUG("Yaw" + std::to_string(drivetrain.getYaw()))
-            // LOG_DEBUG("RPM Diff (Left to Right): " + std::to_string(leftMotor.getCurrentRPM() - rightMotor.getCurrentRPM()));
-            sleep_ms(15);
-        }
-
-
-
+        // leftMotor.setRPM(-150.0f);
+        // rightMotor.setRPM(-150.0f);
+        // absolute_time_t now = get_absolute_time();
+        // while (1) {
+        //     leftMotor.updatePWM();
+        //     rightMotor.updatePWM();
+        //     LOG_DEBUG("Pos of Left Motor: " + std::to_string(leftMotor.getCurrentPosition()));
+        //     LOG_DEBUG("Pos of Right Motor: " + std::to_string(rightMotor.getCurrentPosition()));
+        //     // LOG_DEBUG("LRPM: " + std::to_string(leftMotor.getCurrentRPM()) + " RRPM: " + std::to_string(rightMotor.getCurrentRPM()));
+        //     // LOG_DEBUG(std::to_string(leftMotor.getCurrentRPM()) + "," + std::to_string(absolute_time_diff_us(now2, get_absolute_time()) / 1e6f) + "," +
+        //     //   std::to_string(rightMotor.getCurrentRPM()));
+        //     // LOG_DEBUG("RPM Diff (Left to Right): " + std::to_string(leftMotor.getCurrentRPM() - rightMotor.getCurrentRPM()));
+        //     sleep_ms(15);
+        // LOG_DEBUG("Left=" + std : to_string(drivetrain.checkLeftWall()) + "Front=" + std : to_string(drivetrain.checkFrontWall()) +
+                //   "Right=" + std : to_string(drivetrain.checkRightWall()));
+        // }
 
         // for (int i = 1; i < 3; i++) {
         //     sleep_ms(1000);

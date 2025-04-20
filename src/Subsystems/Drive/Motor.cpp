@@ -98,6 +98,7 @@ float Motor::voltage() {
 
 void Motor::setRPM(float RPM) {
     desiredRPM = RPM;
+    // LOG_DEBUG("Started");
     start();
 }
 
@@ -152,6 +153,7 @@ void Motor::updatePWM() {
     //                          // printf("Desired RPM: %f\n", desiredRPM);
     if (std::fabs(desiredRPM) < 1e-6) {
         stop();
+        LOG_DEBUG("Stopped motor");
         return;
     }
 
@@ -177,10 +179,14 @@ m constant (0.8f) = scaling factor; maps desiredRPM to another PWM value. Higher
     float feedForward;
     if (isReversed) {
         // LOG_DEBUG("Left:" + std::to_string(feedforwardLConstant + feedforwardLSlope * desiredRPM));
-        feedForward = feedforwardLConstant + feedforwardLSlope * desiredRPM;
+        feedForward = feedforwardLConstant + feedforwardLSlope * std::fabs(desiredRPM);
     } else {
         // LOG_DEBUG("Right:" + std::to_string(feedforwardRConstant + feedforwardRSlope * desiredRPM));
-        feedForward = feedforwardRConstant + feedforwardRSlope * desiredRPM;
+        feedForward = feedforwardRConstant + feedforwardRSlope * std::fabs(desiredRPM);
+    }
+
+    if (desiredRPM < 0.0f) {
+        feedForward *= -1.0f;
     }
     // LOG_DEBUG("Kp = " + std::to_string(kP) + ", Ki = " + std::to_string(kI) + ", Kd = " + std::to_string(kD));
     // LOG_DEBUG("Error: " + std::to_string(error) + "; kP * error: " + std::to_string(kP * error) + "; Voltage Output" + std::to_string(feedForward + kP * error + kI * integral + kD * derivative));
