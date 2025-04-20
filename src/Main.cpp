@@ -41,11 +41,13 @@ int main() {
         cfg.encoderCountsPerCell = 2006;  // 180mm / (40.0 mm (wheel diameter) * 3.14 (pi)) * 360 (encoder counts per rev). = 634.6609.
         cfg.wallThreshold = 50;           // mm.
         cfg.distancePID = {0.0250f, 0.0f, 0.0675f};
-        cfg.turnPID = {0.0f, 0.0f, 0.0f};
+        cfg.turnPID = {0.5f, 0.0f, 0.0f};
         cfg.yawErrorThrewshold = 3;
         cfg.distanceErrorThreshold = 100.0f;
         return cfg;
     }();
+
+    //         cfg.distancePID = {0.0250f, 0.0f, 0.0675f};
 
     Drivetrain drivetrain(config, &leftMotor, &rightMotor);
 
@@ -61,22 +63,30 @@ int main() {
         absolute_time_t now2 = get_absolute_time();
         // for (int i = 1; i <= 5; i++) {
         apiPtr->moveForward(4);
+        apiPtr->turnRight();
         // }
         sleep_ms(3000);
 
-        leftMotor.setRPM(150.0f);
-        rightMotor.setRPM(150.0f);
+
+
+
+        // leftMotor.setRPM(150.0f);
+        // rightMotor.setRPM(150.0f);
         absolute_time_t now = get_absolute_time();
         while (1) {
-            leftMotor.updatePWM();
-            rightMotor.updatePWM();
-            // LOG_DEBUG("LRPM: " + std::to_string(leftMotor.getCurrentRPM()) + " RRPM: " + std::to_string(rightMotor.getCurrentRPM()));
-            LOG_DEBUG(std::to_string(leftMotor.getCurrentRPM()) + "," + std::to_string(absolute_time_diff_us(now2, get_absolute_time()) / 1e6f) + "," +
-                      std::to_string(rightMotor.getCurrentRPM()));
-
+            // leftMotor.updatePWM();
+            // rightMotor.updatePWM();
+            // // LOG_DEBUG("LRPM: " + std::to_string(leftMotor.getCurrentRPM()) + " RRPM: " + std::to_string(rightMotor.getCurrentRPM()));
+            // LOG_DEBUG(std::to_string(leftMotor.getCurrentRPM()) + "," + std::to_string(absolute_time_diff_us(now2, get_absolute_time()) / 1e6f) + "," +
+            //           std::to_string(rightMotor.getCurrentRPM()));
+            // LOG_DEBUG("Yaw" + std::to_string(drivetrain.getYaw()))
             // LOG_DEBUG("RPM Diff (Left to Right): " + std::to_string(leftMotor.getCurrentRPM() - rightMotor.getCurrentRPM()));
             sleep_ms(15);
         }
+
+
+
+
         // for (int i = 1; i < 3; i++) {
         //     sleep_ms(1000);
         //     leftMotor.setRPM(150.0f * i);

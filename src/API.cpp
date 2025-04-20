@@ -181,7 +181,7 @@ void API::turnRight() {
     bool ack = getAck("turnRight");
     if (ack) {
         printf("turnRight ack\n");
-        drivetrain->turnRight();
+        drivetrain->rotateBy(90);
         printf("drivetrain rotated\n");
         mouseLocal->turnMouseLocal(0, 2);
         printf("mouseLocal turned\n");
@@ -199,7 +199,7 @@ void API::turnRight() {
 void API::turnLeft() {
     bool ack = getAck("turnLeft");
     if (ack) {
-        drivetrain->turnLeft();
+        drivetrain->rotateBy(-90);
         mouseLocal->turnMouseLocal(2, 0);
     } else {
         cerr << mouseLocal->localMazeToString();

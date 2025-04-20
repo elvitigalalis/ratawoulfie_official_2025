@@ -20,7 +20,7 @@ Drivetrain::Drivetrain(const DrivetrainConfiguration& config, Motor* leftMotor, 
     lastUpdateTime = get_absolute_time();
     oldEncoderCountL = 0;
     oldEncoderCountR = 0;
-    // initIMU();
+    initIMU();
     // initToF();
 }
 
@@ -215,8 +215,8 @@ void Drivetrain::driveForwardDistance(float cellCount) {
         int errorL = (targetPos - leftMotor->getEncoder()->getCount());
         int errorR = (targetPos - rightMotor->getEncoder()->getCount());
 
-        LOG_DEBUG(std::to_string(leftMotor->getCurrentRPM()) + "," + std::to_string(absolute_time_diff_us(now2, get_absolute_time()) / 1e6f) + "," +
-                  std::to_string(rightMotor->getCurrentRPM()));
+        // LOG_DEBUG(std::to_string(leftMotor->getCurrentRPM()) + "," + std::to_string(absolute_time_diff_us(now2, get_absolute_time()) / 1e6f) + "," +
+        //           std::to_string(rightMotor->getCurrentRPM()));
         // printf("ErrorLR=%f\n", (errorL + errorR) / 2.0 / config.encoderCountsPerCell);
 
         // Left
@@ -232,10 +232,10 @@ void Drivetrain::driveForwardDistance(float cellCount) {
             controlSignalL = 0.0f;
         } else if (errorL < 0) {
             controlSignalL =
-                std::min(-75.0f, config.distancePID.kP * errorL + config.distancePID.kI * distanceIntegralL + config.distancePID.kD * distanceDerivativeL);
+                std::min(-150.0f, config.distancePID.kP * errorL + config.distancePID.kI * distanceIntegralL + config.distancePID.kD * distanceDerivativeL);
         } else {
             controlSignalL =
-                std::max(75.0f, config.distancePID.kP * errorL + config.distancePID.kI * distanceIntegralL + config.distancePID.kD * distanceDerivativeL);
+                std::max(150.0f, config.distancePID.kP * errorL + config.distancePID.kI * distanceIntegralL + config.distancePID.kD * distanceDerivativeL);
         }
 
         // Right
@@ -250,10 +250,10 @@ void Drivetrain::driveForwardDistance(float cellCount) {
             controlSignalR = 0.0f;
         } else if (errorR < 0) {
             controlSignalR =
-                std::min(-75.0f, config.distancePID.kP * errorR + config.distancePID.kI * distanceIntegralR + config.distancePID.kD * distanceDerivativeR);
+                std::min(-150.0f, config.distancePID.kP * errorR + config.distancePID.kI * distanceIntegralR + config.distancePID.kD * distanceDerivativeR);
         } else {
             controlSignalR =
-                std::max(75.0f, config.distancePID.kP * errorR + config.distancePID.kI * distanceIntegralR + config.distancePID.kD * distanceDerivativeR);
+                std::max(150.0f, config.distancePID.kP * errorR + config.distancePID.kI * distanceIntegralR + config.distancePID.kD * distanceDerivativeR);
         }
 
         // printf("Control SignalL: %f\n", controlSignalL);
@@ -265,10 +265,30 @@ void Drivetrain::driveForwardDistance(float cellCount) {
         // adjustedRPML = 200.0f;
         // adjustedRPMR = 200.0f;
 
+        // Adjusts RPM of either motor if angle is off
+        float error = abs(currentYaw - desiredYaw);
+        if (error > 180) {
+            error = 360 - error;
+        }
+        bool right = false;
+        if (currentYaw - desiredYaw > 0) {
+            right = false;
+        } else {
+            right = true;
+        }
+        if (abs(currentYaw - desiredYaw) > 180) {
+            right = !right;
+        }
+        if (right) {
+            error *= -1;
+        }
+        leftMotor->setRPM(std::min(adjustedRPML - 4.0f * error, (adjustedRPML + 100)));
+        rightMotor->setRPM(std::min(adjustedRPMR + 4.0f * error, (adjustedRPMR + 100)));
+
         // printf("Adjusted RPML: %f\n", adjustedRPML);
         // printf("Adjusted RPMR: %f\n", adjustedRPMR);
-        leftMotor->setRPM(adjustedRPML);
-        rightMotor->setRPM(adjustedRPMR);
+        // leftMotor->setRPM(adjustedRPML);
+        // rightMotor->setRPM(adjustedRPMR);
         lastUpdateTime = get_absolute_time();
 
         if (fabs(errorL) < config.distanceErrorThreshold && fabs(errorR) < config.distanceErrorThreshold) {
@@ -408,7 +428,7 @@ void Drivetrain::executeTurningControl() {
     turningIntegral += error * dt;
     turningDerivative = (error - turningLastError) / dt;
     turningLastError = error;
-    float controlSignal = config.turnPID.kP * error + config.turnPID.kI * turningIntegral + config.turnPID.kD * turningDerivative;
+    float controlSignal = config.turnPID.kP * error + config.turnPID.kI * turningIntegral + config.turnPID.kD * turningDerivative + 50.0f;
 
     if (abs(error) < config.yawErrorThrewshold) {
         isTurning = false;
@@ -416,6 +436,7 @@ void Drivetrain::executeTurningControl() {
         return;
     }
 
+    LOG_DEBUG("Control signal" + std::to_string(controlSignal));
     leftMotor->setRPM(controlSignal);
     rightMotor->setRPM(-controlSignal);
 }
