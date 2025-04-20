@@ -62,7 +62,7 @@ int main() {
 
         // absolute_time_t now2 = get_absolute_time();
         // for (int i = 1; i <= 5; i++) {
-        drivetrain.initIMU();
+        // drivetrain.initIMU();
         // drivetrain.initToF();
 
         // drivetrain.driveForwardDistance(0.4f); // 90mm = to the center of the cell.

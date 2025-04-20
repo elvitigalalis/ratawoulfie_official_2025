@@ -20,7 +20,7 @@ Drivetrain::Drivetrain(const DrivetrainConfiguration& config, Motor* leftMotor, 
     lastUpdateTime = get_absolute_time();
     oldEncoderCountL = 0;
     oldEncoderCountR = 0;
-    // initIMU();
+    initIMU();
     // initToF();
 }
 
